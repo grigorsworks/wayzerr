@@ -2,6 +2,8 @@
 
 **AI bots that work like teammates.** Each bot has its own personality and memory, its own browser, and (on Apple silicon Macs, Windows PCs and Linux computers) its own small Linux computer it can use. You bring the AI you already pay for (ChatGPT, Claude, Gemini or your own key). Bots can run tasks on a schedule, use your connected apps, and you can chat with them from your phone.
 
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-ffdd00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/wayzerr)
+
 Download the app, see videos and read the FAQ at **https://wayzerr.com**. This repository is the source code of the desktop app (Mac, Windows and Linux).
 
 > The Mac and Windows downloads are not code-signed yet, so your system shows a warning the first time you open them. The download page explains how to open them.
