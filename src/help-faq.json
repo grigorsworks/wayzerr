@@ -1,0 +1,74 @@
+[
+  {
+    "q": "What is Wayzerr?",
+    "a": "Wayzerr gives you AI bots, each with its own personality, memory and tools. Ask them questions, or have them research, write, plan, and use the web and your apps for you. Your chats stay on your computer."
+  },
+  {
+    "q": "Why use Wayzerr?",
+    "a": "Each bot has its own personality and memory, so you stop explaining yourself every time. It uses the AI plan you already pay for, has its own computer (a small Linux desktop that runs only inside Wayzerr) and its own browser, and keeps your chats on your computer. You can give one bot a job each: homework, your inbox, the news."
+  },
+  {
+    "q": "Is Wayzerr free?",
+    "a": "Wayzerr itself is free. The AI behind your bots is what costs money, and that depends on how you connect it: a plan you already have (Cloud) costs nothing extra, and an API key is charged by the company that gave you the key."
+  },
+  {
+    "q": "How do I connect an AI?",
+    "a": "Open Settings → AI & apps. Under Cloud, sign in with a Claude, ChatGPT, Gemini or other plan you already pay for. No key needed. Under API, paste a key from OpenAI, Anthropic, Google and others. You can connect several and pick one for each bot with the model button next to the message box."
+  },
+  {
+    "q": "Cloud or API key: which should I use?",
+    "a": "Cloud uses a plan you already have, so there's nothing extra to pay. An API key charges per use, gives you more models and is needed for good pictures. Start with Cloud and add an API key later if you want one."
+  },
+  {
+    "q": "Is my data private?",
+    "a": "Chats, memories and saved logins stay on your computer, and logins are encrypted. Your messages go only to the AI you picked. Your Wayzerr account is only your email address, and Wayzerr sends no usage statistics. Details are in Settings → General → Privacy."
+  },
+  {
+    "q": "How do I make a new bot or a group chat?",
+    "a": "Press the + at the top of the sidebar. Give the bot a name and a short description (they decide who it is), pick its look and create it. For a group, choose New group in the same place and pick the bots. They can talk to each other."
+  },
+  {
+    "q": "Can a bot do things by itself at a certain time?",
+    "a": "Yes. Open a bot, press the monitor button, and choose the Schedule tab. Press New task, say what the bot should do, then pick the date, time and how often (once, every day, every week and more). Press Open calendar for the full week view: drag a bot onto any time to schedule it, and open Run logs to see what happened. You can also just tell a bot in the chat (\"every morning at 8, read me the news\") and it sets it up. Wayzerr has to be open at that time; it keeps the computer awake while tasks are waiting."
+  },
+  {
+    "q": "Why do my messages use so many tokens, and how do I use fewer?",
+    "a": "Every message re-sends the whole chat plus the AI's own built-in instructions, and a long chat keeps growing. Click the bot's name and press Compact chat to shrink it. A blue dot shows when it's worth doing. In Settings → General, AI usage set to Low saves the most."
+  },
+  {
+    "q": "How do I connect Gmail, Drive or Classroom?",
+    "a": "Open Settings → AI & apps → Connectors and press Connect on an app. You don’t need a key. If you already have your own Composio key you can paste it there instead. Or tell a bot \"use your computer\" and it works in its own computer instead."
+  },
+  {
+    "q": "Can a bot use websites and log in for me?",
+    "a": "Yes. A bot can use the browser (quick, for reading pages, clicking and forms) and, on Apple silicon Macs, Windows PCs and Linux computers, its own computer. The Screen panel on the right shows them live: click one to open it full screen, where you can log in yourself too. Saved passwords live in Settings → General → Passwords & cards, and bots never see them."
+  },
+  {
+    "q": "How do I stop an answer, try again, or find an old message?",
+    "a": "Press the square Stop button in the message box. If a reply fails, press Try again. Press ⌘K (Ctrl+K on Windows and Linux) to search all your chats, and ↑ in the message box to bring back your last message."
+  },
+  {
+    "q": "Why do my pictures look bad, and how do I get better ones?",
+    "a": "Without a picture AI, bots use a free service that makes lower quality pictures. For better ones add an OpenAI, Gemini, OpenRouter or xAI API key in Settings → AI & apps → API. A ChatGPT cloud plan can't make pictures here."
+  },
+  {
+    "q": "Which computers does it work on?",
+    "a": "Wayzerr runs on Mac (macOS 13 or newer, Intel and Apple silicon), on Windows 10 and 11 (64-bit) and on Linux (Ubuntu, Debian and other 64-bit Linux, including ARM). Windows and Linux are in beta. A bot’s own computer works on Apple silicon Macs, Windows PCs and Linux computers. An Intel Mac can run Wayzerr too, but its bots use the browser instead."
+  },
+  {
+    "q": "How do I update Wayzerr?",
+    "a": "When a new version is out, an update card appears in the app. Press Restart to update and it installs itself. You can also pick a downloaded installer in Settings → General → Advanced → Install an update from a file."
+  },
+  {
+    "q": "My Mac says it can't open Wayzerr",
+    "a": "Right-click Wayzerr in Applications, choose Open, then Open again. If it still blocks it, go to System Settings → Privacy & Security and press Open Anyway. You only need to do this the first time."
+  },
+  {
+    "q": "Can a bot run apps on my computer?",
+    "a": "Yes, but not on your own computer itself. On Apple silicon Macs, Windows PCs and Linux computers every bot can have its own Linux computer inside Wayzerr. It is an optional one-time download (already compressed: about 1 GB on a Mac, about 580 MB on Windows and about 530 MB on Linux); each bot then adds only what it installs. A bot can open a terminal there, install apps, test them and keep going when a search or the browser can't do the job. It cannot touch your files except the shared Wayzerr Files folder in your home folder. On Windows it runs fastest with “Windows Hypervisor Platform” turned on in Windows Features. On Linux it needs QEMU (and KVM for full speed), and Wayzerr tells you what to install. An Intel Mac can’t have a computer, but its bots can use the built-in browser. The browser is built into Wayzerr: turning it on downloads nothing."
+  },
+  {
+    "q": "How do I delete my data?",
+    "a": "Click your picture, then Delete account. It erases your bots, chats, memories and saved logins from this computer and restarts Wayzerr fresh."
+  }
+]

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Wayzerr: entitlements for the main app AND all Electron helpers (use it for both
+  "entitlements" and "entitlementsInherit" in package.json). Hardened runtime ON.
+
+  Deliberately NOT here:
+    com.apple.security.get-task-allow            (notarization rejects it)
+    com.apple.security.app-sandbox               (Wayzerr cannot be sandboxed: VM, osascript, npm, tunnels)
+    com.apple.security.virtualization / hypervisor
+        -> not for this process. QEMU is a separate program; the hypervisor entitlement goes on the
+           qemu binary itself (see entitlements.qemu.plist).
+    com.apple.security.device.camera             (nothing in Wayzerr uses the camera)
+    com.apple.security.cs.allow-dyld-environment-variables (not needed)
+-->
+<plist version="1.0">
+<dict>
+  <!-- Chromium / V8 / WebAssembly (whisper speech model) just-in-time code -->
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+  <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+  <true/>
+
+  <!-- Microphone for voice / Talk mode (getUserMedia runs in an Electron helper process,
+       so this must also be on the inherited entitlements) -->
+  <key>com.apple.security.device.audio-input</key>
+  <true/>
+
+  <!-- src/mymac.js drives System Events through /usr/bin/osascript (keystrokes) -->
+  <key>com.apple.security.automation.apple-events</key>
+  <true/>
+
+  <!--
+    OPTIONAL, off by default. Turn on ONLY if connectors that use a native add-on (.node file signed by someone else)
+    fail with "library load disallowed by system policy". It is needed while the `node` that npx uses is
+    Wayzerr's own binary (src/runtime.js:36, ELECTRON_RUN_AS_NODE). The proper fix is a separate, signed node
+    binary in Contents/Resources (then this key moves to that binary only).
+
+  <key>com.apple.security.cs.disable-library-validation</key>
+  <true/>
+  -->
+</dict>
+</plist>

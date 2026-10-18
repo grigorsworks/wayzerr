@@ -1,0 +1,135 @@
+{
+  "name": "wayzerr-app",
+  "version": "1.3.32",
+  "description": "Wayzerr \u2014 AI bots with their own personalities, memory, browser and tools",
+  "main": "src/main.js",
+  "author": "Wayzerr",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.1",
+    "jsqr": "^1.4.0",
+    "node-forge": "^1.3.1",
+    "npm": "^12.1.0",
+    "qrcode": "^1.5.4"
+  },
+  "productName": "Wayzerr",
+  "updateFeed": "https://github.com/grigorsworks/persona/releases/latest/download/latest.json",
+  "updateFeedBackup": "https://nexarium.netlify.app/latest.json",
+  "updateFeedCloud": "https://wayzerr.com/latest.json",
+  "accountUrl": "https://wayzerr.com",
+  "build": {
+    "appId": "com.persona.app",
+    "productName": "Wayzerr",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/npm/**"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dir",
+      "extendInfo": {
+        "PersonaNotes": "Safer updates: Wayzerr now checks that a downloaded update is the exact file that was published, and that it is validly signed, before installing it. | Sites that a bot visits in its browser can no longer ask for your camera, microphone, location or notifications. | The Files connector can no longer be tricked into reading files outside the shared folder. | Approving a card or login from the phone now needs Touch ID on the Mac, like in the Mac window. | Bots are told that text from web pages and emails is information, never orders, and to ask you before sending, posting, paying or deleting because of it. | Wayzerr no longer uploads updates from your Downloads folder, and no longer removes macOS security flags from the phone helper. | The helper that links your phone is now a fixed, checked version, and only Wayzerr's own window can send commands to the app's inside. | Clearer permission descriptions, and two extra safety locks on the app itself.",
+        "NSMicrophoneUsageDescription": "Wayzerr uses the microphone when you talk to your bots (speech to text).",
+        "WayzerrNotes": "Safer updates: Wayzerr now checks that a downloaded update is the exact file that was published, and that it is validly signed, before installing it. | Sites that a bot visits in its browser can no longer ask for your camera, microphone, location or notifications. | The Files connector can no longer be tricked into reading files outside the shared folder. | Approving a card or login from the phone now needs Touch ID on the Mac, like in the Mac window. | Bots are told that text from web pages and emails is information, never orders, and to ask you before sending, posting, paying or deleting because of it. | Wayzerr no longer uploads updates from your Downloads folder, and no longer removes macOS security flags from the phone helper. | The helper that links your phone is now a fixed, checked version, and only Wayzerr's own window can send commands to the app's inside. | Clearer permission descriptions, and two extra safety locks on the app itself.",
+        "NSAppleEventsUsageDescription": "Wayzerr uses System Events to click and type on your Mac, only when you let a bot control it.",
+        "NSDownloadsFolderUsageDescription": "Wayzerr saves pictures you choose to download here. It only looks for an update file here when you press Check for updates and the update server cannot be reached.",
+        "NSLocalNetworkUsageDescription": "Wayzerr lets your phone connect to this Mac over your Wi-Fi when you switch on Phone.",
+        "NSCameraUsageDescription": "Wayzerr does not use the camera.",
+        "NSBluetoothAlwaysUsageDescription": "Wayzerr does not use Bluetooth.",
+        "NSBluetoothPeripheralUsageDescription": "Wayzerr does not use Bluetooth.",
+        "NSAudioCaptureUsageDescription": "Wayzerr does not record the sound of other apps."
+      },
+      "identity": "-",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "buildVersion": "202610180900",
+    "dmg": {
+      "artifactName": "Wayzerr.dmg",
+      "background": "build/dmg-background.tiff",
+      "contents": [
+        {
+          "x": 150,
+          "y": 190
+        },
+        {
+          "x": 430,
+          "y": 190,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 580,
+        "height": 460
+      }
+    },
+    "afterPack": "scripts/after-pack.js",
+    "win": {
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "artifactName": "Wayzerr-Setup.${ext}",
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico"
+    },
+    "linux": {
+      "icon": "build/icons",
+      "target": [
+        "deb",
+        "AppImage"
+      ],
+      "category": "Utility",
+      "executableName": "wayzerr",
+      "maintainer": "Wayzerr <hello@wayzerr.com>",
+      "artifactName": "Wayzerr-${version}-linux-${arch}.${ext}",
+      "synopsis": "AI bots with memory and their own computer"
+    },
+    "deb": {
+      "depends": [
+        "libgtk-3-0",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0",
+        "libuuid1",
+        "libsecret-1-0"
+      ]
+    },
+    "electronFuses": {
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "onlyLoadAppFromAsar": true
+    }
+  },
+  "devDependencies": {
+    "electron": "44.4.5",
+    "electron-builder": "26.15.3",
+    "resedit": "^1.7.0"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac dir --arm64 -p never"
+  },
+  "homepage": "https://wayzerr.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grigorsworks/wayzerr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/grigorsworks/wayzerr/issues"
+  }
+}

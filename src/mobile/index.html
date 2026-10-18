@@ -1,0 +1,1256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<title>Wayzerr</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Wayzerr">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/icon.png">
+<link rel="manifest" id="mf" href="/manifest.json">
+<script>
+(function(){var mq=window.matchMedia('(prefers-color-scheme: dark)'),t='system';try{t=localStorage.getItem('wz-theme')||'system'}catch(e){}
+function apply(){var light=t==='light'||(t==='system'&&!mq.matches);document.documentElement.classList.toggle('light',light);var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute('content',light?'#ffffff':'#0a0a0a');}
+window.setTheme=function(v){if(!v||v===t)return;t=v;try{localStorage.setItem('wz-theme',t)}catch(e){}apply();};
+mq.addEventListener&&mq.addEventListener('change',apply);apply();document.addEventListener('DOMContentLoaded',apply);})();
+</script>
+<style>
+:root{--bg:#0a0a0a;--raise:#151515;--fill:#1c1c1c;--fill2:#262626;--line:#242424;--line2:#2e2e2e;--ink:#f2f2f2;--mute:#9a9a9a;--dim:#6b6b6b;
+  --bubble:#252525;--me:#4a4a4a;--brand:#ff6b5b;--link:#9cc3ff;--ok:#4ade80;
+  --top:env(safe-area-inset-top,0px);--bot:env(safe-area-inset-bottom,0px);--ease:cubic-bezier(.22,.8,.24,1);color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased;overscroll-behavior:none;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+svg{display:block}
+.screen{position:fixed;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;background:var(--bg);transition:transform .38s var(--ease)}
+html.kb .screen{bottom:auto;height:var(--vh)}
+.screen.away{transform:translateX(100%)}
+.screen.under{transform:translateX(-22%)}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+
+/* ---------- bot list ---------- */
+.top{padding:calc(var(--top) + 12px) 18px 8px;flex:none}
+.toprow{display:flex;align-items:center;justify-content:space-between}
+.top h1{font-size:30px;font-weight:700;letter-spacing:-.03em;margin:0}
+.me{width:36px;height:36px;border-radius:50%;background:var(--fill2);border:1px solid var(--line2);color:var(--ink);font-weight:600;font-size:15px;display:grid;place-items:center}
+.status{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--mute);margin-top:2px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none}
+.dot.off{background:#ff6b6b}
+.list{padding:6px 10px calc(var(--bot) + 24px);display:flex;flex-direction:column;gap:2px}
+.row{display:flex;gap:12px;align-items:center;padding:10px 10px;width:100%;text-align:left;border-radius:14px;transition:background .15s}
+.row:active{background:var(--raise)}
+.av{width:46px;height:46px;flex:none;display:grid;place-items:center;position:relative}
+.av .grp{position:relative;width:46px;height:46px}
+.av .grp>*{position:absolute;width:30px;height:30px}
+.av .grp>*:nth-child(1){left:0;top:0}.av .grp>*:nth-child(2){right:0;bottom:0}
+.char{display:inline-block;position:relative}.c-3d{display:block}
+.c-dots,.c-fx,.c-swirl,.c-trail,.c-sparkles,.c-slab{display:none}
+.rt{flex:1;min-width:0}
+.rt .n{display:flex;align-items:center;gap:7px;font-weight:600;font-size:16px}
+.rt .n .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt .n .tag{font-size:12.5px;font-weight:500;color:var(--mute);background:var(--fill);border:1px solid var(--line2);border-radius:6px;padding:1px 6px;white-space:nowrap;flex:none}
+.rt .n time{margin-left:auto;font-weight:400;font-size:13px;color:var(--dim);flex:none}
+.rt .p{color:var(--mute);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.shim,.rt .p.busy{background:linear-gradient(90deg,#6f6f6f 0%,#6f6f6f 35%,#eaeaea 50%,#6f6f6f 65%,#6f6f6f 100%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 1.8s linear infinite}
+@keyframes shimmer{from{background-position:100% 0}to{background-position:-150% 0}}
+.note{margin:6px 16px 4px;padding:12px 14px;border-radius:16px;background:var(--raise);border:1px solid var(--line);font-size:14px;color:var(--mute);display:flex;gap:10px;align-items:flex-start}
+.note b{color:var(--ink);font-weight:600}
+.note .x{margin-left:auto;color:var(--dim);font-size:22px;line-height:18px;padding:0 2px}
+.upd{margin:6px 16px 4px;padding:12px 12px 12px 16px;border-radius:16px;background:var(--raise);border:1px solid var(--line2);display:flex;align-items:center;gap:12px}
+.upd-t{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13.5px;color:var(--mute)}
+.upd-t b{color:var(--ink);font-size:15px;font-weight:600}
+.upd button{height:36px;padding:0 16px;border-radius:99px;background:#fff;color:#000;font-weight:600;font-size:14.5px;flex:none}
+.upd button:disabled{opacity:.5}
+
+/* ---------- chat ---------- */
+.bar{padding:calc(var(--top) + 6px) 8px 8px;display:flex;align-items:center;gap:6px;flex:none;background:linear-gradient(var(--bg) 70%,rgba(10,10,10,0));z-index:2;position:relative}
+.icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;flex:none;color:var(--mute)}
+.icon:active{background:var(--fill)}
+.icon svg{width:22px;height:22px}
+.who{flex:1;min-width:0;display:flex;justify-content:center}
+.botpill{display:flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 6px;border-radius:19px;background:#161616;border:1px solid var(--line2);max-width:100%;min-width:0}
+.botpill .av,.botpill .av .grp{width:28px;height:28px}
+.botpill .av .grp>*{width:19px;height:19px}
+.botpill b{font-weight:600;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.who.title b{font-weight:600;font-size:17px}
+.screenbtn{position:relative}
+.screenbtn.live{color:var(--ink)}
+.screenbtn.live::after{content:"";position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.msgs{padding:8px 14px 10px;display:flex;flex-direction:column;gap:8px}
+.m{max-width:85%;word-wrap:break-word;overflow-wrap:anywhere;padding:10px 15px;border-radius:20px;font-size:15.5px;line-height:1.5;animation:msgIn .4s var(--ease) both}
+.m.user{align-self:flex-end;background:var(--me)}
+.m.assistant{align-self:flex-start;background:#2c2c2e;border:1px solid rgba(255,255,255,.07)}
+.m.assistant.pic-m{padding:4px}.genimg{display:block;width:100%;max-width:280px;border-radius:16px}
+.m.assistant .by{font-size:13px;color:var(--mute);font-weight:600;margin-bottom:2px}
+.udot{width:9px;height:9px;border-radius:50%;background:#3b8cff;flex-shrink:0;margin-left:6px}
+.m.activity.talk{display:flex;align-items:center;gap:5px;justify-content:center}
+.m.activity.talk b{font-weight:500}
+.m.activity{align-self:center;background:none;padding:2px 0;font-size:13px;color:var(--dim);max-width:92%;text-align:center}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px) scale(.985)}}
+.m p{margin:0 0 8px}.m p:last-child{margin:0}
+.m ul{margin:4px 0 8px;padding-left:20px}.m li{margin:3px 0}
+.m a{color:var(--link);text-decoration:none}
+.m code{font-family:ui-monospace,Menlo,monospace;font-size:13.5px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:5px}
+.m .h{font-weight:700;margin:10px 0 4px}
+.m .pic{font-size:13px;color:#d0d0d0;margin-bottom:2px}
+.m .ask{margin-top:8px;font-size:13px;color:var(--mute)}
+.card{align-self:flex-start;display:flex;align-items:center;gap:12px;background:var(--raise);border:1px solid var(--line2);border-radius:18px;padding:12px 12px 12px 14px;max-width:92%}
+.card .grow{flex:1;min-width:0}
+.card b{display:block;font-size:15px}
+.card small{display:block;color:var(--mute);font-size:13px}
+.card button{height:34px;padding:0 14px;border-radius:99px;border:1px solid var(--line2);font-size:13.5px;font-weight:500;flex:none}
+.card .done{color:var(--mute);font-size:13px;flex:none}
+.typing{align-self:flex-start;padding:6px 4px;font-size:14px}
+.watch{align-self:flex-start;display:flex;align-items:center;gap:10px;background:var(--raise);border:1px solid var(--line2);border-radius:16px;padding:6px 12px 6px 6px;font-size:14px;color:var(--ink);text-align:left}
+.watch img{width:72px;height:45px;object-fit:cover;object-position:top;border-radius:10px;background:#fff}
+.watch span{color:var(--mute)}
+
+/* the message bar */
+.compose{flex:none;padding:4px 8px max(6px,calc(var(--bot) - 22px));background:var(--bg)}
+html.kb .compose{padding-bottom:8px}
+.tray{display:flex;gap:8px;padding:2px 4px 8px}
+.tray div{position:relative}
+.tray img{width:60px;height:60px;border-radius:14px;object-fit:cover;border:1px solid var(--line2)}
+.tray button{position:absolute;top:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:#3a3a3a;color:#fff;font-size:14px;line-height:22px;text-align:center}
+.pill{display:flex;align-items:flex-end;gap:6px;background:#1b1b1b;border:1px solid var(--line2);border-radius:27px;padding:6px;transition:border-color .2s}
+.pill:focus-within{border-color:#3d3d3d}
+.plus{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none;color:#b4b4b4;border:1px solid var(--line2)}
+.plus:active{background:#262626}
+.plus svg{width:20px;height:20px}
+.pill textarea{flex:1;min-width:0;resize:none;border:0;outline:none;background:transparent;color:var(--ink);font:16px/1.4 -apple-system,BlinkMacSystemFont,sans-serif;padding:8px 2px;max-height:132px;min-height:38px}
+.pill textarea::placeholder{color:#6b6b6b}
+.micbtn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none;color:var(--dim,#999)}
+.micbtn svg{width:22px;height:22px}
+.micbtn .spin{width:18px;height:18px;border-color:#555;border-top-color:#fff}
+.micbtn.rec{width:auto;padding:0 12px;gap:6px;display:inline-flex;align-items:center;border-radius:19px;background:rgba(255,77,77,.16);color:#ff7070;font:600 13px ui-monospace,Menlo,monospace}
+.micbtn.rec i{width:9px;height:9px;border-radius:50%;background:#ff4d4d;animation:recp 1.1s infinite}
+@keyframes recp{50%{opacity:.35}}
+.go{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none;background:#fff;color:#000;transition:transform .2s,opacity .2s}
+.go:active{transform:scale(.9)}
+.go:disabled{opacity:.25}
+.go svg{width:19px;height:19px}
+
+/* ---------- live browser ---------- */
+.sheet{position:fixed;inset:0;z-index:5;background:var(--bg);display:flex;flex-direction:column;transform:translateY(100%);transition:transform .38s var(--ease)}
+.sheet.open{transform:none}
+.url{flex:1;min-width:0;height:36px;border-radius:12px;background:var(--fill);border:1px solid var(--line2);display:flex;align-items:center;gap:6px;padding:0 12px;font-size:13.5px;color:var(--mute)}
+.url span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.url svg{width:13px;height:13px;flex:none}
+.view{flex:1;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;position:relative;touch-action:none;background:var(--bg)}
+.view img{width:100%;height:auto;display:block;user-select:none;-webkit-user-drag:none;border-radius:0}
+.view .tapfx{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid #fff;pointer-events:none;animation:tapfx .5s forwards}
+@keyframes tapfx{from{transform:scale(.4);opacity:1}to{transform:scale(1.3);opacity:0}}
+.empty{padding:70px 30px;text-align:center;color:var(--mute);font-size:15px}
+.empty h2{color:var(--ink);font-size:21px;letter-spacing:-.02em;margin:16px 0 6px}
+.sheetfoot{flex:none;padding:10px 16px max(10px,calc(var(--bot) - 8px));font-size:13px;color:var(--dim);text-align:center}
+
+/* ---------- settings ---------- */
+.set{padding:6px 16px calc(var(--bot) + 40px)}
+.profile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 0 6px}
+.bigme{width:76px;height:76px;border-radius:50%;background:var(--fill2);border:1px solid var(--line2);color:var(--ink);font-weight:600;font-size:32px;display:grid;place-items:center}
+.profile input{background:none;border:0;outline:none;color:var(--ink);font-size:22px;font-weight:700;text-align:center;letter-spacing:-.02em;width:100%;padding:4px}
+.profile input:focus{background:var(--fill);border-radius:12px}
+.sub2{color:var(--mute);font-size:13.5px}
+.grp-t{font-size:13px;color:var(--dim);font-weight:500;margin:24px 6px 8px}
+.group{background:var(--raise);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.it{display:flex;align-items:center;gap:12px;padding:12px 14px;width:100%;text-align:left;min-height:54px}
+.it+.it{border-top:1px solid var(--line)}
+.it.tap:active{background:var(--fill)}
+.it .grow{flex:1;min-width:0}
+.it b{display:block;font-weight:500;font-size:15.5px}
+.it small{display:block;color:var(--mute);font-size:13px}
+.it .ico{width:30px;height:30px;border-radius:9px;background:var(--fill2);display:grid;place-items:center;flex:none;color:#d0d0d0}
+.it .ico svg{width:17px;height:17px}
+.it .chev{color:var(--dim);font-size:22px}
+.it.danger b{color:#ff6b6b;text-align:center}
+.inl{background:none;border:0;outline:none;color:var(--mute);font-size:16px;text-align:right;width:50%}
+.inl:focus{color:var(--ink)}
+.pillbtn{height:34px;padding:0 15px;border-radius:99px;background:var(--fill2);border:1px solid var(--line2);color:var(--ink);font-weight:500;font-size:14px;flex:none}
+.pillbtn.hot{background:#fff;color:#000;border-color:#fff;font-weight:600}
+.pillbtn:disabled{opacity:.5}
+.help{margin:10px 8px 0;font-size:13.5px;color:var(--mute);line-height:1.5}
+.help b{color:var(--ink)}
+.foot2{text-align:center;color:var(--dim);font-size:13px;margin-top:22px}
+
+/* ---------- connect / offline / scanner ---------- */
+.connect{position:fixed;inset:0;z-index:6;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(var(--top) + 20px) 28px calc(var(--bot) + 30px);text-align:center}
+.connect img{width:88px;height:88px;border-radius:22px}
+.connect h2{font-size:26px;letter-spacing:-.03em;margin:20px 0 8px}
+.connect p{color:var(--mute);margin:0;font-size:15.5px;max-width:320px}
+.big{display:flex;align-items:center;justify-content:center;gap:10px;height:52px;width:100%;max-width:320px;border-radius:99px;background:#fff;color:#000;font-weight:600;font-size:16.5px;margin-top:26px;cursor:pointer}
+.big svg{width:21px;height:21px}
+.big.ghost{background:var(--fill);border:1px solid var(--line2);color:var(--ink);margin-top:12px}
+.spin{width:20px;height:20px;border-radius:50%;border:2.5px solid #ccc;border-top-color:#000;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.msg{min-height:22px;margin-top:16px;font-size:14px;color:#ff8a80}
+.offic{width:80px;height:80px;border-radius:22px;background:var(--fill);border:1px solid var(--line2);display:grid;place-items:center;color:var(--mute)}
+.offic svg{width:38px;height:38px}
+.checks{text-align:left;color:var(--mute);font-size:15px;margin:14px 0 0;padding-left:22px;max-width:320px;display:flex;flex-direction:column;gap:6px}
+.scanner{position:fixed;inset:0;z-index:8;background:#000}
+.scanner video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.scanmask{position:absolute;inset:0;display:grid;place-items:center}
+.scanbox{width:min(72vw,300px);aspect-ratio:1;border-radius:28px;box-shadow:0 0 0 100vmax rgba(0,0,0,.62);position:relative;overflow:hidden}
+.scanbox i{position:absolute;width:44px;height:44px;border:4px solid #fff}
+.scanbox i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0;border-top-left-radius:28px}
+.scanbox i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0;border-top-right-radius:28px}
+.scanbox i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0;border-bottom-left-radius:28px}
+.scanbox i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0;border-bottom-right-radius:28px}
+.scanline{position:absolute;left:10%;right:10%;height:2px;background:#fff;box-shadow:0 0 12px #fff;animation:scanl 2s ease-in-out infinite}
+@keyframes scanl{0%,100%{top:12%}50%{top:86%}}
+.scanbox.ok{box-shadow:0 0 0 100vmax rgba(0,0,0,.62),inset 0 0 0 4px var(--ok)}
+.scantop{position:absolute;top:calc(var(--top) + 8px);left:10px}
+.scantop .icon{background:rgba(0,0,0,.45);color:#fff}
+.scantext{position:absolute;left:0;right:0;bottom:calc(var(--bot) + 56px);text-align:center;display:flex;flex-direction:column;gap:4px;color:#fff;padding:0 24px}
+.scantext b{font-size:18px}.scantext span{color:rgba(255,255,255,.75);font-size:14.5px}
+.toast{position:fixed;left:50%;bottom:calc(var(--bot) + 90px);transform:translateX(-50%);background:#262626;border:1px solid var(--line2);padding:10px 18px;border-radius:99px;font-size:14px;z-index:9;max-width:88%;text-align:center}
+.tk{z-index:6}
+.tkbody{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px;text-align:center}
+.tkstage{--lvl:0;--tc:#6aa3ff;position:relative;width:230px;height:230px;display:grid;place-items:center;margin-bottom:10px;flex:none}
+.tkbot{position:relative;z-index:1;display:grid;place-items:center;transition:transform .25s var(--ease)}
+.tkstage[data-s=hearing] .tkbot{transform:scale(calc(1.03 + var(--lvl)*.1))}
+.tkring{position:absolute;inset:26px;border-radius:50%;border:2px solid color-mix(in srgb,var(--tc) 55%,transparent);opacity:.75;transform:scale(calc(1 + var(--lvl)*.28));transition:transform .09s linear,border-color .3s,opacity .3s}
+.tkring.r2{inset:4px;opacity:.3;transform:scale(calc(1 + var(--lvl)*.5))}
+.tkstage[data-s=hearing] .tkring{border-color:var(--tc);opacity:1;box-shadow:0 0 44px color-mix(in srgb,var(--tc) 38%,transparent)}
+.tkstage[data-s=thinking] .tkring,.tkstage[data-s=transcribing] .tkring{border-style:dashed;transform:none;animation:tkspin 7s linear infinite}
+.tkstage[data-s=thinking] .tkring.r2,.tkstage[data-s=transcribing] .tkring.r2{animation-direction:reverse;animation-duration:11s}
+.tkstage[data-s=speaking] .tkring{animation:tkpulse 1.5s ease-in-out infinite;transform:none}
+.tkstage[data-s=speaking] .tkring.r2{animation-delay:.4s}
+.tkstage[data-s=muted] .tkring,.tkstage[data-s=starting] .tkring{opacity:.25;transform:none}
+@keyframes tkspin{to{transform:rotate(360deg)}}
+@keyframes tkpulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.1);opacity:1}}
+.tkstatus{font-size:20px;font-weight:650;letter-spacing:-.01em;min-height:28px}
+.tksub{color:var(--mute);font-size:14px;min-height:20px;margin-top:3px;line-height:1.4}
+.tkline{margin-top:10px;padding:10px 14px;border-radius:16px;font-size:15px;line-height:1.45;text-align:left;max-height:96px;overflow:hidden;width:100%;max-width:420px}
+.tkline:empty{display:none}
+.tkline.you{background:var(--fill);color:#cfcfcf}
+.tkline.bot{border:1px solid var(--line2)}
+.tkctl{flex:none;display:flex;gap:16px;justify-content:center;align-items:center;padding:14px 20px calc(var(--bot) + 26px)}
+.tkc{width:56px;height:56px;border-radius:50%;border:1px solid var(--line2);display:grid;place-items:center;color:#cfcfcf;background:var(--fill)}
+.tkc svg{width:24px;height:24px}
+.tkc.off{color:#ff6b75;background:rgba(255,77,77,.12);border-color:rgba(255,77,77,.35)}
+.tkmain{min-width:150px;height:56px;padding:0 24px;border-radius:28px;background:#f2f2f2;color:#0a0a0a;font:650 16px -apple-system,BlinkMacSystemFont,sans-serif;border:0}
+.tkmain:disabled{opacity:.3}
+@media (prefers-reduced-motion:reduce){.screen,.sheet{transition:none}.m{animation:none}}
+/* v3 additions */
+.topbtns{display:flex;gap:8px;align-items:center}
+.newbtn{width:36px;height:36px;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center}
+.newbtn svg{width:19px;height:19px}
+.search{margin:8px 16px 2px;display:flex;align-items:center;gap:8px;height:38px;border-radius:12px;background:var(--fill);border:1px solid var(--line2);padding:0 12px;color:var(--dim)}
+.search svg{width:16px;height:16px;flex:none}
+.search input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--ink);font-size:16px}
+.search input::placeholder{color:var(--dim)}
+.gav{position:relative;display:inline-block}
+.gav .plusn{position:absolute;right:-4px;bottom:-2px;min-width:22px;height:20px;border-radius:10px;background:#fff;color:#000;font-size:11.5px;font-weight:700;display:grid;place-items:center;padding:0 5px;border:2px solid var(--bg)}
+.botpill .gav .plusn{min-width:17px;height:15px;font-size:9.5px;border-width:1.5px;right:-6px}
+.nores{padding:40px 20px;text-align:center;color:var(--mute);font-size:15px}
+/* sheets (menus and forms that slide up) */
+.back{position:fixed;inset:0;z-index:7;background:rgba(0,0,0,.55);opacity:0;transition:opacity .25s}
+.back.on{opacity:1}
+.menu{position:fixed;left:8px;right:8px;bottom:calc(var(--bot) + 8px);z-index:7;background:#1a1a1a;border:1px solid var(--line2);border-radius:22px;padding:8px;transform:translateY(120%);transition:transform .34s var(--ease);max-height:88vh;overflow:auto}
+.menu.on{transform:none}
+.menu h3{margin:8px 10px 12px;font-size:18px}
+.menu .opt{display:flex;align-items:center;gap:12px;width:100%;padding:14px 12px;border-radius:14px;text-align:left;font-size:16px}
+.menu .opt:active{background:var(--fill2)}
+.menu .opt .ico{width:34px;height:34px;border-radius:10px;background:var(--fill2);display:grid;place-items:center;flex:none}
+.menu .opt .ico svg{width:18px;height:18px}
+.menu .opt small{display:block;color:var(--mute);font-size:13px}
+.menu label.fl{display:block;font-size:13px;color:var(--mute);margin:14px 10px 6px}
+.menu input.tx,.menu textarea.tx{width:calc(100% - 20px);margin:0 10px;background:var(--fill);border:1px solid var(--line2);border-radius:12px;color:var(--ink);font:16px/1.4 -apple-system,sans-serif;padding:11px 12px;outline:none}
+.menu textarea.tx{resize:none;height:84px}
+.menu .looks{display:flex;align-items:center;gap:14px;margin:4px 10px}
+.menu .looks button{height:36px;padding:0 14px;border-radius:99px;background:var(--fill2);border:1px solid var(--line2);font-size:14px}
+.menu .pick{display:flex;flex-direction:column;margin:0 4px;max-height:40vh;overflow:auto}
+.menu .pick label{display:flex;align-items:center;gap:12px;padding:8px 8px;border-radius:12px}
+.menu .pick input{width:22px;height:22px;accent-color:#fff}
+.menu .acts{display:flex;gap:8px;margin:16px 6px 6px}
+.menu .acts button{flex:1;height:48px;border-radius:14px;font-weight:600;font-size:16px;background:var(--fill2)}
+.menu .acts button.go2{background:#fff;color:#000}
+.menu p.warn{margin:0 10px 6px;color:var(--mute);font-size:15px;line-height:1.5}
+
+/* tasks & bot options */
+.lockin{width:100%;max-width:240px;height:58px;margin:18px 0 4px;text-align:center;letter-spacing:.5em;font-size:26px;border-radius:16px;background:var(--fill);border:1px solid var(--line2);color:var(--ink);outline:none}
+.swt{position:relative;flex:none;width:46px;height:28px;display:inline-block}
+.swt input{position:absolute;inset:0;opacity:0;margin:0;width:100%;height:100%;z-index:1}
+.swt span{position:absolute;inset:0;border-radius:99px;background:var(--fill2);border:1px solid var(--line2);transition:background .2s}
+.swt span::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s var(--ease)}
+.swt input:checked+span{background:#fff;border-color:#fff}.swt input:checked+span::after{transform:translateX(18px);background:#000}
+html.light .swt input:checked+span{background:#111;border-color:#111}html.light .swt input:checked+span::after{background:#fff}
+.it small{display:block;color:var(--mute);font-size:13.5px;margin-top:2px}
+.it.off b{color:var(--dim)}
+.menu select.tx{width:calc(100% - 20px);margin:0 10px;background:var(--fill);border:1px solid var(--line2);border-radius:12px;color:var(--ink);font:16px/1.4 -apple-system,sans-serif;padding:11px 12px;outline:none;appearance:none}
+.menu input[type=datetime-local].tx{min-height:46px}
+.menu .lbl{margin:12px 12px 6px;font-size:13px;color:var(--dim)}
+.menu .days{display:flex;gap:6px;margin:8px 10px 0;flex-wrap:wrap}
+.menu .days button{width:40px;height:36px;border-radius:12px;background:var(--fill2);border:1px solid var(--line2);font-size:13px}
+.menu .days button.on{background:#fff;color:#000;border-color:#fff}
+.menu .row2{display:flex;gap:8px;margin:8px 10px 0}.menu .row2 .tx{margin:0!important;width:auto!important;flex:1}
+.menu .mem{display:flex;gap:10px;align-items:flex-start;margin:6px 10px;font-size:14.5px;color:var(--mute)}.menu .mem span{flex:1}.menu .mem button{color:#ff6b6b;font-size:13px;flex:none}
+.menu .minor{display:flex;gap:8px;margin:10px 6px 0}.menu .minor button{flex:1;height:42px;border-radius:12px;background:var(--fill);font-size:15px}.menu .minor button.bad{color:#ff6b6b}
+html.light .menu .days button.on{background:#111;color:#fff;border-color:#111}
+/* updating */
+.updating{position:fixed;inset:0;z-index:9;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:30px}
+.updating .ring{width:54px;height:54px;border-radius:50%;border:4px solid var(--fill2);border-top-color:#fff;animation:sp 1s linear infinite}
+.updating h2{margin:6px 0 0;font-size:24px;letter-spacing:-.02em}
+.updating p{margin:0;color:var(--mute);font-size:15px;max-width:300px}
+.updating .ok{width:54px;height:54px;border-radius:50%;background:var(--ok);display:grid;place-items:center;color:#000;font-size:28px;font-weight:700}
+
+.ivf{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.96);display:flex;flex-direction:column;padding:calc(var(--top) + 8px) 0 calc(var(--bot) + 10px)}
+.ivf .bar{display:flex;justify-content:space-between;padding:0 12px}
+.ivf .bar button{height:38px;padding:0 16px;border-radius:19px;background:rgba(255,255,255,.14);color:#fff;font-weight:600;font-size:15px}
+.ivf .st{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:10px}
+.ivf img{max-width:100%;max-height:100%;object-fit:contain;-webkit-touch-callout:default}
+.ivf small{color:rgba(255,255,255,.7);text-align:center;font-size:13px}
+.genimg{cursor:zoom-in}
+/* fingertip-sized tap areas: the button looks the same, the area you can press is at least 44px */
+.card button,.pillbtn{position:relative}
+.card button::after,.pillbtn::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px}
+.tray button::after{content:"";position:absolute;inset:-12px}
+</style>
+<style id="light">/* Light theme — generated by scripts/make-light.js from the dark styles. */
+html.light .shim,
+html.light .rt .p.busy {
+    background: linear-gradient(90deg,#9b9b9b 0%,#9b9b9b 35%,#2c2c2c 50%,#9b9b9b 65%,#9b9b9b 100%)
+}
+html.light .upd button {
+    background: #191919;
+    color: #ffffff
+}
+html.light .bar {
+    background: linear-gradient(var(--bg) 70%,rgba(255,255,255,0))
+}
+html.light .botpill {
+    background: #ebebeb
+}
+html.light .m.assistant {
+    background: #d6d6d7;
+    border: 1px solid rgba(0,0,0,.07)
+}
+html.light .m code {
+    background: rgba(0,0,0,.08)
+}
+html.light .m .pic {
+    color: #444444
+}
+html.light .tray button {
+    background: #cbcbcb;
+    color: #191919
+}
+html.light .pill {
+    background: #e7e7e7
+}
+html.light .pill:focus-within {
+    border-color: #c8c8c8
+}
+html.light .plus {
+    color: #5d5d5d
+}
+html.light .plus:active {
+    background: #dddddd
+}
+html.light .pill textarea::placeholder {
+    color: #9f9f9f
+}
+html.light .micbtn {
+    color: var(--dim,#757575)
+}
+html.light .micbtn .spin {
+    border-color: #b3b3b3;
+    border-top-color: #191919
+}
+html.light .go {
+    background: #191919;
+    color: #ffffff
+}
+html.light .view .tapfx {
+    background: rgba(0,0,0,.25);
+    border: 2px solid #191919
+}
+html.light .it .ico {
+    color: #444444
+}
+html.light .pillbtn.hot {
+    background: #191919;
+    color: #ffffff;
+    border-color: #191919
+}
+html.light .big {
+    background: #191919;
+    color: #ffffff
+}
+html.light .spin {
+    border: 2.5px solid #474747;
+    border-top-color: #ffffff
+}
+html.light .scanner {
+    background: #ffffff
+}
+html.light .scanbox i {
+    border: 4px solid #191919
+}
+html.light .scanline {
+    background: #191919
+}
+html.light .scantext {
+    color: #191919
+}
+html.light .scantext span {
+    color: rgba(0,0,0,.75)
+}
+html.light .toast {
+    background: #dddddd
+}
+html.light .newbtn {
+    background: #191919;
+    color: #ffffff
+}
+html.light .gav .plusn {
+    background: #191919;
+    color: #ffffff
+}
+html.light .menu {
+    background: #e8e8e8
+}
+html.light .menu .acts button.go2 {
+    background: #191919;
+    color: #ffffff
+}
+html.light .updating .ring {
+    border-top-color: #191919
+}
+html.light .updating .ok {
+    color: #ffffff
+}
+html.light{--bg:#ffffff;--raise:#f4f4f5;--fill:#ececee;--fill2:#e2e2e5;--line:#e6e6e8;--line2:#dcdce0;--ink:#111111;--mute:#6b6b70;--dim:#9a9aa0;--bubble:#f0f0f1;--me:#e4e4e7;--link:#1a5fd0;--ok:#1f9d55;color-scheme:light}
+html.light .m.assistant{background:#f0f0f1}
+</style>
+</head>
+<body>
+
+<!-- bots -->
+<section class="screen" id="home">
+  <div class="top">
+    <div class="toprow"><h1>Wayzerr</h1><div class="topbtns"><button class="newbtn" id="newbtn" aria-label="New bot or group chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button><button class="newbtn tbtn" id="opentasks" aria-label="Tasks" style="background:var(--fill2);color:var(--ink);border:1px solid var(--line2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button><button class="me" id="openset" aria-label="Settings and profile"><span id="meinit">S</span></button></div></div>
+    <div class="status"><span class="dot" id="dot"></span><span id="macname">Connecting…</span></div>
+  </div>
+  <div class="scroll">
+    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="Search bots and chats" autocomplete="off" enterkeyhint="search"></div>
+    <div class="note" id="a2hs" hidden><div>Tap <b>Share</b> and then <b>Add to Home Screen</b> to keep Wayzerr on your phone.</div><button class="x" id="a2hsX" aria-label="Close">×</button></div>
+    <div class="upd" id="upd" hidden><div class="upd-t"><b id="updv">A new version is ready</b><span>Install it on your computer from here.</span></div><button id="updbtn">Update</button></div>
+    <div class="list" id="list"></div>
+  </div>
+</section>
+
+<!-- a chat -->
+<section class="screen away" id="chat">
+  <div class="bar">
+    <button class="icon" id="back" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="who"><div class="botpill"><div class="av" id="cav"></div><b id="cname"></b></div></div>
+    <button class="icon" id="botopts" aria-label="Bot settings"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>
+    <button class="icon screenbtn" id="openscreen" aria-label="See the browser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2.5"/><path d="M8 21h8M12 17v4"/></svg></button>
+  </div>
+  <div class="scroll" id="cscroll"><div class="msgs" id="msgs"></div></div>
+  <div class="compose">
+    <div class="tray" id="tray" hidden></div>
+    <div class="pill">
+      <label class="plus" aria-label="Add a photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg><input type="file" id="pic" accept="image/*" hidden></label>
+      <textarea id="input" rows="1" placeholder="Message" enterkeyhint="send"></textarea>
+      <button class="micbtn" id="mic" aria-label="Talk instead of typing" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <button class="micbtn" id="talkbtn" aria-label="Talk mode" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4M7.5 6v12M12 3v18M16.5 7v10M21 10v4"/></svg></button>
+      <button class="go" id="send" aria-label="Send" disabled></button>
+    </div>
+  </div>
+</section>
+
+<!-- tasks -->
+<section class="screen away" id="tasks">
+  <div class="bar">
+    <button class="icon" id="closetasks" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="who title"><b>Tasks</b></div>
+    <button class="icon" id="newtask" aria-label="New task"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </div>
+  <div class="scroll"><div class="set" id="tasklist"></div></div>
+</section>
+
+<!-- settings & profile -->
+<section class="screen away" id="settings">
+  <div class="bar">
+    <button class="icon" id="closeset" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="who title"><b>Settings</b></div><span class="icon"></span>
+  </div>
+  <div class="scroll"><div class="set">
+    <div class="profile"><div class="bigme" id="bigme">S</div><input id="myname" placeholder="Your name" maxlength="60" autocomplete="name"><div class="sub2" id="mystats"></div></div>
+
+    <div class="grp-t">Computer</div>
+    <div class="group">
+      <div class="it"><span class="dot" id="sdot"></span><div class="grow"><b id="scomp">Your computer</b><small id="scompsub">Connected</small></div></div>
+      <button class="it tap" id="anyhelp"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><div class="grow"><b>Use away from home</b><small id="anysub">Only on the same Wi-Fi</small></div><span class="chev">›</span></button>
+    </div>
+    <div class="help" id="anysteps" hidden>Wayzerr works anywhere: mobile data, any Wi-Fi, any distance. To get this version, open Wayzerr on your computer, go to <b>Settings → Phone</b> and scan the code with this phone's Camera. Add that page to your Home Screen. Your computer has to be on, online and have Wayzerr open.</div>
+
+    <div class="grp-t">Secure connection</div>
+    <div class="group" id="secgroup">
+      <div class="it"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><div class="grow"><b id="sectitle">Secure connection</b><small id="secsub">Checking…</small></div><button class="pillbtn" id="secbtn" hidden>Set up</button></div>
+    </div>
+    <div class="help" id="secsteps" hidden>
+      This turns on the square QR scanner and lets Wayzerr open even when your computer is away. It works over your own Wi-Fi, no internet needed. One time only:
+      <ol style="padding-left:20px;margin:8px 0">
+        <li>Tap <b>Download profile</b> below, then <b>Allow</b>.</li>
+        <li>Open the iPhone <b>Settings</b> app → <b>Profile Downloaded</b> → <b>Install</b> (twice).</li>
+        <li>Settings → <b>General</b> → <b>About</b> → <b>Certificate Trust Settings</b> → turn on <b>Wayzerr</b>.</li>
+        <li>Come back here and tap <b>Switch to secure</b>. Then Share → <b>Add to Home Screen</b> again, and delete the old icon.</li>
+      </ol>
+      <div style="display:flex;gap:8px;margin-top:6px"><a class="pillbtn" id="dlprof" style="display:inline-grid;place-items:center;text-decoration:none">Download profile</a><button class="pillbtn hot" id="goSecure">Switch to secure</button></div>
+    </div>
+
+    <div class="grp-t">Updates</div>
+    <div class="group">
+      <div class="it"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span><div class="grow"><b id="sver">Wayzerr</b><small id="supd">Checking…</small></div><button class="pillbtn" id="supbtn">Check</button></div>
+    </div>
+
+    <div class="grp-t">This phone</div>
+    <div class="group">
+      <div class="it"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></span><div class="grow"><b>Name</b></div><input class="inl" id="phname" maxlength="40"></div>
+      <button class="it tap" id="a2hshelp"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span><div class="grow"><b>Add to Home Screen</b><small>Keep Wayzerr like an app</small></div><span class="chev">›</span></button>
+    </div>
+    <div class="help" id="a2hssteps" hidden>In Safari, tap <b>Share</b> (the square with an arrow), scroll down, tap <b>Add to Home Screen</b>, then <b>Add</b>.</div>
+
+    <div class="group" style="margin-top:28px"><button class="it tap danger" id="logout"><div class="grow"><b>Disconnect this phone</b></div></button></div>
+    <div class="foot2" id="foot2"></div>
+  </div></div>
+</section>
+
+<!-- talk mode -->
+<section class="sheet tk" id="talk" aria-label="Talk mode">
+  <div class="bar">
+    <button class="icon" id="tkend" aria-label="End talk mode"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="who title"><b id="tkname">Talk</b></div>
+  </div>
+  <div class="tkbody">
+    <div class="tkstage" id="tkstage" data-s="starting"><span class="tkring"></span><span class="tkring r2"></span><span class="tkbot" id="tkbot"></span></div>
+    <div class="tkstatus" id="tkstatus"></div>
+    <div class="tksub" id="tksub"></div>
+    <div class="tkline you" id="tkyou"></div>
+    <div class="tkline bot" id="tkreply"></div>
+  </div>
+  <div class="tkctl">
+    <button class="tkc" id="tkmute" aria-label="Microphone"></button>
+    <button class="tkmain" id="tkmain" disabled>Listening</button>
+    <button class="tkc" id="tkspk" aria-label="Read answers aloud"></button>
+  </div>
+</section>
+
+<!-- the bot's browser, live -->
+<section class="sheet" id="sheet" aria-label="Browser">
+  <div class="bar">
+    <button class="icon" id="closescreen" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span id="surl">Browser</span></div>
+    <button class="icon" id="reloadscreen" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg></button>
+  </div>
+  <div class="view" id="view"><div class="empty" id="noscreen"><h2>Nothing open</h2>When this bot opens a website, you'll see it here live.</div><img id="shot" alt="The bot's browser" hidden></div>
+  <div class="sheetfoot">Tap to click · Swipe to scroll</div>
+</section>
+
+<!-- menus that slide up -->
+<div class="back" id="backdrop" hidden></div>
+<div class="menu" id="menu" hidden></div>
+
+<!-- QR scanner: a square to fit the code in -->
+<section class="scanner" id="scanner" hidden>
+  <video id="scanvid" playsinline muted></video>
+  <div class="scanmask"><div class="scanbox"><i></i><i></i><i></i><i></i><div class="scanline"></div></div></div>
+  <div class="scantop"><button class="icon" id="scanx" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="scantext"><b>Scan the QR code</b><span>In Wayzerr on your computer: Settings → Phone</span></div>
+</section>
+
+<!-- updating -->
+<section class="updating" id="updating" hidden><div class="ring" id="upring"></div><h2 id="uph">Updating…</h2><p id="upp">Your computer is installing the new version of Wayzerr. This takes about a minute.</p></section>
+
+<!-- phone disconnected -->
+<section class="connect" id="offline" hidden>
+  <div class="offic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M3 3l18 18"/></svg></div>
+  <h2>Phone disconnected</h2>
+  <p>Your phone can't reach your computer. Check that your computer is on, awake and online with Wayzerr open, and that your phone has internet.</p>
+  <button class="big" id="retry">Retry connection</button>
+  <button class="big ghost" id="offscan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/></svg>Scan QR code</button>
+  <div class="msg" id="offmsg"></div>
+</section>
+
+<!-- connect this phone -->
+<section class="connect" id="connect" hidden>
+  <img src="/icon.png" alt="">
+  <h2>Connect to your computer</h2>
+  <p id="cp">Open Wayzerr on your computer first, then scan the code in Settings → Phone.</p>
+  <button class="big" id="askbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8"/></svg>Connect</button>
+  <button class="big ghost" id="scanbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/></svg>Scan QR code</button>
+  <div class="msg" id="cmsg"></div>
+</section>
+<!-- the phone code -->
+<section class="connect" id="lockscr" hidden style="z-index:9">
+  <img src="/icon.png" alt="">
+  <h2>Enter your code</h2>
+  <p>This phone needs the 6-digit code to open Wayzerr.</p>
+  <input id="lockin" class="lockin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="one-time-code" placeholder="••••••" aria-label="6-digit code">
+  <button class="big" id="lockbtn">Unlock</button>
+  <div class="msg" id="lockmsg"></div>
+</section>
+<input type="file" id="photo" accept="image/*" capture="environment" hidden>
+
+<script src="/characters.js"></script>
+<script src="/talk.js"></script>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var ICON_SEND='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+  var ICON_STOP='<svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="7" width="10" height="10" rx="2.5"/></svg>';
+  var secureHere=!!window.isSecureContext;
+  var tempAddress=/trycloudflare\.com$/.test(location.hostname); // a one-off address that changes; the permanent one (xxxx.wayzerr.com) does not
+  var viaAnywhere=tempAddress||/\.wayzerr\.com$/.test(location.hostname);
+  if('serviceWorker' in navigator && secureHere && !tempAddress) navigator.serviceWorker.register('/sw.js').catch(function(){});
+
+  // Keep the message bar right above the keyboard (and at the bottom when it's closed).
+  function fit(){ var h=(window.visualViewport?visualViewport.height:innerHeight), kb=h<innerHeight*0.82; document.documentElement.classList.toggle('kb',kb); document.documentElement.style.setProperty('--vh',h+'px'); if(kb) window.scrollTo(0,0); }
+  if(window.visualViewport){ visualViewport.addEventListener('resize',fit); visualViewport.addEventListener('scroll',fit); } fit();
+
+  // ----- this phone's login -----
+  var q=new URLSearchParams(location.search), K='';
+  try{ if(q.get('k')) localStorage.setItem('nx-key',q.get('k')); K=q.get('k')||localStorage.getItem('nx-key')||''; }catch(e){ K=q.get('k')||''; }
+  if(K && !q.get('k')) history.replaceState(null,'','/?k='+encodeURIComponent(K));
+  if(K) $('mf').href='/manifest.json?k='+encodeURIComponent(K);
+  var standalone=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
+  try{ if(!standalone && K && !localStorage.getItem('nx-a2hs-x')) $('a2hs').hidden=false; }catch(e){}
+  $('a2hsX').onclick=function(){ $('a2hs').hidden=true; try{localStorage.setItem('nx-a2hs-x','1')}catch(e){} };
+
+  var bots=[], cur=null, busy={}, pics=[], msgsCache=[], me={}, offline=false, updatingNow=false;
+  var SS=''; try{ var sx=JSON.parse(localStorage.getItem('nx-sess')||'null'); if(sx&&sx.exp>Date.now()) SS=sx.token; }catch(e){}
+  function api(p,opt){ opt=opt||{}; opt.headers=Object.assign({'x-nx-key':K,'x-nx-sess':SS},opt.headers||{}); return fetch(p,opt).then(function(r){ return r.json().then(function(j){ if(!r.ok){ var e=new Error(j.error||('Error '+r.status)); e.status=r.status; if(r.status===423) showLock(); throw e; } return j; }); }); }
+  function showLock(){ $('lockscr').hidden=false; try{ setTimeout(function(){ $('lockin').focus(); },200); }catch(e){} }
+  function tryUnlock(){ var c=$('lockin').value.trim(); if(c.length!==6) return; $('lockbtn').disabled=true; $('lockmsg').textContent=''; fetch('/api/unlock',{method:'POST',headers:{'Content-Type':'application/json','x-nx-key':K},body:JSON.stringify({code:c})}).then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error||'Try again'); return j; }); }).then(function(j){ try{ localStorage.setItem('nx-sess',JSON.stringify({token:j.token,exp:j.exp})); }catch(e){} location.replace(location.pathname+(K?'?k='+encodeURIComponent(K):'')); }).catch(function(e){ $('lockbtn').disabled=false; $('lockin').value=''; $('lockmsg').textContent=e.message; }); }
+  function post(p,b){ return api(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}); }
+  function toast(t){ var d=document.createElement('div'); d.className='toast'; d.textContent=t; document.body.appendChild(d); setTimeout(function(){d.remove()},2800); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]}); }
+  function ago(ts){ if(!ts) return ''; var d=new Date(ts), n=new Date(); if(d.toDateString()===n.toDateString()) return d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}); var y=new Date(n-864e5); if(d.toDateString()===y.toDateString()) return 'Yesterday'; return d.toLocaleDateString([], {day:'numeric',month:'short'}); }
+  function md(t){
+    var out=[], list=false;
+    esc(t).split('\n').forEach(function(line){
+      var l=line.replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/(^|[^*])\*([^*\n]+)\*/g,'$1<i>$2</i>')
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>')
+        .replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g,'$1<a href="$2" target="_blank" rel="noopener">$2</a>');
+      var li=l.match(/^\s*(?:[-*•]|\d+\.)\s+(.*)/);
+      if(li){ if(!list){out.push('<ul>');list=true;} out.push('<li>'+li[1]+'</li>'); return; }
+      if(list){out.push('</ul>');list=false;}
+      var h=l.match(/^#{1,4}\s+(.*)/);
+      if(h) out.push('<div class="h">'+h[1]+'</div>'); else if(l.trim()) out.push('<p>'+l+'</p>');
+    });
+    if(list) out.push('</ul>');
+    return out.join('');
+  }
+  function nameColor(b){ if(!b) return 'inherit'; var c=charOf(b).color||'#999', n=parseInt(c.slice(1),16), r=n>>16, g=(n>>8)&255, bl=n&255; if(Math.max(r,g,bl)-Math.min(r,g,bl)<40) return 'inherit'; if(document.documentElement.classList.contains('light')&&(0.3*r+0.59*g+0.11*bl)/255>0.55) return 'color-mix(in srgb, '+c+' 55%, black)'; return c; }
+  function charOf(b){ return b.character || Characters.makeCharacter(b.id + b.name); } // same look as on the computer
+  // A group shows one of its bots with "+N" for the others.
+  function avatar(b,size){
+    size=size||46;
+    if(b.group){
+      var ms=(b.members||[]).map(function(id){return bots.filter(function(x){return x.id===id})[0]}).filter(Boolean);
+      var first=ms[0]; if(!first) return '';
+      return '<span class="gav">'+Characters.characterSvg(charOf(first),{size:size})+(ms.length>1?'<span class="plusn">+'+(ms.length-1)+'</span>':'')+'</span>';
+    }
+    return Characters.characterSvg(charOf(b),{size:size});
+  }
+  function busyText(b){ var x=busy[b.id]; if(!x) return ''; return (x.bot&&b.group?x.bot+' · ':'')+(x.text||'Thinking')+'…'; }
+  function browsing(b){ var x=busy[b.id]; return !!(x && /brows|open|search|click|typ|page|site|web|scroll|screen/i.test((x.activity||'')+' '+(x.text||''))); }
+
+  // ----- the menus that slide up -----
+  function openMenu(html){ var m=$('menu'), bd=$('backdrop'); m.innerHTML=html; m.hidden=false; bd.hidden=false; requestAnimationFrame(function(){ m.classList.add('on'); bd.classList.add('on'); }); return m; }
+  function closeMenu(){ var m=$('menu'), bd=$('backdrop'); m.classList.remove('on'); bd.classList.remove('on'); setTimeout(function(){ m.hidden=true; bd.hidden=true; m.innerHTML=''; },300); }
+  $('backdrop').onclick=closeMenu;
+
+  // ----- bot list + search -----
+  function drawList(){
+    var term=$('q').value.trim().toLowerCase();
+    var shown=bots.filter(function(b){ return !term || (b.name+' '+(b.tag||'')+' '+((b.last&&b.last.text)||'')).toLowerCase().indexOf(term)>=0; });
+    $('list').innerHTML=shown.map(function(b){
+      var bt=busyText(b), prev=bt||(b.last?(b.last.role==='user'?'You: ':'')+b.last.text.replace(/[*#`]/g,''):(b.group?(b.members||[]).length+' bots':'New bot'));
+      var tag=b.group?'Group':b.tag;
+      return '<button class="row" data-id="'+b.id+'"><div class="av">'+avatar(b,46)+'</div><div class="rt"><div class="n"><span class="nm">'+esc(b.name)+'</span>'+(tag?'<span class="tag">'+esc(tag)+'</span>':'')+'<time>'+(b.last?ago(b.last.ts):'')+'</time>'+(b.unread&&b.id!==cur?'<i class="udot"></i>':'')+'</div><div class="p'+(bt?' busy':'')+'">'+esc(prev)+'</div></div></button>';
+    }).join('')||(term?'<div class="nores">No bots or chats match “'+esc(term)+'”.</div>':'');
+  }
+  $('q').addEventListener('input',drawList);
+  $('list').onclick=function(e){ var r=e.target.closest('.row'); if(r) openChat(r.dataset.id); };
+
+  // ----- make a bot or a group chat -----
+  $('newbtn').onclick=function(){
+    openMenu('<h3>New</h3>'+
+      '<button class="opt" id="mkbot"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="9.5" cy="11" r="1" fill="currentColor"/><circle cx="14.5" cy="11" r="1" fill="currentColor"/></svg></span><div><div>New bot</div><small>Give it a name and a job</small></div></button>'+
+      '<button class="opt" id="mkgrp"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="10" r="4"/><circle cx="16" cy="14" r="4"/></svg></span><div><div>New group chat</div><small>Several bots in one chat</small></div></button>');
+    $('mkbot').onclick=newBotForm; $('mkgrp').onclick=newGroupForm;
+  };
+  function newBotForm(){
+    var used=bots.map(function(b){return (b.character||{}).color}).filter(Boolean);
+    var ch=Characters.makeCharacter(Math.random().toString(36),used);
+    openMenu('<h3>New bot</h3><div class="looks"><span id="lk">'+Characters.characterSvg(ch,{size:64})+'</span><button id="shuffle">New look</button></div>'+
+      '<label class="fl" for="bn">Name</label><input class="tx" id="bn" maxlength="40" placeholder="Homework helper">'+
+      '<label class="fl" for="bt">Job</label><input class="tx" id="bt" maxlength="30" placeholder="Study">'+
+      '<label class="fl" for="bd">What should it do?</label><textarea class="tx" id="bd" maxlength="500" placeholder="Helps me plan homework and explains things simply."></textarea>'+
+      '<div class="acts"><button id="cn">Cancel</button><button class="go2" id="mk">Create</button></div>');
+    $('shuffle').onclick=function(){ ch=Characters.makeCharacter(Math.random().toString(36),used); $('lk').innerHTML=Characters.characterSvg(ch,{size:64}); };
+    $('cn').onclick=closeMenu;
+    $('mk').onclick=function(){
+      var n=$('bn').value.trim(); if(!n){ $('bn').focus(); return toast('Give your bot a name.'); }
+      this.disabled=true;
+      post('/api/bots',{name:n,tag:$('bt').value.trim(),description:$('bd').value.trim(),character:ch}).then(function(r){ closeMenu(); toast(n+' is ready'); load().then(function(){ openChat(r.id); }); }).catch(function(e){ toast(e.message); $('mk').disabled=false; });
+    };
+    setTimeout(function(){ $('bn').focus(); },350);
+  }
+  function newGroupForm(){
+    var solo=bots.filter(function(b){return !b.group});
+    if(solo.length<2) return toast('Make at least 2 bots first.');
+    openMenu('<h3>New group chat</h3><label class="fl" for="gn">Name (optional)</label><input class="tx" id="gn" maxlength="40" placeholder="Study team">'+
+      '<label class="fl">Bots</label><div class="pick">'+solo.map(function(b){return '<label><input type="checkbox" value="'+b.id+'"><span class="av" style="width:34px;height:34px">'+Characters.characterSvg(charOf(b),{size:34})+'</span><span>'+esc(b.name)+'</span></label>'}).join('')+'</div>'+
+      '<div class="acts"><button id="cn">Cancel</button><button class="go2" id="mk">Create</button></div>');
+    $('cn').onclick=closeMenu;
+    $('mk').onclick=function(){
+      var ids=[].slice.call($('menu').querySelectorAll('.pick input:checked')).map(function(i){return i.value});
+      if(ids.length<2) return toast('Pick at least 2 bots.');
+      this.disabled=true;
+      post('/api/groups',{name:$('gn').value.trim(),members:ids}).then(function(r){ closeMenu(); toast('Group chat ready'); load().then(function(){ openChat(r.id); }); }).catch(function(e){ toast(e.message); $('mk').disabled=false; });
+    };
+  }
+
+  // ----- connection to the computer -----
+  function clearMsgs(){ $('offmsg').textContent=''; $('cmsg').textContent=''; }
+  function needConnect(msg){ $('connect').hidden=false; K=''; try{localStorage.removeItem('nx-key')}catch(_){} $('cmsg').textContent=msg||''; }
+  function goOffline(){
+    if(offline||updatingNow) return; offline=true;
+    $('offline').hidden=false; $('dot').className='dot off'; $('macname').textContent='Disconnected';
+    bots=[]; msgsCache=[]; busy={}; $('list').innerHTML=''; $('msgs').innerHTML=''; closeScreen(); closeMenu();
+  }
+  function goOnline(){ clearMsgs(); if(!offline) return; offline=false; $('offline').hidden=true; if(cur) loadChat(true); }
+  $('retry').onclick=function(){ $('offmsg').textContent='Trying…'; load().then(function(){ if(offline) $('offmsg').textContent="Still can't reach your computer."; }); };
+  setInterval(function(){ if(!document.hidden && K) load(); },15000);
+  // Nothing from the computer for a long time? Stop showing "thinking".
+  setInterval(function(){ var now=Date.now(), ch=false; Object.keys(busy).forEach(function(id){ if(now-(busy[id].seen||now)>4*60000){ delete busy[id]; ch=true; } }); if(ch){ drawList(); if(cur){ drawHead(); drawMsgs(); loadChat(); } } },5000);
+
+  function load(){
+    if(!K){ needConnect(q.get('old')?'That QR code is old. Tap Connect, or scan the code on your computer again.':''); return Promise.resolve(); }
+    var ctl=new AbortController(), t=setTimeout(function(){ctl.abort()},6000);
+    return api('/api/state',{signal:ctl.signal}).then(function(s){ micReady(!!s.voice); setTheme(s.theme);
+      clearTimeout(t); goOnline();
+      bots=s.bots; $('dot').className='dot'; $('macname').textContent='Connected to '+s.mac; showUpdate(s.update); if(!me.version) loadMe();
+      s.bots.forEach(function(b){ if(b.busy) busy[b.id]=Object.assign({seen:(busy[b.id]||{}).seen||Date.now()},b.busy); else delete busy[b.id]; });
+      drawList(); if(cur) drawHead();
+    }).catch(function(e){
+      clearTimeout(t);
+      if(e.status===401) needConnect('This phone was disconnected. Tap Connect to connect it again.'); else if(e.status===423) showLock(); else goOffline();
+    });
+  }
+
+  // ----- a chat -----
+  var shotThumb={};
+  function drawHead(){
+    var b=bots.filter(function(x){return x.id===cur})[0]; if(!b) return;
+    $('cav').innerHTML=avatar(b,28); $('cname').textContent=b.name;
+    $('openscreen').style.visibility=b.group?'hidden':'visible'; $('openscreen').classList.toggle('live',browsing(b));
+    var bt=busyText(b), typed=!!$('input').value.trim()||pics.length, go=$('send');
+    if(bt && !typed){ go.disabled=false; go.dataset.stop='1'; go.setAttribute('aria-label','Stop'); go.innerHTML=ICON_STOP; }
+    else { delete go.dataset.stop; go.disabled=!typed; go.setAttribute('aria-label','Send'); go.innerHTML=ICON_SEND; }
+  }
+
+  // Tap a picture: full screen. Save uses the phone's share sheet (Save Image), or press and hold the picture.
+  document.addEventListener('click',function(e){
+    var im=e.target.closest&&e.target.closest('img.genimg'); if(!im) return;
+    var o=document.createElement('div'); o.className='ivf';
+    o.innerHTML='<div class="bar"><button id="ivclose">Close</button><button id="ivsave">Save</button></div><div class="st"><img alt=""></div><small>Or press and hold the picture</small>';
+    o.querySelector('img').src=im.src; document.body.appendChild(o);
+    o.querySelector('#ivclose').onclick=function(){o.remove()};
+    o.querySelector('.st').onclick=function(ev){ if(ev.target.tagName!=='IMG') o.remove(); };
+    o.querySelector('#ivsave').onclick=function(){
+      fetch(im.src).then(function(r){return r.blob()}).then(function(bl){
+        var f=new File([bl],'Wayzerr picture.'+((bl.type||'').indexOf('png')>=0?'png':'jpg'),{type:bl.type||'image/png'});
+        if(navigator.canShare&&navigator.canShare({files:[f]})) return navigator.share({files:[f]}).catch(function(){});
+        var a=document.createElement('a'); a.href=URL.createObjectURL(bl); a.download=f.name; document.body.appendChild(a); a.click(); a.remove();
+      });
+    };
+  });
+  function drawMsgs(stick){
+    var sc=$('cscroll'), near=sc.scrollHeight-sc.scrollTop-sc.clientHeight<140;
+    var b=bots.filter(function(x){return x.id===cur})[0]||{};
+    var html=msgsCache.map(function(m){
+      if(m.role==='activity'&&m.talk){ var tb=bots.filter(function(x){return x.id===m.talk})[0]; return '<div class="m activity talk">'+esc(m.pre)+' '+(tb?Characters.characterSvg(charOf(tb),{size:16}):'')+'<b style="color:'+nameColor(tb)+'">'+esc(m.text)+'</b></div>'; }
+      if(m.role==='activity') return '<div class="m activity">'+esc(m.text)+'</div>';
+      if(m.role==='card') return '<div class="card"><div class="grow"><b>Connect '+esc(m.text)+'</b><small>'+(m.status==='connected'?'Connected':m.status==='declined'?"Your bots won't ask again":'Authorize it on your computer')+'</small></div>'+(m.status==='pending'?'<button data-decline="'+esc(m.slug)+'" data-card="'+esc(m.id)+'">Can\'t connect</button>':'')+'</div>';
+      if(m.role==='user') return '<div class="m user">'+(m.images?'<div class="pic">📷 '+(m.images>1?m.images+' photos':'Photo')+'</div>':'')+esc(m.text).replace(/\n/g,'<br>')+'</div>';
+      if(m.pic) return '<div class="m assistant pic-m">'+(b.group&&m.bot?'<div class="by">'+esc(m.bot)+'</div>':'')+'<img class="genimg" src="/api/image?id='+encodeURIComponent(m.pic)+'&k='+encodeURIComponent(K)+'&s='+encodeURIComponent(SS)+'" alt=""></div>';
+      return '<div class="m assistant">'+(b.group&&m.bot?'<div class="by" style="color:'+nameColor(bots.filter(function(x){return x.name===m.bot})[0])+'">'+esc(m.bot)+'</div>':'')+md(m.text)+(m.card?'<div class="ask">This needs an answer on your computer.</div>':'')+'</div>';
+    }).join('');
+    var bt=busyText(b);
+    if(bt && browsing(b) && !b.group) html+='<button class="watch" id="watch">'+(shotThumb[b.id]?'<img src="'+shotThumb[b.id]+'" alt="">':'')+'<div>Watch live<br><span>'+esc(b.name)+' is using the browser</span></div></button>';
+    else if(bt) html+='<div class="typing shim">'+esc(bt)+'</div>';
+    if(!msgsCache.length&&!bt) html='<div class="empty">Say hi to '+esc(b.name||'your bot')+'.</div>';
+    $('msgs').innerHTML=html;
+    if($('watch')) $('watch').onclick=openScreen;
+    $('msgs').querySelectorAll('[data-decline]').forEach(function(el){ el.onclick=function(){ el.disabled=true; post('/api/decline',{slug:el.dataset.decline,id:cur,card:el.dataset.card}).then(function(){ toast("Got it. Your bots won't ask again, and will use the browser instead"); loadChat(); }).catch(function(e){ el.disabled=false; toast(e.message); }); }; });
+    if(stick||near) sc.scrollTop=sc.scrollHeight;
+  }
+  function loadChat(stick){ if(!cur) return; var id=cur; return api('/api/chat?id='+encodeURIComponent(id)).then(function(c){ if(id!==cur) return; msgsCache=c.messages; if(c.busy) busy[id]=Object.assign({seen:(busy[id]||{}).seen||Date.now()},c.busy); else delete busy[id]; drawHead(); drawMsgs(stick); }).catch(function(){}); }
+  function openChat(id){
+    cur=id; msgsCache=[]; $('msgs').innerHTML=''; drawHead();
+    $('chat').classList.remove('away'); $('home').classList.add('under');
+    loadChat(true);
+  }
+  $('back').onclick=function(){ cur=null; closeScreen(); $('chat').classList.add('away'); $('home').classList.remove('under'); $('input').blur(); drawList(); };
+
+  // ----- the message bar -----
+  var inp=$('input');
+  function grow(){ inp.style.height='auto'; inp.style.height=Math.min(132,inp.scrollHeight)+'px'; drawHead(); }
+  inp.addEventListener('input',grow);
+  inp.addEventListener('focus',function(){ setTimeout(function(){ fit(); $('cscroll').scrollTop=$('cscroll').scrollHeight; },320); });
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&!/iPhone|iPad|Android/.test(navigator.userAgent)){ e.preventDefault(); send(); } });
+  function send(){
+    var t=inp.value.trim(); if(!t&&!pics.length) return;
+    var body={id:cur,text:t,images:pics.slice()};
+    msgsCache.push({role:'user',text:t,images:pics.length,ts:Date.now()}); busy[cur]={text:'Thinking',seen:Date.now()};
+    inp.value=''; pics=[]; drawTray(); grow(); drawMsgs(true);
+    post('/api/send',body).catch(function(e){ delete busy[cur]; drawMsgs(); if(e.status) toast(e.message); else goOffline(); });
+  }
+  // ----- speech to text (on a secure connection; otherwise the keyboard's own mic works) -----
+  var voice=null, MIC_SVG=$('mic').innerHTML;
+  function micReady(on){ $('mic').hidden=!(on && window.isSecureContext && navigator.mediaDevices && window.MediaRecorder); $('talkbtn').hidden=true; /* Talk mode is switched off for now */ }
+  function micReset(){ var m=$('mic'); m.classList.remove('rec'); m.disabled=false; m.innerHTML=MIC_SVG; }
+  $('mic').onclick=function(){
+    if(voice){ voice.rec.stop(); return; }
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+      var type=['audio/mp4','audio/webm;codecs=opus','audio/webm'].filter(function(t){return MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(t)})[0]||'';
+      var rec=new MediaRecorder(stream, type?{mimeType:type}:undefined), chunks=[], start=Date.now();
+      voice={rec:rec};
+      rec.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
+      var m=$('mic'); m.classList.add('rec'); m.innerHTML='<i></i><span id="mict">0:00</span>';
+      var tm=setInterval(function(){ var s=Math.floor((Date.now()-start)/1000), t=$('mict'); if(t) t.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); if(s>=300) rec.stop(); },250);
+      rec.onstop=function(){
+        clearInterval(tm); stream.getTracks().forEach(function(t){t.stop()}); voice=null;
+        var blob=new Blob(chunks,{type:rec.mimeType||type||'audio/webm'}); m.innerHTML='<span class="spin"></span>'; m.classList.remove('rec'); m.disabled=true;
+        var fr=new FileReader(); fr.onload=function(){
+          post('/api/transcribe',{data:String(fr.result).split(',')[1]||'',mime:blob.type}).then(function(r){
+            if(!r.text) toast("I didn't catch any words. Try again."); else { inp.value=(inp.value.trim()?inp.value.replace(/\s*$/,' '):'')+r.text; inp.dispatchEvent(new Event('input')); inp.focus(); }
+          }).catch(function(e){ toast(e.message); }).then(micReset);
+        }; fr.readAsDataURL(blob);
+      };
+      rec.start(250);
+    }).catch(function(){ toast('Allow the microphone for Wayzerr to talk to your bots.'); });
+  };
+
+  // ----- talk mode: a spoken conversation. It listens, sends what you say, reads the answer aloud, then listens again -----
+  var talk=null;
+  var SPK_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12"/></svg>';
+  var SPK_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 5 6M21 9l-5 6"/></svg>';
+  var MIC_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 3 18 18"/><path d="M9 9v3a3 3 0 0 0 5 2.1M15 10V6a3 3 0 0 0-5.9-.7"/><path d="M5 11a7 7 0 0 0 11.5 5.4M19 11a7 7 0 0 1-.6 2.8M12 18v3"/></svg>';
+  function lsGet(k){ try{ return localStorage.getItem('wz.'+k); }catch(_){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem('wz.'+k,v); }catch(_){} }
+  function startTalk(){
+    if(talk||!cur) return;
+    var b=bots.filter(function(x){return x.id===cur})[0]; if(!b) return;
+    if(busy[cur]) return toast(b.name+' is still answering. Try again in a moment.');
+    WzTalk.prime(); // phones only allow speaking after a tap
+    var t=talk={id:cur,bot:b,state:'starting',speaker:lsGet('talkSpk')!=='0',muted:false,working:false,mic:null,speech:null,poll:null,answering:false};
+    var label={starting:'Getting the mic ready…',listening:'Listening…',hearing:'Hearing you…',transcribing:'Writing that down…',thinking:b.name+' is thinking…',speaking:b.name+' is talking…',muted:'Microphone is off'};
+    var mainFor={hearing:['Send now',true],speaking:['Skip',true],thinking:['Stop',true],transcribing:['Please wait',false]};
+    $('tkname').textContent=b.name; $('tkyou').textContent=''; $('tkreply').textContent='';
+    var stage=$('tkstage'); stage.style.setProperty('--tc',(!b.group&&charOf(b).color)||'#6aa3ff');
+    $('talk').classList.add('open');
+    function spk(){ $('tkspk').innerHTML=t.speaker?SPK_ON:SPK_OFF; $('tkspk').classList.toggle('off',!t.speaker); }
+    spk(); $('tkmute').innerHTML=Mic_SVG(); $('tkmute').classList.remove('off');
+    t.set=function(st,sub){
+      t.state=st; stage.dataset.s=st; $('tkstatus').textContent=label[st]||''; $('tksub').textContent=sub||'';
+      var m=mainFor[st]||[st==='muted'?'Mic is off':st==='starting'?'Starting':'Listening',false];
+      $('tkmain').textContent=m[0]; $('tkmain').disabled=!m[1];
+      $('tkbot').innerHTML=avatar(b,132);
+      if(st!=='listening'&&st!=='hearing') stage.style.setProperty('--lvl','0');
+    };
+    t.back=function(sub,delay){
+      if(talk!==t) return; t.working=false; t.answering=false; clearInterval(t.poll);
+      if(t.muted){ t.mic.pause(); return t.set('muted',sub); }
+      t.mic.resume(delay); t.set('listening',sub);
+    };
+    t.set('starting');
+    $('tkmain').onclick=function(){ if(talk!==t) return; if(t.state==='hearing') t.mic.flush(); else if(t.state==='speaking') WzTalk.stopSpeaking(); else if(t.state==='thinking') post('/api/stop',{id:t.id}).catch(function(){}); };
+    $('tkspk').onclick=function(){ t.speaker=!t.speaker; lsSet('talkSpk',t.speaker?'1':'0'); spk(); if(!t.speaker) WzTalk.stopSpeaking(); };
+    $('tkmute').onclick=function(){
+      if(!t.mic) return; t.muted=!t.muted; $('tkmute').innerHTML=t.muted?MIC_OFF:Mic_SVG(); $('tkmute').classList.toggle('off',t.muted);
+      if(t.muted&&!t.working){ t.mic.pause(); t.set('muted'); } else if(!t.muted&&!t.working) t.back('',0);
+    };
+    $('tkend').onclick=endTalk;
+    WzTalk.listen({
+      onLevel:function(l){ if(talk===t&&(t.state==='listening'||t.state==='hearing')) stage.style.setProperty('--lvl',l.toFixed(2)); },
+      onStart:function(){ if(talk===t&&t.state==='listening') t.set('hearing'); },
+      onPhrase:function(ph){ talkPhrase(t,ph); },
+      onError:function(e){ toast(e.message||String(e)); }
+    }).then(function(m){
+      if(talk!==t){ m.close(); return; }
+      t.mic=m; t.back('Say something whenever you like.',0);
+    }).catch(function(e){
+      endTalk(); toast(/denied|not allowed|permission/i.test(e.message)?'Allow the microphone for Wayzerr to talk to your bots.':'Couldn’t open the microphone.');
+    });
+  }
+  function Mic_SVG(){ return MIC_SVG; }
+  function talkPhrase(t,ph){
+    if(talk!==t||t.working) return;
+    t.working=true; t.mic.pause(); t.set('transcribing');
+    post('/api/transcribe',{data:WzTalk.b64(ph.wav),mime:'audio/wav'}).then(function(r){
+      if(talk!==t) return;
+      var text=String(r.text||'').trim();
+      if(WzTalk.junk(text,ph.ms)) return t.back('I didn’t catch that. Go ahead.',200);
+      $('tkyou').textContent=text; $('tkreply').textContent='';
+      t.sentAt=Date.now(); t.set('thinking');
+      msgsCache.push({role:'user',text:text,ts:Date.now()}); busy[t.id]={text:'Thinking',seen:Date.now()}; if(cur===t.id) drawMsgs(true);
+      return post('/api/send',{id:t.id,text:text,images:[]}).then(function(){
+        t.poll=setInterval(function(){ // a safety net in case the "done" signal gets lost
+          api('/api/chat?id='+encodeURIComponent(t.id)).then(function(c){ if(talk===t&&t.state==='thinking'&&!c.busy&&Date.now()-t.sentAt>4000) talkAnswer(t); }).catch(function(){});
+        },4000);
+      });
+    }).catch(function(e){ if(talk===t) t.back(String((e&&e.message)||e).slice(0,140),300); });
+  }
+  function talkAnswer(t){
+    if(talk!==t||t.answering||t.state!=='thinking') return;
+    t.answering=true; clearInterval(t.poll);
+    loadChat().then(function(){
+      if(talk!==t) return;
+      var i=msgsCache.length-1; while(i>=0&&msgsCache[i].role!=='user') i--;
+      var texts=msgsCache.slice(i+1).filter(function(m){ return m.role==='assistant'&&m.text&&!m.pic; }).map(function(m){ return m.text; });
+      if(!texts.length) return t.back('No answer this time.',300);
+      var reply=texts.join('\n\n'), shown=WzTalk.clean(reply);
+      $('tkreply').textContent=shown.slice(0,260)+(shown.length>260?'…':'');
+      if(!t.speaker) return t.back('',200);
+      t.set('speaking');
+      t.speech=WzTalk.speak(reply,{});
+      t.speech.done.then(function(how){
+        if(talk!==t) return;
+        if(how==='unavailable'){ t.speaker=false; $('tkspk').innerHTML=SPK_OFF; $('tkspk').classList.add('off'); return t.back('This phone has no voice to read with, so answers are only shown.',200); }
+        t.back('',500);
+      });
+    }).catch(function(){ if(talk===t) t.back('Couldn’t get the answer.',300); });
+  }
+  function endTalk(){
+    var t=talk; if(!t) return; talk=null; clearInterval(t.poll);
+    try{ WzTalk.stopSpeaking(); }catch(_){}
+    try{ t.mic&&t.mic.close(); }catch(_){}
+    $('talk').classList.remove('open');
+  }
+  $('talkbtn').onclick=startTalk;
+  document.addEventListener('visibilitychange',function(){ if(document.hidden&&talk) endTalk(); });
+  $('send').onclick=function(){ if($('send').dataset.stop){ post('/api/stop',{id:cur}).catch(function(){}); return; } send(); inp.focus(); };
+  $('pic').onchange=function(e){
+    var f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return;
+    var img=new Image(), url=URL.createObjectURL(f);
+    img.onload=function(){ var s=Math.min(1,1600/Math.max(img.width,img.height)), c=document.createElement('canvas'); c.width=Math.round(img.width*s); c.height=Math.round(img.height*s); c.getContext('2d').drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url); if(pics.length<4) pics.push(c.toDataURL('image/jpeg',.85)); drawTray(); grow(); };
+    img.onerror=function(){ toast("Couldn't open that photo."); };
+    img.src=url;
+  };
+  function drawTray(){ $('tray').hidden=!pics.length; $('tray').innerHTML=pics.map(function(p,i){return '<div><img src="'+p+'" alt="Photo '+(i+1)+'"><button data-i="'+i+'" aria-label="Remove">×</button></div>'}).join(''); }
+  $('tray').onclick=function(e){ var i=e.target.dataset.i; if(i!=null){ pics.splice(+i,1); drawTray(); grow(); } };
+
+  // ----- the bot's browser, live -----
+  var shotTimer=null, shotBusy=false;
+  function pull(){
+    if(!cur||shotBusy) return; shotBusy=true; var id=cur;
+    api('/api/screen?id='+encodeURIComponent(id)).then(function(s){
+      if(id!==cur) return;
+      $('surl').textContent=s.hasPage?(s.url||'').replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''):'Browser';
+      $('noscreen').hidden=!!s.img; $('shot').hidden=!s.img;
+      if(s.img){ $('shot').src=s.img; shotThumb[id]=s.img; }
+    }).catch(function(){}).then(function(){ shotBusy=false; });
+  }
+  function openScreen(){ $('sheet').classList.add('open'); pull(); clearInterval(shotTimer); shotTimer=setInterval(pull,1000); }
+  function closeScreen(){ $('sheet').classList.remove('open'); clearInterval(shotTimer); shotTimer=null; }
+  $('openscreen').onclick=openScreen; $('closescreen').onclick=closeScreen; $('reloadscreen').onclick=pull;
+  (function(){
+    var v=$('view'), sy=0, moved=false;
+    v.addEventListener('touchstart',function(e){ sy=e.touches[0].clientY; moved=false; },{passive:true});
+    v.addEventListener('touchmove',function(e){ if(Math.abs(e.touches[0].clientY-sy)>12) moved=true; },{passive:true});
+    v.addEventListener('touchend',function(e){ var t=e.changedTouches[0], dy=t.clientY-sy; if(moved&&Math.abs(dy)>30){ post('/api/scroll',{id:cur,dy:dy<0?0.8:-0.8}).then(function(){ setTimeout(pull,350); }); return; } tapAt(t.clientX,t.clientY); });
+    v.addEventListener('click',function(e){ if(!('ontouchstart' in window)) tapAt(e.clientX,e.clientY); });
+    function tapAt(x,y){
+      var img=$('shot'); if(img.hidden) return; var r=img.getBoundingClientRect(); if(x<r.left||x>r.right||y<r.top||y>r.bottom) return;
+      var vr=v.getBoundingClientRect(), fx=document.createElement('div'); fx.className='tapfx'; fx.style.left=(x-vr.left)+'px'; fx.style.top=(y-vr.top)+'px'; v.appendChild(fx); setTimeout(function(){fx.remove()},600);
+      post('/api/tap',{id:cur,x:(x-r.left)/r.width,y:(y-r.top)/r.height}).then(function(){ setTimeout(pull,400); setTimeout(pull,1200); });
+    }
+  })();
+
+  // ----- updates (installed on the computer) -----
+  function showUpdate(u){ var on=!!(u&&u.available); $('upd').hidden=!on; if(on) $('updv').textContent='Wayzerr '+u.version+' is ready'; if(me) { me.update=u; if(!$('settings').classList.contains('away')) drawSettings(); } }
+  function startUpdate(){
+    var u=(me&&me.update)||{};
+    function go(){
+      closeMenu(); updatingNow=true; $('updating').hidden=false; $('upring').hidden=false; $('uph').textContent='Updating…';
+      $('upp').textContent='Your computer is installing Wayzerr '+(u.version||'')+'. This takes about a minute. Keep this open.';
+      var from=me.version, t0=Date.now();
+      post('/api/update',{}).catch(function(e){ updatingNow=false; $('updating').hidden=true; toast(e.message); });
+      var poll=setInterval(function(){
+        api('/api/me').then(function(m){
+          if(m.version && m.version!==from || (m.update && !m.update.available && Date.now()-t0>20000)){ clearInterval(poll); me=m;
+            $('upring').outerHTML='<div class="ok" id="upring">✓</div>'; $('uph').textContent='Updated'; $('upp').textContent='Wayzerr '+m.version+' is ready on your computer.';
+            setTimeout(function(){ updatingNow=false; location.reload(); },1600); }
+        }).catch(function(){
+          if(Date.now()-t0>180000){ clearInterval(poll); updatingNow=false; $('updating').hidden=true; offline=false; goOffline(); $('offmsg').textContent=tempAddress?'Wayzerr restarted, so the away-from-home address changed. Scan the new QR code on your computer.':''; }
+        });
+      },3000);
+    }
+    // Away from home (not on the same Wi-Fi), the phone may lose the computer while it restarts.
+    if(tempAddress){
+      openMenu('<h3>Update Wayzerr?</h3><p class="warn">You\'re not on the same Wi-Fi as your computer. When Wayzerr restarts to update, this phone will probably disconnect. To connect again, you\'ll need to scan the new QR code on your computer.</p><div class="acts"><button id="cn">Cancel</button><button class="go2" id="ok">Update anyway</button></div>');
+      $('cn').onclick=closeMenu; $('ok').onclick=go;
+    } else go();
+  }
+  $('updbtn').onclick=startUpdate;
+
+
+  // ----- tasks: bots doing things by themselves at a time you choose -----
+  var T={schedules:[],log:[],bots:[],now:''};
+  function whenText(ts){ if(!ts) return ''; var d=new Date(ts), n=new Date(), tm=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); if(d.toDateString()===n.toDateString()) return 'today '+tm; var t2=new Date(n.getTime()+86400000); if(d.toDateString()===t2.toDateString()) return 'tomorrow '+tm; return d.toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'})+' '+tm; }
+  function loadTasks(){ return api('/api/tasks').then(function(t){ T=t; drawTasks(); }).catch(function(e){ $('tasklist').innerHTML='<div class="help" style="text-align:center;margin:40px 10px">'+esc(e.message)+'</div>'; }); }
+  function drawTasks(){
+    var h='';
+    if(!T.schedules.length) h+='<div class="help" style="text-align:center;margin:48px 14px">No tasks yet.<br>Tap + to make a bot do something by itself, once or on repeat.</div>';
+    else h+='<div class="grp-t">Scheduled</div><div class="group">'+T.schedules.map(function(s){
+      var bot=(T.bots.filter(function(b){return b.id===s.botId})[0]||{}).name||'a bot';
+      var sub=esc(bot)+' · '+esc(s.repeatText||'Once')+(s.enabled===false?' · Paused':(s.next?' · next '+esc(whenText(s.next)):' · done'));
+      return '<div class="it tap'+(s.enabled===false?' off':'')+'" data-t="'+esc(s.id)+'"><div class="grow"><b>'+esc(s.title)+'</b><small>'+sub+'</small></div><label class="swt"><input type="checkbox" data-tg="'+esc(s.id)+'"'+(s.enabled===false?'':' checked')+'><span></span></label></div>';
+    }).join('')+'</div>';
+    if(T.log.length) h+='<div class="grp-t">Recent runs</div><div class="group">'+T.log.map(function(r){
+      var st=r.status==='done'||r.status==='ok'?'Done':r.status==='running'?'Running…':r.status==='stopped'?'Stopped':r.status==='error'||r.status==='failed'?'Didn’t finish':esc(r.status||'');
+      return '<div class="it"><div class="grow"><b>'+esc(r.title||'Task')+'</b><small>'+esc(r.botName||'')+' · '+esc(whenText(r.ts))+' · '+st+'</small></div></div>';
+    }).join('')+'</div>';
+    $('tasklist').innerHTML=h;
+    Array.prototype.forEach.call($('tasklist').querySelectorAll('[data-t]'),function(el){ el.onclick=function(ev){ if(ev.target.closest('.swt')) return; taskEditor(el.dataset.t); }; });
+    Array.prototype.forEach.call($('tasklist').querySelectorAll('[data-tg]'),function(cb){ cb.onchange=function(){ post('/api/tasks/toggle',{id:cb.dataset.tg,enabled:cb.checked}).then(loadTasks).catch(function(e){ toast(e.message); loadTasks(); }); }; });
+  }
+  function pad2(n){ return (n<10?'0':'')+n; }
+  function localStart(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())+'T'+pad2(d.getHours())+':'+pad2(d.getMinutes()); }
+  function taskEditor(id){
+    var s=T.schedules.filter(function(x){return x.id===id})[0]||null;
+    if(!T.bots.length){ toast('Make a bot first.'); return; }
+    var rep=(s&&s.repeat)||{type:'none'}, days=(rep.days||[]).slice();
+    var base=T.now?new Date(T.now.replace('T',' ').replace(/-/g,'/')):new Date();
+    var def=localStart(new Date(base.getTime()+10*60000));
+    var start=s?s.start:def;
+    var rtype=rep.type||'none';
+    var names=['S','M','T','W','T','F','S'];
+    var m=openMenu('<h3>'+(s?'Edit task':'New task')+'</h3>'
+      +'<div class="lbl">Which bot</div><select class="tx" id="te-bot">'+T.bots.map(function(b){ return '<option value="'+esc(b.id)+'"'+((s&&s.botId===b.id)?' selected':'')+'>'+esc(b.name)+'</option>'; }).join('')+'</select>'
+      +'<div class="lbl">What should it do?</div><textarea class="tx" id="te-prompt" placeholder="Read me the news and text me a summary" maxlength="2000">'+esc(s?s.prompt:'')+'</textarea>'
+      +'<div class="lbl">When (the time on your computer)</div><input class="tx" type="datetime-local" id="te-start" value="'+esc(start)+'">'
+      +'<div class="lbl">Repeat</div><select class="tx" id="te-rep">'+[['none','Once'],['daily','Every day'],['weekdays','Every weekday'],['weekly','Every week on…'],['monthly','Every month'],['interval','Every few minutes or hours']].map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===rtype?' selected':'')+'>'+o[1]+'</option>'; }).join('')+'</select>'
+      +'<div class="days" id="te-days" hidden>'+names.map(function(n,i){ return '<button type="button" data-d="'+i+'" class="'+(days.indexOf(i)>=0?'on':'')+'">'+n+'</button>'; }).join('')+'</div>'
+      +'<div class="row2" id="te-int" hidden><input class="tx" id="te-every" type="number" min="1" max="999" value="'+esc(rep.every||30)+'"><select class="tx" id="te-unit"><option value="minutes"'+(rep.unit==='hours'?'':' selected')+'>minutes</option><option value="hours"'+(rep.unit==='hours'?' selected':'')+'>hours</option></select></div>'
+      +'<div class="pick" style="margin-top:10px"><label><input type="checkbox" id="te-pc"'+((s&&s.useComputer)?' checked':'')+'> Let it use its computer</label></div>'
+      +'<div class="acts"><button id="te-cn">Cancel</button><button class="go2" id="te-ok">Save</button></div>'
+      +(s?'<div class="minor"><button id="te-run">Run now</button><button class="bad" id="te-del">Delete</button></div>':''));
+    function showRep(){ var v=$('te-rep').value; $('te-days').hidden=v!=='weekly'; $('te-int').hidden=v!=='interval'; }
+    showRep(); $('te-rep').onchange=showRep;
+    Array.prototype.forEach.call($('te-days').querySelectorAll('button'),function(b){ b.onclick=function(){ b.classList.toggle('on'); }; });
+    $('te-cn').onclick=closeMenu;
+    $('te-ok').onclick=function(){
+      var v=$('te-rep').value, r={type:v};
+      if(v==='weekly'){ r.days=Array.prototype.map.call($('te-days').querySelectorAll('button.on'),function(b){return +b.dataset.d}); }
+      if(v==='interval'){ r.every=+$('te-every').value||30; r.unit=$('te-unit').value; }
+      var body={botId:$('te-bot').value,prompt:$('te-prompt').value.trim(),start:$('te-start').value,repeat:r,useComputer:$('te-pc').checked,enabled:true};
+      if(s) body.id=s.id;
+      if(!body.prompt){ toast('Say what it should do.'); return; }
+      if(!body.start){ toast('Choose a date and time.'); return; }
+      $('te-ok').disabled=true;
+      post('/api/tasks/save',body).then(function(){ closeMenu(); toast('Saved'); loadTasks(); }).catch(function(e){ $('te-ok').disabled=false; toast(e.message); });
+    };
+    if(s){
+      $('te-run').onclick=function(){ post('/api/tasks/run',{id:s.id}).then(function(){ closeMenu(); toast('Started'); setTimeout(loadTasks,1500); }).catch(function(e){ toast(e.message); }); };
+      $('te-del').onclick=function(){ openMenu('<h3>Delete this task?</h3><p class="warn">'+esc(s.title)+' will not run again.</p><div class="acts"><button id="dn">Cancel</button><button class="go2" id="dy">Delete</button></div>'); $('dn').onclick=closeMenu; $('dy').onclick=function(){ post('/api/tasks/delete',{id:s.id}).then(function(){ closeMenu(); loadTasks(); }).catch(function(e){ toast(e.message); }); }; };
+    }
+  }
+  $('opentasks').onclick=function(){ $('tasks').classList.remove('away'); $('home').classList.add('under'); loadTasks(); };
+  $('closetasks').onclick=function(){ $('tasks').classList.add('away'); $('home').classList.remove('under'); };
+  $('newtask').onclick=function(){ taskEditor(null); };
+
+  // ----- one bot's settings: name, personality, how hard it thinks, memories, clear, delete -----
+  function botOptions(){
+    if(!cur) return;
+    api('/api/bot?id='+encodeURIComponent(cur)).then(function(b){
+      var eff=[['fast','Fast'],['default','Default'],['low','Low'],['medium','Medium'],['high','High'],['xhigh','X-High'],['max','Max']];
+      var mems=(b.memories||[]);
+      openMenu('<h3>'+esc(b.group?'Group settings':'Bot settings')+'</h3>'
+        +'<div class="lbl">Name</div><input class="tx" id="bo-name" maxlength="40" value="'+esc(b.name)+'">'
+        +'<div class="lbl">Tag</div><input class="tx" id="bo-tag" maxlength="30" value="'+esc(b.tag)+'">'
+        +(b.group?'':'<div class="lbl">Who it is and how it behaves</div><textarea class="tx" id="bo-desc" maxlength="2000" style="height:120px">'+esc(b.description)+'</textarea>'
+        +'<div class="lbl">How hard it thinks</div><select class="tx" id="bo-eff">'+eff.map(function(e){ return '<option value="'+e[0]+'"'+(b.effort===e[0]?' selected':'')+'>'+e[1]+'</option>'; }).join('')+'</select>'
+        +'<div class="lbl">What it remembers</div>'+(mems.length?mems.map(function(m){ return '<div class="mem"><span>'+esc(m.text)+'</span><button data-m="'+esc(m.id)+'">Forget</button></div>'; }).join(''):'<div class="mem"><span>Nothing yet.</span></div>'))
+        +'<div class="acts"><button id="bo-cn">Close</button><button class="go2" id="bo-ok">Save</button></div>'
+        +'<div class="minor"><button id="bo-clear">Clear chat</button><button class="bad" id="bo-del">Delete</button></div>');
+      $('bo-cn').onclick=closeMenu;
+      $('bo-ok').onclick=function(){ var body={id:cur,name:$('bo-name').value,tag:$('bo-tag').value}; if(!b.group){ body.description=$('bo-desc').value; body.effort=$('bo-eff').value; } post('/api/bot/edit',body).then(function(){ closeMenu(); toast('Saved'); load(); }).catch(function(e){ toast(e.message); }); };
+      Array.prototype.forEach.call($('menu').querySelectorAll('[data-m]'),function(x){ x.onclick=function(){ post('/api/bot/forget',{id:cur,memoryId:x.dataset.m}).then(function(){ x.closest('.mem').remove(); }).catch(function(e){ toast(e.message); }); }; });
+      function sure(title,text,yes,fn){ openMenu('<h3>'+title+'</h3><p class="warn">'+text+'</p><div class="acts"><button id="sn">Cancel</button><button class="go2" id="sy">'+yes+'</button></div>'); $('sn').onclick=closeMenu; $('sy').onclick=fn; }
+      $('bo-clear').onclick=function(){ sure('Clear this chat?','The messages are deleted from your computer. The bot keeps what it remembers.','Clear chat',function(){ post('/api/bot/clear',{id:cur}).then(function(){ closeMenu(); toast('Chat cleared'); loadChat(true); }).catch(function(e){ toast(e.message); }); }); };
+      $('bo-del').onclick=function(){ sure('Delete '+esc(b.name)+'?','The bot, its chat and its memories are deleted from your computer. This can’t be undone.','Delete',function(){ post('/api/bot/delete',{id:cur}).then(function(){ closeMenu(); $('back').onclick(); load(); }).catch(function(e){ toast(e.message); }); }); };
+    }).catch(function(e){ toast(e.message); });
+  }
+  $('botopts').onclick=botOptions;
+
+  // ----- settings & profile -----
+  function initial(n){ return (String(n||'').trim()[0]||'N').toUpperCase(); }
+  function drawSettings(){
+    $('meinit').textContent=initial(me.userName); $('bigme').textContent=initial(me.userName);
+    if(document.activeElement!==$('myname')) $('myname').value=me.userName||'';
+    $('mystats').textContent=(me.bots||0)+' bot'+(me.bots===1?'':'s')+(me.groups?' · '+me.groups+' group'+(me.groups===1?'':'s'):'');
+    $('scomp').textContent=me.computer||'Your computer'; $('sdot').className='dot'+(offline?' off':''); $('scompsub').textContent=offline?'Disconnected':(viaAnywhere?'Connected from anywhere':'Connected on your Wi-Fi');
+    $('anysub').textContent=(me.permanent||viaAnywhere)?'On · works on mobile data and any Wi-Fi':me.anywhere?'On · works on mobile data too':'Starting on your computer…';
+    if(document.activeElement!==$('phname')) $('phname').value=(me.phone||{}).name||'';
+    $('sver').textContent='Wayzerr '+(me.version||'');
+    var u=me.update||{}, b=$('supbtn');
+    if(u.available){ $('supd').textContent='Version '+u.version+' is ready'; b.textContent='Update'; b.className='pillbtn hot'; }
+    else if(!b.disabled){ $('supd').textContent='Up to date'; b.textContent='Check'; b.className='pillbtn'; }
+    // secure connection
+    var sb=$('secbtn');
+    if(secureHere){ $('secsub').textContent=viaAnywhere?'On · over the internet':'On · QR scanner and offline screen work'; sb.hidden=true; $('secsteps').hidden=true; }
+    else if(!me.secureBase){ $('secsub').textContent='Not available on this network'; sb.hidden=true; }
+    else { $('secsub').textContent='Off · turn on the QR scanner and offline screen'; sb.hidden=false; $('dlprof').href='/nexarium.mobileconfig'; }
+    $('foot2').textContent=(me.phone&&me.phone.added)?'Connected since '+new Date(me.phone.added).toLocaleDateString([], {day:'numeric',month:'long',year:'numeric'}):'';
+  }
+  function loadMe(){ return api('/api/me').then(function(m){ me=m; drawSettings(); showUpdate(m.update); }).catch(function(){}); }
+  $('openset').onclick=function(){ $('settings').classList.remove('away'); $('home').classList.add('under'); loadMe(); };
+  $('closeset').onclick=function(){ $('settings').classList.add('away'); $('home').classList.remove('under'); };
+  $('myname').onchange=function(){ me.userName=this.value.trim(); drawSettings(); post('/api/me',{userName:me.userName}).then(function(){ toast('Saved'); }).catch(function(e){ toast(e.message); }); };
+  $('phname').onchange=function(){ var v=this.value.trim(); if(!v) return; post('/api/me',{phoneName:v}).then(function(){ toast('Saved'); loadMe(); }).catch(function(e){ toast(e.message); }); };
+  $('lockbtn').onclick=tryUnlock; $('lockin').onkeydown=function(e){ if(e.key==='Enter') tryUnlock(); }; $('lockin').oninput=function(){ this.value=this.value.replace(/\D/g,'').slice(0,6); if(this.value.length===6) tryUnlock(); };
+  $('anyhelp').onclick=function(){ $('anysteps').hidden=!$('anysteps').hidden; };
+  $('a2hshelp').onclick=function(){ $('a2hssteps').hidden=!$('a2hssteps').hidden; };
+  $('secbtn').onclick=function(){ $('secsteps').hidden=!$('secsteps').hidden; };
+  $('goSecure').onclick=function(){
+    var b=this; b.disabled=true; b.textContent='Checking…';
+    fetch(me.secureBase+'/api/ping',{cache:'no-store'}).then(function(r){ return r.json(); }).then(function(){ location.href=me.secureBase+'/?k='+encodeURIComponent(K); })
+      .catch(function(){ b.disabled=false; b.textContent='Switch to secure'; toast("Not yet. Install the profile and turn it on in Certificate Trust Settings first."); });
+  };
+  $('supbtn').onclick=function(){
+    var b=$('supbtn');
+    if(me.update&&me.update.available) return startUpdate();
+    b.disabled=true; b.textContent='Checking…';
+    post('/api/update/check',{}).then(function(u){ me.update=u; b.disabled=false; drawSettings(); showUpdate(u); if(!u.available) toast("You're up to date"); }).catch(function(e){ b.disabled=false; b.textContent='Check'; toast(e.message); });
+  };
+  $('logout').onclick=function(){
+    openMenu('<h3>Disconnect this phone?</h3><p class="warn">You can connect it again by scanning the QR code on your computer.</p><div class="acts"><button id="cn">Cancel</button><button class="go2" id="ok">Disconnect</button></div>');
+    $('cn').onclick=closeMenu;
+    $('ok').onclick=function(){ post('/api/logout',{}).catch(function(){}).then(function(){ try{localStorage.removeItem('nx-key')}catch(_){} location.replace('/'); }); };
+  };
+
+  // ----- QR scanner: a live square when the phone allows the camera here, otherwise a photo -----
+  var stream=null, scanRaf=0;
+  var canLive=!!(window.isSecureContext && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  function loadJsqr(cb){ if(window.jsQR) return cb(); var sc=document.createElement('script'); sc.src='/jsqr.js'; sc.onload=cb; sc.onerror=function(){ toast("Couldn't load the scanner."); }; document.head.appendChild(sc); }
+  function found(text,msgEl){
+    var u=null; try{ u=new URL(text); }catch(_){}
+    if(!u||!(u.searchParams.get('join')||u.searchParams.get('k'))){ if(msgEl) msgEl.textContent="That isn't a Wayzerr code. Scan the code in Wayzerr → Settings → Phone."; return false; }
+    document.querySelector('.scanbox').classList.add('ok');
+    if(navigator.vibrate) navigator.vibrate(40);
+    setTimeout(function(){ stopScan(); location.href=(u.host===location.host?'':u.origin)+'/'+u.search; },250);
+    return true;
+  }
+  function stopScan(){ cancelAnimationFrame(scanRaf); if(stream){ stream.getTracks().forEach(function(t){t.stop()}); stream=null; } $('scanner').hidden=true; document.querySelector('.scanbox').classList.remove('ok'); }
+  function decodePhoto(f,msgEl){
+    msgEl.textContent='Reading the code…';
+    loadJsqr(function(){
+      var img=new Image(), url=URL.createObjectURL(f);
+      img.onload=function(){
+        URL.revokeObjectURL(url);
+        // try a few sizes and crops: photos of screens are big and busy
+        var tries=[[1,1000],[1,1600],[.6,1000],[.4,900]], r=null;
+        for(var i=0;i<tries.length&&!r;i++){
+          var crop=tries[i][0], side=Math.min(img.width,img.height)*crop, sx=(img.width-(crop<1?side:img.width))/2, sy=(img.height-(crop<1?side:img.height))/2, w=crop<1?side:img.width, h=crop<1?side:img.height;
+          var s=Math.min(1,tries[i][1]/Math.max(w,h)), c=document.createElement('canvas'); c.width=Math.round(w*s); c.height=Math.round(h*s);
+          var x=c.getContext('2d'); x.drawImage(img,sx,sy,w,h,0,0,c.width,c.height);
+          r=window.jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height,{inversionAttempts:'attemptBoth'});
+        }
+        if(!r||!found(r.data,msgEl)) msgEl.textContent=msgEl.textContent==='Reading the code…'?"Couldn't find a QR code in that photo. Hold the phone closer so the code fills the middle, then try again.":msgEl.textContent;
+      };
+      img.onerror=function(){ msgEl.textContent="Couldn't open that photo."; };
+      img.src=url;
+    });
+  }
+  var photoMsg=null;
+  $('photo').onchange=function(e){ var f=e.target.files&&e.target.files[0]; e.target.value=''; if(f) decodePhoto(f,photoMsg||$('cmsg')); };
+  function startScan(msgEl){
+    photoMsg=msgEl; msgEl.textContent='';
+    if(!canLive){ $('photo').click(); return; }
+    loadJsqr(function(){
+      navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:1280}},audio:false}).then(function(st){
+        stream=st; var v=$('scanvid'); v.srcObject=st; v.play(); $('scanner').hidden=false;
+        var c=document.createElement('canvas'), x=c.getContext('2d',{willReadFrequently:true}), last=0;
+        (function tick(t){
+          scanRaf=requestAnimationFrame(tick);
+          if(t-last<120||v.readyState<2) return; last=t;
+          var side=Math.min(v.videoWidth,v.videoHeight)*.8, sx=(v.videoWidth-side)/2, sy=(v.videoHeight-side)/2, n=Math.min(640,Math.round(side));
+          c.width=n; c.height=n; x.drawImage(v,sx,sy,side,side,0,0,n,n);
+          var r=window.jsQR(x.getImageData(0,0,n,n).data,n,n,{inversionAttempts:'dontInvert'});
+          if(r&&r.data) found(r.data,null);
+        })(0);
+      }).catch(function(){ $('photo').click(); });
+    });
+  }
+  $('scanx').onclick=stopScan;
+  $('scanbtn').onclick=function(){ startScan($('cmsg')); };
+  $('offscan').onclick=function(){ startScan($('offmsg')); };
+
+  // ----- connecting a new phone (no codes) -----
+  function useKey(k){ try{localStorage.setItem('nx-key',k)}catch(e){} location.replace('/?k='+encodeURIComponent(k)); }
+  $('askbtn').onclick=function(){
+    var b=$('askbtn'); b.disabled=true; b.innerHTML='<span class="spin"></span>Waiting for your computer…'; $('cmsg').textContent=''; $('cp').textContent='On your computer, click Allow in Wayzerr.';
+    fetch('/api/join',{method:'POST'}).then(function(r){return r.json()}).then(function(j){
+      if(!j.id) throw new Error(j.error||"Couldn't reach your computer.");
+      var n=0, poll=setInterval(function(){
+        fetch('/api/join?id='+j.id).then(function(r){return r.json()}).then(function(x){
+          if(x.status==='ok'){ clearInterval(poll); useKey(x.key); }
+          else if(x.status==='denied'||x.status==='gone'||++n>150){ clearInterval(poll); reset(x.status==='denied'?'Your computer said no.':'No answer from your computer. Try again.'); }
+        }).catch(function(){});
+      },2000);
+    }).catch(function(e){ reset(e.message==='Failed to fetch'||e.message==='Load failed'?"Can't reach your computer. Is it on and online, with Wayzerr open?":e.message); });
+    function reset(m){ b.disabled=false; b.innerHTML='Connect'; $('cmsg').textContent=m; $('cp').textContent='Open Wayzerr on your computer first, then scan the code in Settings → Phone.'; }
+  };
+
+  // ----- a bot asks for your OK (for example to use a saved card) -----
+  var askQueue=[], askOpen=null;
+  function showAsk(){
+    if(askOpen||!askQueue.length) return;
+    var r=askQueue[0]; askOpen=r.requestId;
+    var card=r.kind==='card';
+    openMenu('<h3>'+(card?'Use your '+esc(r.connectorName)+'?':'Allow '+esc(r.personaName)+' to use '+esc(r.connectorName)+'?')+'</h3>'+
+      '<p class="warn">'+(card?esc(r.personaName)+' wants to pay'+(r.what?' for <b>'+esc(r.what)+'</b>':'')+(r.site?' on <b>'+esc(r.site)+'</b>':'')+(r.amount?' · <b>'+esc(r.amount)+'</b>':'')+'. It never sees the card number, and it asks again before it pays.':esc(r.toolName||''))+'</p>'+
+      '<div class="acts"><button id="ak-no">'+(card?"Don't use":"Don't allow")+'</button><button class="go2" id="ak-once">'+(card?'Use it this time':'Allow once')+'</button></div>'+(card?'':'<div class="acts" style="margin-top:0"><button id="ak-always">Always allow</button></div>'));
+    var answer=function(a){ post('/api/permission',{requestId:r.requestId,answer:a}).catch(function(){}); askQueue.shift(); askOpen=null; closeMenu(); setTimeout(showAsk,350); };
+    $('ak-no').onclick=function(){answer('deny')}; $('ak-once').onclick=function(){answer('once')}; if($('ak-always')) $('ak-always').onclick=function(){answer('always')};
+  }
+  function loadAsks(){ api('/api/permissions').then(function(j){ (j.asks||[]).forEach(function(r){ if(!askQueue.some(function(x){return x.requestId===r.requestId})) askQueue.push(r); }); showAsk(); }).catch(function(){}); }
+
+  // ----- live updates from the computer -----
+  var es=null;
+  function listen(){
+    if(!K||es) return;
+    es=new EventSource('/api/events?k='+encodeURIComponent(K)+'&s='+encodeURIComponent(SS));
+    es.addEventListener('refresh',function(){ load(); if(cur) loadChat(); });
+    es.addEventListener('chat',function(e){ var d=JSON.parse(e.data||'{}'); if(!d.id) return;
+      if(d.type==='status') busy[d.id]={text:d.text,bot:d.bot,activity:d.activity,seen:Date.now()}; else if(d.type==='done') { delete busy[d.id]; }
+      if(d.type==='done'&&talk&&talk.id===d.id&&talk.state==='thinking') talkAnswer(talk);
+      if(cur===d.id){ drawHead(); drawMsgs(); if(d.type==='done') loadChat(); if(browsing({id:d.id})&&!shotThumb[d.id]) pull(); } else drawList(); });
+    es.addEventListener('notice',function(e){ var t=JSON.parse(e.data||'{}').text||''; if(updatingNow&&/^Update failed/.test(t)){ updatingNow=false; $('updating').hidden=true; } toast(t); });
+    es.addEventListener('permission',function(e){ askQueue.push(JSON.parse(e.data||'{}')); showAsk(); });
+    es.addEventListener('permission-done',function(e){ var d=JSON.parse(e.data||'{}'); askQueue=askQueue.filter(function(x){return x.requestId!==d.requestId}); if(askOpen===d.requestId){ askOpen=null; closeMenu(); setTimeout(showAsk,350); } });
+    es.addEventListener('update',function(e){ showUpdate(JSON.parse(e.data||'{}')); });
+    es.addEventListener('update-progress',function(e){ var d=JSON.parse(e.data||'{}'); if(d.text&&updatingNow) $('upp').textContent=d.text; });
+    es.onerror=function(){ if(!updatingNow){ $('dot').className='dot off'; setTimeout(load,1500); } };
+    es.onopen=function(){ $('dot').className='dot'; goOnline(); load(); loadAsks(); };
+  }
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden){ load(); if(cur) loadChat(); if(es&&es.readyState===2){ es=null; listen(); } } });
+  $('send').innerHTML=ICON_SEND;
+  load().then(listen);
+})();
+</script>
+</body>
+</html>

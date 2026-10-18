@@ -1,0 +1,16 @@
+html.light {
+  --bg: #ffffff;
+  --side: #f7f7f8;
+  --panel: #f3f3f4;
+  --raised: #ececee;
+  --bubble: #f0f0f1;
+  --bubble-user: #e4e4e7;
+  --line: #e6e6e8;
+  --line-2: #dcdce0;
+  --text: #111111;
+  --text-2: #4a4a4f;
+  --muted: #86868b;
+  --danger: #e5484d;
+  --ok: #1f9d55;
+  color-scheme: light;
+}

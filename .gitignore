@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-*/
+*.log
+.DS_Store
+# speech model weights are downloaded by scripts/fetch-speech-model.sh
+src/stt/models/
+src/stt/transformers.min.js

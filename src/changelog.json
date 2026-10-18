@@ -1,0 +1,527 @@
+{
+  "1.3.32": [
+    "Safer updates: Wayzerr now checks that a downloaded update is the exact file that was published, and that it is validly signed, before installing it.",
+    "Sites that a bot visits in its browser can no longer ask for your camera, microphone, location or notifications.",
+    "The Files connector can no longer be tricked into reading files outside the shared folder.",
+    "Approving a card or login from the phone now needs Touch ID on the Mac, like in the Mac window.",
+    "Bots are told that text from web pages and emails is information, never orders, and to ask you before sending, posting, paying or deleting because of it.",
+    "Wayzerr no longer uploads updates from your Downloads folder, and no longer removes macOS security flags from the phone helper.",
+    "The helper that links your phone is now a fixed, checked version, and only Wayzerr's own window can send commands to the app's inside.",
+    "Clearer permission descriptions, and two extra safety locks on the app itself."
+  ],
+  "1.3.31": [
+    "Wayzerr no longer asks for permission to your Downloads folder every time it updates.",
+    "A calmer violet look and a slightly bigger normal text size.",
+    "The chat now uses the full width, and you can collapse the bot list to just the faces with the button at the bottom of the sidebar.",
+    "Calendar: bots are listed on the left. Add a task for the bot you are chatting with, or drag any bot onto a day or time to give it a task there. The calendar is also in your account menu now; Passwords and Delete account moved out of it (they are still in Settings).",
+    "You can see where a chat was compressed, and click “is thinking…” to see what a bot is thinking.",
+    "Bots begin a task with “ok, I’ll start with…” instead of “Plan:”, and have some new little animations.",
+    "Windows: the computer offer just asks Download or Don’t download (you can download it later in Settings → Computer), and the speed tip has an OK button."
+  ],
+  "1.3.30": [
+    "Simpler computer offer: it now just says how big the download is and asks Download or Don’t download. If you say no, the computer card goes away, and you can download it any time in Settings → Computer.",
+    "On Windows the Wayzerr logo now shows on the program, its shortcuts and the taskbar instead of the Electron logo, and the tip about making the computer faster has an OK button to dismiss it.",
+    "Fix: on Windows and Linux, “Connect” (installing helpers like Claude or Gemini) could fail because part of the installer was packed in the wrong place.",
+    "A new look for the Mac install window, updated Help answers about which computers can run a bot’s own computer, and small wording fixes."
+  ],
+  "1.1.51": [
+    "Browsing is much cheaper: after each step the bot gets the page as text (what's on screen plus the buttons and fields) instead of a screenshot. Pictures are only sent where text can't show the page, like Google Slides",
+    "Screenshots that are still needed are smaller, and long tasks shorten old page reads",
+    "Easy questions are answered by your AI's small model (like GPT mini or Claude Haiku), which uses much less of your plan or credits. Real jobs still use the big one",
+    "Bot instructions and tool descriptions are about a third shorter, so every step costs less",
+    "AI usage on Low: everyday answers also have a length limit"
+  ],
+  "1.1.50": [
+    "Uses much less of your AI plan or credits: bots only load the tools a message needs (and can load more by themselves), and a quick “hi” or “thanks” gets no tools at all",
+    "Instructions now stay the same from message to message, so ChatGPT, Claude and other AI services can reuse (cache) them, which is much cheaper",
+    "Bots signed in with Claude or ChatGPT keep their cloud chat cached, and start it fresh with a short summary when it gets very long",
+    "Long browser jobs keep only the newest screenshot instead of all of them",
+    "Long chats are summarised sooner instead of being sent word for word every time",
+    "New setting: Settings → General → AI usage (Low, Balanced or Max). Low also uses a small model for chit-chat, shorter answers and less thinking"
+  ],
+  "1.1.49": [
+    "When your computer has Touch ID, the fingerprint sheet comes up when a bot wants to use your saved card, or a saved login set to “Always ask”",
+    "“Log in to …” cards show your saved logins at the top: pick one and confirm with Touch ID, and it's typed into the page for the bot",
+    "Showing a saved password in Settings asks for Touch ID first",
+    "Wayzerr now runs on Windows and Linux too",
+    "Updates on Windows and Linux: put the new Wayzerr installer in your Downloads folder and the update card shows up",
+    "On Windows and Linux, shortcuts show Ctrl instead of ⌘"
+  ],
+  "1.3.0": [
+    "Persona is now Nexarium — same bots, chats and passwords",
+    "New look: round, soft 3D bots (no more bowties)",
+    "New app icon and installer"
+  ],
+  "1.2.1": [
+    "Publish updates for everyone right from Persona (for the app's owner)",
+    "Updates appear for all users automatically"
+  ],
+  "1.1.8": [
+    "Bots stop and tell you when they take too long, instead of thinking forever",
+    "No internet? The bot tells you right away",
+    "Phone: a clear Not connected screen, and chats hide when your computer can't be reached",
+    "Phone: update Nexarium on your computer from your phone",
+    "Clearer steps for Use anywhere",
+    "Your computer stays awake while Phone is on",
+    "Phone: cleaner design and a better text bar",
+    "Phone: watch your bot's browser live, tap to click and swipe to scroll",
+    "Phone: connect without codes, just tap Connect and click Allow on your computer (or scan the QR code)",
+    "See which phones are connected, and remove any of them",
+    "Simpler Settings",
+    "Phone: your bots look the same as on your computer",
+    "Phone: connect by scanning the QR code or typing a 6-digit code, right in the app",
+    "New logo: the red orb bot",
+    "Wording: 'computer' instead of 'Mac'"
+  ],
+  "1.1.7": [
+    "Nexarium on your iPhone: Settings → Phone",
+    "Teach a skill: show your bots how to do something in their browser, and they repeat it when you ask",
+    "New simple logo",
+    "Better-looking 3D bots"
+  ],
+  "1.1.6": [
+    "Bots answer from their own knowledge instead of opening the browser"
+  ],
+  "1.1.5": [
+    "Connectors first, browser only when you ask or a connector fails"
+  ],
+  "1.1.4": [
+    "A timer shows how long a bot has been thinking, and \"Thought for 12s\" after it answers"
+  ],
+  "1.3.1": [
+    "Preview: every bot can now get its own small Linux computer that runs only inside Wayzerr (Apple silicon Macs first). Open a bot, then look for Computer in the Screen panel"
+  ],
+  "1.3.2": [
+    "Updates now reach you even on internet connections that block part of Cloudflare, so Wayzerr can find new versions from anywhere"
+  ],
+  "1.3.3": [
+    "Fixed a small error that could appear in the background while Wayzerr was starting up"
+  ],
+  "1.4.0": [
+    "Nexarium on your iPhone: Settings → Phone, scan the code, add it to your Home Screen",
+    "Your bots keep their ChatGPT, Claude and Gemini brains on the phone",
+    "Use anywhere: also works away from home through a secure link"
+  ],
+  "1.1.9": [
+    "Phone: Settings and profile. Tap your picture at the top right",
+    "Phone: an Update button that's always there, under Settings → Updates",
+    "Phone: Computer section with Connect to computer (scan the QR code) and Use away from home",
+    "Phone: change your name and this phone's name, or disconnect this phone"
+  ],
+  "1.1.10": [
+    "Phone: Scan QR code opens a square scanner right in the app (when using Use anywhere)",
+    "No internet? Bots answer with an offline AI on your computer if you've added one (Ollama)",
+    "Clearer steps: scan with Code Scanner or the Camera"
+  ],
+  "1.1.11": [
+    "Phone: a new look that matches the computer app",
+    "Phone: the message bar sits right at the bottom, and right above the keyboard",
+    "Can't connect an app (for example a school Google Classroom)? Tap Can't connect and your bots won't ask again. They use the browser instead",
+    "Saying no to an app once is remembered"
+  ],
+  "1.1.12": [
+    "Phone: make new bots and group chats, and search your chats",
+    "Phone: group chats show one bot with +N for the others",
+    "Phone: Update shows a spinner while your computer installs it, and warns you first if you're away from home",
+    "Phone: a Phone disconnected screen with Retry connection and Scan QR code",
+    "Phone: secure connection over your own Wi-Fi. It turns on the square QR scanner and lets Nexarium open even when your computer is away, no internet needed",
+    "Use anywhere tries harder to start and tells you why if it can't",
+    "Logo: the bot is in the middle"
+  ],
+  "1.1.13": [
+    "Save payment cards in Settings → Passwords & cards. Bots can pay with them but never see the number, and they ask you every time",
+    "Approve a card or a permission from your phone too",
+    "Notifications when a bot finishes, with the bot's picture. Choose all bots or only some",
+    "Simpler Skills page"
+  ],
+  "1.1.14": [
+    "Typing to one bot is no longer interrupted while another bot works in its browser.",
+    "New blue dot on chats with a new message from a bot. It disappears when you open the chat.",
+    "Bots now write at most 4 updates while they work and at most 3 messages when they finish.",
+    "When bots message each other, the chat shows \"Messaged Calendar bot\" or \"Message from Leader Bot\". Tap it to see their conversation.",
+    "Bot names in messages show the bot's face and colour.",
+    "Simpler Settings: Skills, Passwords & cards, Notifications, Phone and Browser are now inside General."
+  ],
+  "1.1.15": [
+    "When you say where something is (for example \"the website in my Google Classroom, in the class called MUNCH\"), the bot now looks there first and uses what it finds.",
+    "Phone: bot messages now have a clear chat bubble, like yours."
+  ],
+  "1.1.16": [
+    "Bots now send each other one-way private messages. The other bot reads the message, does the task and tells you the result in its own chat.",
+    "The bot that sent the message doesn't wait for an answer anymore."
+  ],
+  "1.1.17": [
+    "Bots can make pictures with your ChatGPT sign-in, or with an OpenAI, Gemini, OpenRouter or Grok key. Click a picture to see it bigger or save it to Downloads.",
+    "Settings → AI & apps → Cloud has a new \"Connect a server\" button to connect any cloud AI server with its address.",
+    "A bot's name is only highlighted when the bot tags it with @."
+  ],
+  "1.1.18": [
+    "The bots no longer have built-in toppers like the antenna, sprout, little hat and sparkle.",
+    "New accessories you can put on any bot, like hats, a crown, bunny ears, a hair bow, a flower, headphones, sunglasses, glasses and a bow tie. Choose one in Edit bot with ◀ ▶ or the arrow keys."
+  ],
+  "1.1.19": [
+    "New way to pick how a bot looks: the 18 bots are in the bottom row and the 16 accessories are in the top row. Move with the arrow keys (← → bot, ↑ ↓ accessory) or click, or press Randomize.",
+    "A new bot starts with a random look and accessory."
+  ],
+  "1.1.20": [
+    "The accessory row now shows just the accessories. The bot row shows each bot wearing the accessory you picked."
+  ],
+  "1.1.21": [
+    "Accessories fit every bot better. Hats are sized to each head and sit on it, the beanie wraps around the head, bunny ears and headbands follow the head's shape, and bows, flowers, headphones and bow ties sit in the right place on each bot."
+  ],
+  "1.1.22": [
+    "Each bot now wears its accessories in its own way, with a little tilt and a soft shadow where the hat touches the head.",
+    "The bot with round ears has its own versions: the beanie goes over its ears, the headphones become ear muffs, its ears turn into bunny ears, the bow sits on an ear and the flower tucks behind the other ear."
+  ],
+  "1.1.23": [
+    "New cowboy hat with a curved brim and a dented top that sits properly on each bot's head.",
+    "When a bot posts in a group chat, its chat now shows which bots it talked to, for example \"Messaged Research bot, Writing bot\", instead of the whole group.",
+    "Private messages between bots are deleted after 1 day."
+  ],
+  "1.1.24": [
+    "The cowboy hat sits a little higher with a wider crown, so no part of the bot's head shows behind it."
+  ],
+  "1.1.25": [
+    "The cowboy hat's top and brim are joined, so there's no gap between them."
+  ],
+  "1.1.26": [
+    "All 18 bots in the picker now have their own colour. New colours are orange, sky blue, magenta, lime, indigo, rose, mint, brown, yellow and slate.",
+    "A new bot starts with a colour none of your bots have yet."
+  ],
+  "1.1.27": [
+    "Group chats read more naturally: each bot answers once with a short message, like texting in a group.",
+    "Bots in a group chat no longer try to message the group they're already in, and they no longer write \"I'll check the group tool…\" or \"Replying as …\"."
+  ],
+  "1.1.28": [
+    "The \"Thought for 6s\" lines are gone. Lines like \"Browsed\" or \"Saved a memory\" stay.",
+    "Bots on a cloud sign-in answer small talk much faster (\"hey\", \"thanks\", \"how are you?\"). They skip starting their tools and the web and use the quickest model."
+  ],
+  "1.1.29": [
+    "Safer data: if the saved data file is ever damaged, Nexarium opens the last good copy instead of starting empty. The damaged file is kept too.",
+    "Smoother with big chats: saving and screen updates are grouped, so the app doesn't stutter while bots write several messages.",
+    "Connector keys (API keys for extra tools) are no longer shown in the app window, only their last 4 characters.",
+    "The welcome screen and Settings fit properly in smaller windows.",
+    "Clearer outline when you move around with the keyboard.",
+    "The phone gets clearer messages when something goes wrong.",
+    "The bot's browser only opens normal web pages."
+  ],
+  "1.1.30": [
+    "Speech to text: click the new microphone button next to Send, talk, then click it again. Your words appear in the message box so you can check them before sending. Esc cancels.",
+    "Works with a Groq, OpenAI or Google Gemini API key. It works on the phone too, on a secure connection."
+  ],
+  "1.1.31": [
+    "Every bot can create new bots, in its own chat and in group chats. Just ask, for example \"make me a cooking bot\". No switch and no approval needed.",
+    "New bots made by other bots get one of the 18 looks, in a colour none of your bots have yet.",
+    "The Team switch is gone from Skills, because it's always on now."
+  ],
+  "1.1.32": [
+    "Bots made by other bots get simple names. \"Create a homework bot\" makes \"Homework bot\" with the tag \"Homework\". The description is what shapes how the bot thinks and talks.",
+    "Homework, email and calendar requests now open Classroom, Gmail or Calendar in the bot's browser when you've said those apps can't connect. Before, the bot said Classroom didn't open."
+  ],
+  "1.1.33": [
+    "Speech to text now works with any AI — cloud sign-in, API key, or none at all",
+    "Your voice is turned into text right on your computer: free, no key, nothing leaves the computer",
+    "If you've added a Groq, OpenAI or Gemini key, that faster cloud engine is still used first"
+  ],
+  "1.1.34": [
+    "Nexarium is now Wayzerr — same bots, chats and passwords",
+    "New logo and app icon: the yellow bot with the sprout, peeking up at the name"
+  ],
+  "1.1.35": [
+    "Light mode and dark mode: Settings → General → Appearance (Auto follows your computer)",
+    "The phone app follows the same setting",
+    "The installer window can be made bigger without the background running out"
+  ],
+  "1.1.36": [
+    "Bots signed in with ChatGPT, Claude, Gemini and other apps can now see the pictures you send (before, only API bots could)"
+  ],
+  "1.1.37": [
+    "Click any picture in a chat to see it full screen — Turn it, zoom in, ← → between pictures, and Save to Downloads",
+    "On the phone, tap a picture to see it full screen and save it"
+  ],
+  "1.1.38": [
+    "Bots understand short names like \"my gc\", \"classroom\", \"gcal\" and \"my slides\"",
+    "When you don't say which class, the bot looks in Classroom and asks you with tappable buttons showing your real class names",
+    "Google Slides: the bot opens the presentation you name and edits it there"
+  ],
+  "1.1.39": [
+    "Bots can scroll anywhere — also inside documents, PDFs, file viewers and slides — and read long pages to the end",
+    "Bots can click on any spot, drag, press keys and shortcuts, and type anywhere, so they can edit Google Slides and other sites in their browser",
+    "Bots use your connected apps (like Google Slides) instead of the browser. Choose in Settings → General → Browser & apps",
+    "Bots can do much longer jobs (up to 40 steps) and research faster",
+    "Fixed: the Update button didn't show for the last few updates"
+  ],
+  "1.1.40": [
+    "Bots finish the whole job from one message instead of stopping halfway to report",
+    "Connecting an app no longer stalls the bot: it waits a moment for you to tap Authorize, then carries on — or does it in its browser",
+    "Bots stop asking you to connect apps that are already connected"
+  ],
+  "1.1.41": [
+    "Bots no longer type the same text again and again in Google Slides and editors — they see a picture of the result after typing, and replace a box's text instead of adding to it",
+    "Saved accounts work on any website: your Google account signs in to Classroom, Slides, Drive and every “Sign in with Google”"
+  ],
+  "1.1.42": [
+    "Answers appear word by word as they're written (API bots)",
+    "Long chats never hit “too long”: older parts are summarised automatically (goals, decisions, facts, open tasks) and recent messages stay word for word",
+    "Each model gets the room it really has — big models keep much more of the chat",
+    "Better answers: explanations, research and plans are complete and well organised instead of squeezed into chat bubbles",
+    "Brief outages and rate limits are retried automatically; answers cut off by the length limit are continued"
+  ],
+  "1.1.43": [
+    "Each app has its own switch in Settings → AI & apps → Connectors: bots always use its connection or always use their browser, until you change it",
+    "Bots edit text like a person: they highlight the words and type over them (or delete them) instead of pressing Backspace over and over",
+    "Bots click things by their words (“Insert”, “New slide”, “Click to add title”) and do several steps in one go — much faster in Google Slides, Docs and other sites"
+  ],
+  "1.1.44": [
+    "Fixed: in Google Slides and Docs, text the bot typed over a highlight was added instead of replacing it (it now removes the highlighted part first)",
+    "Safer “replace the text in this box”: the bot must click into the box first, so it can never wipe a whole slide",
+    "Bots stop as soon as the result looks right instead of double-checking"
+  ],
+  "1.1.45": [
+    "Fixed: Wayzerr 1.1.44 wouldn't open",
+    "Fixed: in Google Slides and Docs, text the bot typed over a highlight was added instead of replacing it (it now removes the highlighted part first)",
+    "Safer “replace the text in this box”: the bot must click into the box first, so it can never wipe a whole slide",
+    "Bots stop as soon as the result looks right instead of double-checking"
+  ],
+  "1.1.46": [
+    "Safer Google Slides and Docs: bots can no longer delete slides by accident — they change text with Google’s Find and replace, and Backspace, Delete, select-all and cut are blocked there",
+    "Search bar in Settings",
+    "Language setting: choose what language your bots answer in (Settings → General)",
+    "In a chat, the bot menu now has Search chat (Memories was removed from it)"
+  ],
+  "1.1.47": [
+    "Attach PDFs: bots read every page — and scanned PDFs are sent as pictures so the AI can still read them",
+    "Bots can search and read any part of a long attached file or PDF",
+    "⚡ Fast mode is for chatting: for real jobs (Slides, Docs, apps, the browser, files) the bot thinks properly so it doesn't make careless mistakes"
+  ],
+  "1.1.48": [
+    "Much faster research: bots search several things at once and read up to 20 web pages at the same time, as plain text, in a few seconds",
+    "Steps that only read (searching, reading pages or files) now run at the same time instead of one after another",
+    "The visible browser is only used when a bot needs to click, log in, fill in a form or post",
+    "Bots signed in with ChatGPT or Claude use that service's own fast web search",
+    "Bots always use your app connections (Gmail, Classroom, Slides…). If an app isn't connected, they ask you to connect it instead of opening the browser — unless you tell them to use the browser in the chat",
+    "One setting for all your apps: Settings → General → Your apps (Connections or Browser). The per-app switches in the Connectors tab are gone",
+    "When a new Wayzerr.dmg lands in your Downloads, the update card shows up within a few seconds"
+  ],
+  "1.1.52": [
+    "New start page: choose Cloud (sign in with your Claude, ChatGPT or Gemini plan) or API key. Cloud is first and easiest. Wayzerr makes a first bot, Buddy, so you land in a chat with ideas to try",
+    "Code boxes in answers have a Copy button at the bottom that copies just the code",
+    "New ⋯ menu next to every bot: edit, copy the chat, pin to the top, clear the chat or delete it. Pinned bots stay at the top, and ⌘1–⌘9 jumps to a bot",
+    "⌘K now also searches the words inside all your chats and takes you to the message",
+    "See your usage: every reply shows the tokens it used and how long it took, and Credits used shows today, this month and all time for each cloud AI",
+    "Replies are written live: Claude (cloud) shows its words as it writes them, and every other answer is typed out smoothly",
+    "Your unsent message is kept for each bot, and shows as “Draft:” in the sidebar. Press ↑ to bring back your last message",
+    "If a reply fails there is a Try again button",
+    "New Text size setting (Normal, Large, Extra large) and a Privacy section that says what stays on your computer, with switches for the free picture service and online logos",
+    "Picture viewer: Copy a picture to paste it anywhere, as well as Save",
+    "Easier with a screen reader or the keyboard, clearer text in light mode, and bigger tap areas on the phone page",
+    "Lighter on older computers (the animated eyes rest when nothing moves), fewer update checks, and a note at the top when you are offline",
+    "Smarter Settings search that forgives typos, and ⌘, opens Settings"
+  ],
+  "1.1.53": [
+    "Tokens used today now show next to the message box (“73k today”). The count starts again at midnight, and hovering it explains what was counted",
+    "New Compact button next to it (also in each bot’s ⋯ menu): folds the old part of a chat into a short note so every following message re-reads far less. It is free, and your messages stay on screen",
+    "Settings → General → AI usage has “Compact all chats now” and “Compact automatically” (on by default: a chat that needed more than ~40,000 tokens for one message is compacted for you)",
+    "Replies now show how much was re-read from cache separately, so a simple “hello” no longer looks like it used 31,000 tokens",
+    "Saying hello to ChatGPT is lighter: Codex’s built-in browser, computer and plugin tools are switched off for small talk"
+  ],
+  "1.1.54": [
+    "Fixed: updating could silently fail and reopen the old version when a leftover “Wayzerr.app.old” was in Applications. The update now always swaps in the new app",
+    "Removed the “cloud messages this month” line from the sidebar. Usage is still in Settings → AI & apps, and today’s tokens show next to the message box"
+  ],
+  "1.1.55": [
+    "A hello costs far less: small talk to a cloud AI now uses short instructions, doesn’t resend them in a chat that already has them, and skills are listed in one short line each",
+    "Chats restart sooner and carry less of the old conversation, and long chats compact themselves earlier (after about 30,000 tokens)",
+    "Tokens and Compact moved into the bot’s menu (click the bot’s name at the top), under a line. The message box is clean again, and Search chat is gone from that menu",
+    "The menu shows the chat’s size, which goes down when you compact, like Claude’s context meter, and today’s tokens",
+    "New setting: Show tokens used per chat. Turn it off and the token numbers and the compact note disappear from every chat"
+  ],
+  "1.1.56": [
+    "“Don’t use the connector” and “use your browser” are now remembered for the chat. Bots go straight to the website (for homework, Google Classroom) instead of asking which site or waiting for you to connect",
+    "No more Connect cards in a chat where you said no, and pressing “Can’t connect” on a card ends the waiting right away and sends the bot to the browser"
+  ],
+  "1.1.57": [
+    "New setting “Fresh start for every message” (Settings → General → AI usage): the AI’s own chat isn’t kept, so nothing is re-read from cache. Off by default, because cached text is cheaper than new text — try it and compare the numbers"
+  ],
+  "1.1.58": [
+    "Smart compact: the AI writes the note (goal, decisions, facts, preferences, open items), like Claude’s compact. It reads a trimmed copy of the old messages, so it costs up to about 3,000 tokens however big the chat is. Switch it off in Settings for the free rough cut",
+    "A blue dot next to the bot’s name (and next to Compact chat in its menu) shows when a chat has got big and compacting is recommended",
+    "Lean ChatGPT instructions: swaps the ChatGPT tool’s own ~10,000 tokens of coding instructions for a few lines, so a hello costs about 4,000 tokens instead of 13,000 (new chats; can be switched off)"
+  ],
+  "1.1.59": [
+    "Stop now works at any moment: a page read or search that is still running no longer holds it up, and the tidy-up after a long chat happens in the background",
+    "Settings are shorter: the switches nobody needs are gone (compacting and the lean ChatGPT mode are simply on), and the texts are shorter",
+    "The update file is now simply called Wayzerr.dmg"
+  ],
+  "1.1.60": [
+    "Pictures: found why ChatGPT pictures never worked. Its picture tool isn’t available on this account, and each try was spending about 60,000 tokens before the free service took over. It now tries once, remembers, and says under the picture which service made it and why",
+    "While a picture or video is being made you see a placeholder, and you can play Pong against the computer while you wait",
+    "Cloud connections: usage is behind a Usage button that opens a popup, and the cards line up"
+  ],
+  "1.1.61": [
+    "Light mode: a picture in a chat is now a light card that fits the picture, instead of a wide grey box, and its caption is shorter"
+  ],
+  "1.1.62": [
+    "Light mode: “Thinking…” and the other working labels are readable text again (they showed as a dark block)"
+  ],
+  "1.1.63": [
+    "Wayzerr.dmg now works on other people’s Macs, Apple silicon and Intel: the app is properly signed on the inside, and the disk has a short note on opening it the first time"
+  ],
+  "1.1.64": [
+    "Safer app connections: the shared key is no longer inside the app. To connect Gmail, Drive and other apps you paste your own free Composio key once (Settings → AI & apps → Connectors). If you already use app connections, paste your key there once after updating"
+  ],
+  "1.1.65": [
+    "Start page: every cloud account and API provider is listed (no more plus tile), and there is a Skip for now button",
+    "A one-minute animated tour led by a guide bot: dress it up and name it first, then it points at the parts of the app. Skip it any time; the guide’s look is saved either way",
+    "New Help tab in Settings (also in the menu where your picture is): replay the tour, change the guide, and 10 common questions",
+    "The guide sits in the top right of every screen. Click it to ask a question; the AI you connected answers using what Wayzerr knows about itself",
+    "Fixed: the blue ‘compact’ dot also changed the recording dot of Teach a skill"
+  ],
+  "1.1.66": [
+    "A simpler tour: six quiet steps with a small card and a spotlight. The guide’s look is asked once, on the last step, and nothing else is in the way",
+    "The guide is always called Tutorial Guide. Its look and the tour now live in Settings → Help → Guide settings (a small section at the bottom)",
+    "Ask the guide is now a small chat on the side: click the guide in the top right, pick a question or type your own, and follow-ups work"
+  ],
+  "1.1.67": [
+    "New Delete account (Settings → General, and the menu where your picture is): erases all your bots, chats, memories, saved logins, keys, pictures and settings from this computer, then Wayzerr starts again as new. You type DELETE to confirm",
+    "Settings → Help is now just the questions and the guide settings at the bottom; the guide chat is in the top right corner"
+  ],
+  "1.1.68": [
+    "Ollama and LM Studio are removed: no tiles, no “local model” button, and no offline fallback. If you had connected one, that connection is dropped and bots that used it switch to your default AI"
+  ],
+  "1.1.69": [
+    "Fixed: pressing Connect for Claude, Gemini, Copilot, Amp or Augment said “Couldn’t download…”. The copy of npm inside the app was missing its own files, so it crashed before downloading anything. It is complete now",
+    "You can connect your own custom AI under Cloud on the start page too (a server address and key), like under API"
+  ],
+  "1.1.70": [
+    "The tour now ends by asking how your guide should look, in the same menu as creating a bot (without the name, tag and description). It asks once; you can change it any time in Settings → Help → Guide settings"
+  ],
+  "1.1.71": [
+    "Fixed: Claude and Amp said “spawn ENOEXEC”. The newest npm no longer runs the set-up step that puts the real program in place, so Wayzerr now runs it itself, and repairs a half-installed helper the next time you press Connect",
+    "A small bar with Cancel appears at the bottom while a sign-in is running, wherever you are in the app, so you can always cancel a sign-in you started by mistake"
+  ],
+  "1.1.72": [
+    "Fixed: the Cancel button for a sign-in could not be clicked on the start page, because that page is a window-drag area. It can be clicked now"
+  ],
+  "1.1.73": [
+    "Wayzerr can now get updates over the internet from its own update server, as well as from a Wayzerr.dmg in your Downloads folder"
+  ],
+  "1.1.74": [
+    "Help now lists 17 questions, most important first; press Show more questions to see the rest. New answers: why use Wayzerr, whether it's free, which computers it works on, how to update, and how to delete your data"
+  ],
+  "1.3.4": [
+    "On Apple silicon Macs every bot now has its own Linux computer instead of a browser: it downloads quietly once, and bots can see its screen, click, type, open a terminal and install or test apps in it. All bots share one Wayzerr Files folder (in your home folder), so there is no folder to pick any more. Passwords and cards stay in Settings"
+  ],
+  "1.3.5": [
+    "Bots remember much more: chats are no longer shortened by themselves (only when they pass a million tokens), the whole chat is sent to the AI, and Compact keeps the last 12 messages and writes a much fuller note"
+  ],
+  "1.3.6": [
+    "Each bot's computer now turns on by itself when the bot needs it and switches off after 10 minutes unused (the screen is black while it is off). Chats go up to 200k tokens word for word; past that the old part is folded into a note once, down to about 40%, so it does not repeat every message"
+  ],
+  "1.3.7": [
+    "Wayzerr no longer looks in your Downloads folder when it starts or checks for updates (only when you press Check for updates, or if the update server cannot be reached), so macOS stops asking for permission every update. The shared Wayzerr Files folder now lives in your home folder"
+  ],
+  "1.3.8": [
+    "New first screen: log in or sign up with your email in the browser (a code is emailed to you), then choose a username and connect your AI. Sign out any time in Settings → General"
+  ],
+  "1.3.9": [
+    "New Schedule tab next to the computer: tell a bot what to do and when (once, every day, every week and more). Open the calendar to drag a bot onto a time, and see what ran in Run logs. You can also just say it in the chat, like \"every morning at 8, read me the news\"",
+    "The browser is back, under the computer. It is built in, so turning it on downloads nothing",
+    "The computer is now an optional download. Wayzerr tells you its size (about 1 GB, already compressed) and why you would want it before it downloads anything",
+    "Bots now use their computer or browser when a search fails or a job needs it, and the Screen panel opens so you can watch",
+    "Smaller, smoother FAQs where only one stays open, and Wayzerr no longer shows a JavaScript error when you quit"
+  ],
+  "1.3.10": [
+    "Bots can now control your own Mac as well as their own computer. Choose in Settings → Computer, rename your computer, or just say \"use my computer\" or \"use your own computer\" in a message. A bot always asks before it uses your Mac",
+    "Bots can finally click in their own computer (clicks were silently ignored before), with double-click, triple-click, right-click, zoom and open-a-program tools, a red ring showing where they clicked, and a faster start",
+    "Chats are never shortened by themselves any more unless one message needs over a million tokens",
+    "If your chats were left behind in the old Persona folder, they are put back, and Wayzerr now keeps a daily backup for two weeks",
+    "The schedule calendar is now a floating window over the app"
+  ],
+  "1.3.11": [
+    "The schedule calendar has a new look: your bots are along the top (click one to focus, drag one onto a time to schedule it), a Next up card shows what runs next, and the Tasks and Runs tabs sit beside the calendar",
+    "Bots can create schedules themselves: just tell them when (\"every morning at 8, read me the news\"). The scheduling tools are now always at hand, and the Schedule tab has a box to tell a bot what and when",
+    "Bots are smarter on their own computer: a new command tool gives them exact output to read (install, download, check), they know the computer is ARM64, and the typing delay is fixed",
+    "Everything a bot downloads or saves on its computer is kept: computers now shut down properly when Wayzerr quits or updates",
+    "A version of Wayzerr for ARM Linux (such as a bot's computer) is available as an AppImage"
+  ],
+  "1.3.12": [
+    "Bots now plan a job before they start it, and a new one-step tool downloads a program, installs it and opens it on their computer, so \"download Wayzerr and run it\" takes one step instead of many",
+    "On a bot's computer, double-clicking a downloaded AppImage now opens the app",
+    "Settings → Computer has two new switches: whether bots may use the browser, and whether they may use a computer. The browser is built in, so Wayzerr no longer asks you to download it",
+    "Chats are never compacted by themselves any more (it only happens if you turn it on)",
+    "The computer download now says what it is compressed to, in MB",
+    "ARM Linux download on wayzerr.com, with a note showing which version fits your computer"
+  ],
+  "1.3.13": [
+    "Bots use their computer much more reliably: a small helper inside it runs their commands, so nothing pops up or depends on typing into a dialog, and opening programs and web addresses is instant",
+    "A terminal window on the bot's screen now shows a download and install as it happens, and the bot reads the result instead of guessing",
+    "You can see the bot's mouse move and click on its computer, both in the small screen and in full screen",
+    "Downloaded apps open even when the computer is busy: it now has more memory and a safety swap file"
+  ],
+  "1.3.14": [
+    "Connecting your apps (Gmail, Calendar, Drive, Slack and 500 more) now works instantly: nobody has to make or paste a Composio key any more, you just sign in to the app"
+  ],
+  "1.3.15": [
+    "A new first-run tour: you choose how your guide looks, pick your text size, learn what each part does, and finish by making your first bot. The text is bigger and easier to read",
+    "Text size now has five steps on a slider (Extra small to Extra big), in the tour and in Settings → General",
+    "A cleaner sign-in screen that no longer shows a code, and Wayzerr now uses wayzerr.com for updates and sign-in"
+  ],
+  "1.3.16": [
+    "The tour now starts by letting you dress up your guide in the same menu as making a bot, and text size is a single slider in Settings → General (Extra small to Extra big) that glides between its five steps"
+  ],
+  "1.3.17": [
+    "A new, simpler Schedule tab and calendar that match the rest of Wayzerr. Tasks you add by chat now ask a quick multiple-choice question only when something is missing",
+    "When a scheduled task runs you now get a system notification, a dock bounce and a card inside Wayzerr, so you don't miss reminders",
+    "A quieter update alert"
+  ],
+  "1.3.18": [
+    "A new Wayzerr logo, with a light version for light mode and a dark version for dark mode"
+  ],
+  "1.3.19": [
+    "A bigger update alert that shows what's new, and a temporary \"Preview the update alert\" button in Settings → General"
+  ],
+  "1.3.20": [
+    "The update alert is simpler (See new changes), and the app has the new Wayzerr logo"
+  ],
+  "1.3.21": [
+    "Your phone now works anywhere: scan the code once and it keeps working on mobile data, any Wi-Fi and any distance, with an address that never changes",
+    "The code is for one phone and changes after 10 minutes, so nobody else can use it",
+    "Tasks and bot settings are on your phone: schedule things, edit a bot, clear its chat and delete what it remembers"
+  ],
+  "1.3.22": [
+    "The token numbers under each reply are now off by default. You can turn them on in Settings, under General"
+  ],
+  "1.3.23": [
+    "Phone is still under development, so it is locked for now",
+    "A notice appears when a chat gets so long that each message costs a lot, with a reminder that you can compact or clear it",
+    "The phone app asks for a 6-digit code before it opens"
+  ],
+  "1.3.24": [
+    "Bots now turn around in real 3D: you can see their rounded body, and their back when they spin",
+    "Text is a little smaller by default, and the text size slider has a springier feel"
+  ],
+  "1.3.25": [
+    "The microphone hears you better: new Voice settings let you pick your microphone (with a level bar to test it), choose the language you speak, and add names and words Whisper should recognize.",
+    "Recordings are cleaner and louder for quiet voices, and the window icon on Windows is now the Wayzerr logo."
+  ],
+  "1.3.26": [
+    "The app has a little purple in it now: a soft glow at the top, purple-tinted greys and a purple highlight for the bot you're talking to.",
+    "Bots have glossier, deeper shading so they look more solid, and the head-turn animations are gone (the rainbow spin stays).",
+    "Text is smaller by default, and the text size setting is now one small row with five sizes (XS to XL) instead of a big slider."
+  ],
+  "1.3.27": [
+    "Linux PCs (Intel and AMD) can now give every bot its own Linux computer, like the Mac: a full desktop with a browser and terminal that the bot can use. It downloads once (about 500 MB) and needs QEMU: sudo apt install qemu-system-x86 qemu-utils."
+  ],
+  "1.3.28": [
+    "The Computer panel now looks the same on Windows, Linux and Mac: the bot’s computer on top and its browser in its own card underneath, with the browser switch. Before, Windows and Linux only showed a confusing “No computer yet” card.",
+    "Linux PCs with an ARM chip (like a Raspberry Pi or an ARM laptop) can now give every bot its own Linux computer too (about 1 GB, once). It needs: sudo apt install qemu-system-arm qemu-utils qemu-efi-aarch64.",
+    "Linux computers without hardware virtualization (KVM) no longer refuse: the bot’s computer runs in slow mode, which works but takes a few minutes to start.",
+    "Teaching a skill opens the browser again instead of the computer."
+  ],
+  "1.3.29": [
+    "Windows PCs can now give every bot its own Linux computer too, like the Mac and Linux: a full desktop with a browser and terminal that the bot can use. It downloads once (about 580 MB) and runs fastest when “Windows Hypervisor Platform” is turned on in Windows Features.",
+    "New: Settings → Computer → Delete all computer data. It turns every bot’s computer off and erases the computer system and everything the bots saved on it (your own files and the Wayzerr Files folder are not touched).",
+    "Fix: bots on Intel/AMD Linux and Windows computers were told their computer is ARM and looked for the wrong downloads. They now know their real processor type."
+  ]
+}

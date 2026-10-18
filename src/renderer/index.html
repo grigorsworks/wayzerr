@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws://127.0.0.1:*;" />
+  <title>Wayzerr</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="light.css" />
+</head>
+<body>
+  <div class="app">
+    <aside id="sidebar" aria-label="Bots and settings">
+      <div class="side-top">
+        <button class="new-bot-btn small" id="btn-new" title="New bot (⌘N)"></button>
+        <button class="round-btn" id="btn-search" title="Search (⌘K)"></button>
+      </div>
+      <nav id="bot-list" aria-label="Your bots"></nav>
+      <div class="update-card hidden" id="update-card"></div>
+      <div class="side-bottom">
+        <button class="me" id="btn-me" title="Account"></button>
+        <button class="pill-btn" id="btn-connectors">Settings</button>
+        <button class="round-btn" id="btn-collapse" title="Collapse the bot list"></button>
+      </div>
+    </aside>
+
+    <main id="main"></main>
+
+    <section id="screen">
+      <div class="scr-head">
+        <div class="title" id="scr-title">Screen</div>
+        <button class="icon-btn" id="scr-close" title="Hide screen"></button>
+      </div>
+      <div class="scr-tabs" id="scr-tabs" role="tablist"><button role="tab" data-t="computer" id="tab-computer" class="on">Computer</button><button role="tab" data-t="schedule" id="tab-schedule">Schedule</button></div>
+      <div id="scr-pane-computer" class="scr-pane">
+        <div class="scr-wrap">
+          <button class="scr-card" id="scr-card" title="Click to open full screen">
+            <img id="scr-thumb" alt="" />
+            <div class="scr-empty" id="scr-empty"></div>
+            <div class="scr-progress" id="scr-progress"></div>
+            <div class="scr-live hidden" id="scr-live"><span></span>Live</div>
+            <div class="scr-expand" id="scr-expand"></div>
+          </button>
+          <div class="scr-caption" id="scr-caption">Screen</div>
+          <div class="scr-sub" id="scr-sub"></div>
+        </div>
+        <div class="cmp-box" id="cmp-box"></div>
+        <div class="brw-sec hidden" id="brw-sec">
+          <div class="brw-t">Browser</div>
+          <div class="scr-wrap">
+            <button class="scr-card" id="brw-card" title="Click to open the browser full screen">
+              <img id="brw-thumb" alt="" />
+              <div class="scr-empty" id="brw-empty"></div>
+              <div class="scr-progress" id="brw-progress"></div>
+              <div class="scr-live hidden" id="brw-live"><span></span>Live</div>
+              <div class="scr-expand" id="brw-expand"></div>
+            </button>
+            <div class="scr-caption" id="brw-caption">Browser</div>
+            <div class="scr-sub" id="brw-sub"></div>
+          </div>
+          <div class="cmp-box" id="brw-box"></div>
+        </div>
+        <div class="scr-foot">Click the screen to go full screen: watch live, log in, or take over.</div>
+      </div>
+      <div id="scr-pane-schedule" class="scr-pane hidden"></div>
+    </section>
+  </div>
+
+  <div id="cmp-fs" class="hidden"><div class="cmp-bar"><b id="cmp-name">Computer</b><span id="cmp-hint">Click inside to use it</span><button class="btn sm" id="cmp-close">Close</button></div><div id="cmp-view"></div></div>
+
+  <div id="fs" class="hidden">
+    <div class="fs-bar">
+      <button class="icon-btn" id="fs-back" title="Back"></button>
+      <button class="icon-btn" id="fs-fwd" title="Forward"></button>
+      <button class="icon-btn" id="fs-reload" title="Reload"></button>
+      <div class="fs-url"><span id="fs-lock"></span><input id="fs-url" placeholder="Search or enter address" spellcheck="false" /></div>
+      <div class="fs-status hidden" id="fs-status"></div>
+      <button class="btn sm" id="fs-teach" title="Show your bots how to do something, step by step">Teach a skill</button>
+      <div class="teach-bar hidden" id="teach-bar"><span class="rec-dot"></span><div class="teach-txt"><b id="teach-count">Recording</b><span id="teach-last">Do the task in this browser. Your bots will learn each step.</span></div><button class="btn sm" id="teach-cancel">Cancel</button><button class="btn sm primary" id="teach-done">Save skill</button></div>
+      <button class="btn sm" id="fs-done">Done</button>
+    </div>
+    <div class="fs-body"><div class="scr-progress" id="fs-progress"></div><div id="fs-slot"></div></div>
+  </div>
+  <div id="layer"></div>
+  <script src="characters.js"></script>
+  <script src="../schedules.js"></script>
+  <script src="guide.js"></script>
+  <script src="talk.js"></script>
+  <script src="app.js"></script>
+  <script src="vendor/novnc.js"></script>
+  <script src="computer-ui.js"></script>
+  <script src="schedule-ui.js"></script>
+</body>
+</html>

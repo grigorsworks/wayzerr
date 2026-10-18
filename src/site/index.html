@@ -1,0 +1,1370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Wayzerr: AI bots that work like teammates</title>
+<meta name="description" content="Wayzerr gives you AI bots with their own memory and their own computer. Give each one a job. Free for Mac, Windows and Linux.">
+<link rel="icon" type="image/png" sizes="64x64" href="/favicon-v5-64.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-v5-32.png">
+<link rel="shortcut icon" href="/favicon-v5.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-v4.png">
+<link rel="apple-touch-icon" sizes="512x512" href="/apple-touch-icon-512-v4.png">
+<link rel="canonical" href="https://wayzerr.com/">
+<meta name="keywords" content="AI bots, AI assistant, AI agents, personal AI team, AI with memory, AI computer use, desktop AI app, Mac, Windows, Linux">
+<meta name="theme-color" content="#0a0a0b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wayzerr">
+<meta property="og:url" content="https://wayzerr.com/">
+<meta property="og:image" content="https://wayzerr.com/icon-v2.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Wayzerr: AI bots that work like teammates">
+<meta name="twitter:description" content="AI bots with their own memory and their own computer. Free for Mac, Windows and Linux.">
+<meta name="twitter:image" content="https://wayzerr.com/icon-v2.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wayzerr","applicationCategory":"ProductivityApplication","operatingSystem":"macOS, Windows, Linux","description":"Wayzerr gives you AI bots with their own memory and their own computer. Give each one a job.","url":"https://wayzerr.com/","image":"https://wayzerr.com/icon-v2.png","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<meta property="og:title" content="Wayzerr">
+<meta property="og:description" content="AI bots that work like teammates. Free for Mac, Windows and Linux.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap">
+<script>document.documentElement.className='js'</script>
+<style>
+:root{color-scheme:dark;--bg:#0a0a0b;--card:#141416;--card2:#1b1b1e;--line:#242428;--ink:#f6f6f7;--mute:#9a9aa1;--dim:#66666d;--ease:cubic-bezier(.22,.7,.2,1);--spring:cubic-bezier(.34,1.45,.5,1);--sans:"Geist",ui-sans-serif,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+h1,h2,h3,p{margin:0}
+h1,h2{font-weight:500;letter-spacing:-.038em;line-height:1.03;text-wrap:balance}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:24px}
+:focus-visible{outline:2px solid #fff;outline-offset:3px;border-radius:12px}
+.eyebrow{display:block;color:var(--dim);font-size:12.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;margin-bottom:18px}
+
+.char{display:inline-block;position:relative;vertical-align:top}
+.char .c-3d{display:block;position:relative;width:100%;height:100%}
+.char svg{width:100%;height:100%;display:block}
+.c-dots,.c-fx,.c-swirl,.c-trail,.c-sparkles,.c-slab{display:none}
+.char .c-eyes,.char .c-eye,.char .c-face{transform-box:fill-box;transform-origin:50% 50%}
+.char .c-eyes{animation:blink 6s infinite}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:50px;padding:0 28px;border-radius:999px;border:0;font-size:16px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .25s,transform .3s var(--spring),box-shadow .3s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:scale(.97)}
+.btn.w{background:#fff;color:#000}.btn.w:hover{background:#ececee;box-shadow:0 12px 34px rgba(255,255,255,.14)}
+.btn.g{background:#1f1f23;color:var(--ink)}.btn.g:hover{background:#2a2a2f}
+.btn.sm{height:38px;padding:0 18px;font-size:15px}
+
+/* nav */
+nav{position:fixed;inset:0 0 auto 0;z-index:30;border-bottom:1px solid transparent;transition:background .3s,border-color .3s;animation:navIn .8s var(--ease) both}
+nav.on{background:rgba(10,10,11,.93);border-color:var(--line)}
+nav .wrap{height:68px;display:flex;align-items:center;gap:34px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px;letter-spacing:-.02em}
+.brand img{width:30px;height:30px;border-radius:9px}
+.links{display:flex;gap:28px;color:var(--mute);font-size:15px}
+.links a{transition:color .2s}.links a:hover{color:var(--ink)}
+nav .btn{margin-left:auto}
+@keyframes navIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+
+/* hero: the page scrolls normally; only the six cards spread out */
+.hero{position:relative;height:100vh;min-height:680px;display:grid;place-items:center;text-align:center;
+  background:radial-gradient(60% 55% at 50% 42%,rgba(167,123,255,.12),transparent 70%),radial-gradient(40% 40% at 82% 76%,rgba(255,176,32,.07),transparent 70%),radial-gradient(40% 40% at 14% 80%,rgba(79,139,255,.07),transparent 70%)}
+.hero-in{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:26px;padding:0 24px}
+.hero h1{font-size:clamp(46px,7.6vw,98px);max-width:900px}
+.hero h1 .wd{display:inline-block;opacity:0;transform:translateY(.55em);animation:wd 1s var(--ease) forwards;animation-delay:calc(.15s + var(--i)*.07s)}
+@keyframes wd{to{opacity:1;transform:none}}
+.lead{color:var(--mute);font-size:clamp(17px,2vw,21px);max-width:560px}
+.hero .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+.also{color:var(--dim);font-size:14.5px}
+.also a{color:var(--mute);text-decoration:underline;text-underline-offset:3px;margin-left:8px;transition:color .2s}.also a:hover{color:var(--ink)}
+.lxseg{display:inline-flex;align-items:center;gap:2px;margin-top:12px;padding:3px;border:1px solid var(--line);border-radius:99px;font-size:12.5px;color:var(--dim);background:rgba(255,255,255,.02)}
+.lxseg span{padding:0 8px 0 11px}.lxseg a{padding:4px 11px;border-radius:99px;color:var(--mute);transition:background .2s,color .2s}.lxseg a:hover{color:var(--ink)}.lxseg a.rec{background:var(--card2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.dlright{min-width:0}.lxwrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:16px 4px 0}.lxwrap .lxseg{margin:0}
+.lxmore{background:none;border:0;cursor:pointer;font-size:12.5px;color:var(--mute);padding:5px 4px;border-bottom:1px dashed var(--line);border-radius:0}.lxmore:hover{color:var(--ink)}.lxwrap em{font-style:normal;color:var(--dim);font-size:12.5px}
+.lxcmd{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-size:12.5px;color:var(--dim)}
+.lxcmd code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--mute);word-break:break-all}.lxcmd button{background:none;cursor:pointer;font-size:12px;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:1px 8px}.lxcmd button:hover{color:var(--ink)}.lxcmd span{flex-basis:100%}
+.winnote{margin:10px 4px 0;color:var(--dim);font-size:12.5px;text-align:left}
+.lxs{margin:8px 0 0;color:var(--dim);font-size:12.5px}.lxs a{color:var(--mute);text-decoration:none;border-bottom:1px solid transparent;margin:0 2px}.lxs a:hover{color:var(--ink);border-bottom-color:var(--line)}.lxs a.rec{color:var(--ink)}.lxs em{font-style:normal;color:var(--dim)}
+.dl-lx{margin:14px 4px 0;text-align:left}.lxcmd code{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--card2,rgba(127,127,127,.12));padding:2px 6px;border-radius:6px;color:var(--mute);word-break:break-all}.lxcmd button{font:inherit;font-size:12px;color:var(--mute);background:none;border:1px solid var(--line);border-radius:6px;padding:1px 8px;margin-left:4px;cursor:pointer}.lxcmd button:hover{color:var(--ink)}.lxcmd #lxhelp{display:inline-block;margin-top:4px}
+.up{opacity:0;transform:translateY(22px);animation:up .9s var(--ease) forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.cards{position:absolute;inset:0;pointer-events:none;z-index:1}
+.fc{position:absolute;width:256px;transform:rotate(calc(var(--rot,0)*1deg))}
+.fci{background:#161619;border:1px solid var(--line);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px;text-align:left;box-shadow:0 20px 50px rgba(0,0,0,.4);opacity:0;animation:cardIn 1s var(--spring) var(--d) forwards,bob 7s ease-in-out calc(var(--d) + 1.1s) infinite}
+.fci .char{width:56px!important;height:56px!important}
+.ft b{display:block;font-weight:500;font-size:16px;line-height:1.25}
+.ft span{display:block;color:var(--mute);font-size:14.5px;line-height:1.4;margin-top:2px}
+.fci small{color:var(--dim);font-size:13px;display:flex;align-items:center;gap:7px}
+.fci small::before{content:"";width:6px;height:6px;border-radius:50%;background:#4ad991}
+@keyframes cardIn{from{opacity:0;transform:translateY(70px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.cue{position:absolute;left:50%;bottom:26px;z-index:2;width:26px;height:42px;margin-left:-13px;border:1.5px solid rgba(255,255,255,.28);border-radius:14px;animation:up 1s var(--ease) 1.4s backwards}
+.cue::after{content:"";position:absolute;left:50%;top:8px;width:3px;height:8px;margin-left:-1.5px;border-radius:3px;background:#fff;animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(14px)}}
+
+section{padding:112px 0}
+.head{text-align:center;margin-bottom:56px}
+.head h2{font-size:clamp(36px,5vw,64px)}
+.head p{color:var(--mute);margin:18px auto 0;font-size:19px;max-width:520px}
+
+/* big card with the big bot */
+.big{position:relative;background:linear-gradient(180deg,var(--card),#101012);border:1px solid var(--line);border-radius:36px;padding:clamp(34px,5.5vw,76px);min-height:500px;display:grid;grid-template-columns:1.05fr .95fr;gap:20px;align-items:center;overflow:hidden}
+.big::before{content:"";position:absolute;right:-8%;bottom:-30%;width:70%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(203,127,232,.2),transparent 65%);pointer-events:none}
+.big h2{font-size:clamp(34px,4.6vw,60px)}
+.big p{color:var(--mute);margin-top:18px;max-width:450px;font-size:16.5px}
+.art{position:relative;display:flex;justify-content:center;align-self:end;margin:36px 0 -30px}
+.art .char{width:min(392px,100%)!important;height:auto!important;aspect-ratio:1;animation:bbFloat 6s ease-in-out infinite}
+@keyframes bbFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-12px) rotate(-1.2deg)}}
+.art .c-face{transition:transform .25s ease-out}
+.art .c-body{transform-box:fill-box;transform-origin:50% 100%}
+@keyframes hop{0%,36%,100%{transform:translateY(0) scale(1,1)}42%{transform:translateY(1.2px) scale(1.07,.92)}56%{transform:translateY(-6px) scale(.97,1.05)}70%{transform:translateY(0) scale(1.05,.95)}78%{transform:scale(.99,1.01)}}
+.art .c-ground{transform-box:fill-box;transform-origin:50% 50%}
+@keyframes shade{0%,36%,100%{transform:scaleX(1);opacity:1}56%{transform:scaleX(.8);opacity:.65}70%{transform:scaleX(1.05)}}
+.art .c-acc-tophat{transform-box:fill-box;transform-origin:50% 100%;animation:hattip 7.6s ease-in-out infinite}
+@keyframes hattip{0%,58%,100%{transform:rotate(0) translateY(0)}64%{transform:translateY(-3px) rotate(-9deg)}70%{transform:translateY(-3px) rotate(6deg)}78%{transform:rotate(0)}}
+.art .c-pupil{transform-box:fill-box;animation:glance 9s ease-in-out infinite}
+@keyframes glance{0%,18%,100%{transform:translate(0,0)}26%,40%{transform:translate(-1.8px,.5px)}50%,64%{transform:translate(1.8px,-.5px)}74%{transform:translate(0,0)}}
+.art{cursor:pointer}
+.say{display:none;position:absolute;right:-2%;top:2%;max-width:230px;background:#fff;color:#000;padding:11px 17px;border-radius:20px 20px 20px 5px;font-size:15px;font-weight:500;box-shadow:0 14px 40px rgba(0,0,0,.45);opacity:0;transform:translateY(12px) scale(.88);transform-origin:0 100%;transition:opacity .35s,transform .55s var(--spring);pointer-events:none}
+.say.on{opacity:1;transform:none}
+.tw{position:absolute;width:15px;height:15px;background:#fff;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);opacity:0;animation:twink 3.2s ease-in-out infinite;pointer-events:none}
+.tw.a{left:8%;top:22%}.tw.b{left:88%;top:52%;animation-delay:.9s;width:11px;height:11px}.tw.c{left:14%;top:70%;animation-delay:1.7s;width:12px;height:12px}.tw.d{left:78%;top:8%;animation-delay:2.3s;width:10px;height:10px}
+@keyframes twink{0%,100%{opacity:0;transform:scale(.3) rotate(0)}50%{opacity:.9;transform:scale(1) rotate(45deg)}}
+
+/* features, each with its own small loop that always runs */
+.feats{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.feat{background:var(--card);border:1px solid var(--line);border-radius:30px;padding:14px 14px 34px;transition:transform .5s var(--ease),border-color .3s}
+.feat:hover{transform:translateY(-6px);border-color:#38383e}
+.vis{height:250px;border-radius:20px;background:#0d0d0f;border:1px solid var(--line);overflow:hidden;position:relative;padding:20px;display:flex;flex-direction:column;gap:10px;justify-content:center}
+.feat h3{font-size:22px;font-weight:500;letter-spacing:-.02em;margin:28px 20px 0}
+.feat p{color:var(--mute);font-size:16.5px;margin:9px 20px 0;max-width:430px}
+/* 1: terminal types commands one after another, a progress bar fills */
+.term{background:#050506;border:1px solid #1f1f23;border-radius:12px;overflow:hidden;font:13.5px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace}
+.term .tb{display:flex;gap:6px;padding:9px 12px;background:#141417;border-bottom:1px solid #1f1f23}.term .tb i{width:9px;height:9px;border-radius:50%;background:#2c2c30}
+.term .tl{padding:0 16px;color:#cfd0d6;white-space:nowrap;overflow:hidden;height:23.6px}
+.term .tl:first-of-type{margin-top:8px}
+.term .tl span{color:#4ad991}.term .tl em{font-style:normal;color:#8e8e94}
+.term .ty{display:inline-block;overflow:hidden;vertical-align:bottom;white-space:nowrap;width:0;border-right:2px solid #fff;animation:type 9s steps(24) infinite}
+@keyframes type{0%{width:0}18%,55%{width:24ch;border-color:#fff}56%,100%{width:24ch;border-color:transparent}}
+.term .ln2{opacity:0;animation:ln2 9s infinite}
+@keyframes ln2{0%,20%{opacity:0;transform:translateY(4px)}28%,92%{opacity:1;transform:none}100%{opacity:0}}
+.bar2{margin:6px 16px 10px;height:6px;border-radius:4px;background:#1b1b1f;overflow:hidden}
+.bar2 i{display:block;height:100%;width:0;border-radius:4px;background:linear-gradient(90deg,#A77BFF,#4ad991);animation:fill 9s infinite}
+@keyframes fill{0%,22%{width:0}60%,92%{width:100%}100%{width:100%;opacity:0}}
+.chip2{position:absolute;right:20px;bottom:16px;display:flex;align-items:center;gap:9px;background:var(--card2);border:1px solid #333338;padding:7px 14px 7px 8px;border-radius:999px;font-size:13.5px;animation:bob 5s ease-in-out infinite}
+.chip2 .char{width:28px!important;height:28px!important}
+/* 2: memory notes slide in, one after another, forever */
+.mhead{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--mute)}.mhead b{color:var(--ink);font-weight:500}.mhead .char{width:28px!important;height:28px!important}
+.mhead .sv{margin-left:auto;font-size:12.5px;color:#4ad991;animation:saved 8s infinite;opacity:0}
+@keyframes saved{0%,6%{opacity:0}12%,24%{opacity:1}30%,100%{opacity:0}}
+.note{background:#18181a;border-radius:12px;padding:10px 14px;font-size:14.5px;color:#d8d8dc;display:flex;align-items:center;gap:10px;opacity:0;animation:noteIn 8s var(--ease) infinite;animation-delay:calc(var(--n)*.9s)}
+.note::before{content:"";width:6px;height:6px;border-radius:50%;background:#A77BFF;box-shadow:0 0 0 0 rgba(167,123,255,.6);animation:ping 8s infinite;animation-delay:calc(var(--n)*.9s)}
+@keyframes noteIn{0%{opacity:0;transform:translateX(-18px)}8%,84%{opacity:1;transform:none}94%,100%{opacity:0;transform:translateX(10px)}}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(167,123,255,.7)}10%,100%{box-shadow:0 0 0 9px rgba(167,123,255,0)}}
+/* 3: the highlight moves from one brain to the next */
+.pick{display:grid;gap:7px}
+.opt{display:flex;align-items:center;gap:12px;background:#18181a;border-radius:12px;padding:9px 14px;font-size:15px;outline:1px solid transparent;transition:background .5s,outline-color .5s,transform .5s var(--ease)}
+.opt i{width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-style:normal;font-size:12px;font-weight:600;color:#fff}
+.opt::after{content:"✓";margin-left:auto;color:#4ad991;opacity:0;transform:scale(.4);transition:opacity .4s,transform .4s var(--spring)}
+.opt.sel{background:#232326;outline-color:#3a3a40;transform:translateX(6px)}.opt.sel::after{opacity:1;transform:none}
+/* 4: app tiles pop one after another and get a badge */
+.apps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.app{position:relative;background:#18181a;border-radius:14px;padding:14px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13.5px;color:var(--mute);animation:tile 7.2s ease-in-out infinite;animation-delay:calc(var(--n)*.6s)}
+.app i{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-style:normal;font-size:15px;font-weight:600;color:#fff}
+.app b{position:absolute;top:8px;right:14px;width:9px;height:9px;border-radius:50%;background:#ff5a5f;transform:scale(0);animation:badge 7.2s infinite;animation-delay:calc(var(--n)*.6s)}
+@keyframes tile{0%,60%,100%{transform:none;background:#18181a}6%{transform:translateY(-6px) scale(1.05);background:#222226}14%{transform:none;background:#18181a}}
+@keyframes badge{0%,4%{transform:scale(0)}8%{transform:scale(1.4)}12%,40%{transform:scale(1)}50%,100%{transform:scale(0)}}
+
+/* marquee */
+.marq{overflow:hidden;padding:0 0 10px;mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.track{display:flex;gap:14px;width:max-content;margin-bottom:14px;animation:scroll 46s linear infinite}
+.track.rev{animation-direction:reverse;animation-duration:54s}
+@keyframes scroll{to{transform:translateX(-50%)}}
+.mp{display:inline-flex;align-items:center;gap:12px;height:54px;padding:0 24px 0 20px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:17px;flex:none}
+.mp em{width:12px;height:12px;border-radius:50%;background:var(--c)}
+
+/* connect your phone: pinned, and scrolling moves through the three steps */
+.link{position:relative;padding:clamp(70px,9vw,120px) 0}
+.link-in{position:relative;display:grid;align-items:center}
+.next{margin-top:22px}.next svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.stage{cursor:pointer}
+.lgrid{display:grid;grid-template-columns:.8fr 1.2fr;gap:48px;align-items:center}
+.link h2{font-size:clamp(34px,4.6vw,58px);margin-bottom:34px}
+.steps{display:grid;gap:6px;max-width:440px}
+.step{position:relative;display:grid;grid-template-columns:44px 1fr;gap:14px;padding:16px 18px;border-radius:20px;border:1px solid transparent;color:var(--dim);cursor:pointer;text-align:left;background:none;transition:background .4s,border-color .4s,color .4s}
+.step .n{width:44px;height:44px;border-radius:50%;border:1px solid #2c2c31;display:grid;place-items:center;font-size:16px;font-weight:500;transition:background .4s,color .4s,border-color .4s}
+.step b{display:block;font-weight:500;font-size:19px;color:inherit}
+.step span.d{display:block;font-size:15.5px;line-height:1.45;margin-top:4px;max-height:0;opacity:0;overflow:hidden;transition:max-height .5s var(--ease),opacity .5s}
+.step.on{background:var(--card);border-color:var(--line);color:var(--ink)}
+.step.on .n{background:#fff;color:#000;border-color:#fff}
+.step.on span.d{max-height:90px;opacity:1;color:var(--mute)}
+.step .pg{display:none}
+.stage{position:relative;height:560px;max-width:700px;width:100%;justify-self:center}
+/* the computer */
+.lap{position:absolute;left:0;top:26px;width:540px;transition:transform .9s var(--ease),opacity .9s}
+.scr{position:relative;height:380px;border-radius:18px;background:radial-gradient(120% 90% at 18% 0%,#4b3a8a 0%,#211a45 42%,#0b0b14 100%);border:8px solid #1b1b1f;box-shadow:0 0 0 1px #34343a,0 30px 80px rgba(0,0,0,.55);overflow:hidden}
+.mbar{display:flex;gap:13px;align-items:center;height:21px;padding:0 11px;background:rgba(0,0,0,.38);font-size:10.5px;color:#dcdce2;white-space:nowrap}
+.mbar svg{width:11px;height:11px;fill:#fff}.mbar b{font-weight:600}.mbar em{margin-left:auto;font-style:normal;color:#b4b4bc}
+.win{position:absolute;left:14px;right:14px;top:32px;bottom:50px;border-radius:10px;background:#0b0b0d;border:1px solid #2a2a2e;overflow:hidden;box-shadow:0 16px 44px rgba(0,0,0,.55)}
+.dock{position:absolute;left:50%;bottom:7px;transform:translateX(-50%);display:flex;gap:8px;padding:5px 9px;border-radius:15px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16)}
+.dock i,.dock img{display:block;width:27px;height:27px;border-radius:8px}
+.neck{width:78px;height:36px;margin:0 auto;background:linear-gradient(90deg,#16161a,#2c2c32 50%,#16161a)}
+.foot{width:200px;height:9px;margin:0 auto;border-radius:6px 6px 16px 16px;background:linear-gradient(#34343a,#17171a);box-shadow:0 16px 32px rgba(0,0,0,.5)}
+.win .tbar{display:flex;gap:7px;align-items:center;padding:11px 14px;border-bottom:1px solid #1c1c1f;font-size:12.5px;color:var(--dim)}.win .tbar i{width:10px;height:10px;border-radius:50%;background:#2c2c30}.win .tbar span{margin-left:10px}
+.win .body{display:grid;grid-template-columns:150px 1fr;height:calc(100% - 37px)}
+.sidebar{border-right:1px solid #1c1c1f;padding:12px;display:grid;gap:6px;align-content:start}
+.sb{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:9px;font-size:12px;color:var(--mute)}.sb:first-child{background:#18181b;color:var(--ink)}.sb .char{width:20px!important;height:20px!important}
+.pset{padding:14px 18px}
+.pset h4{margin:0 0 4px;font-weight:500;font-size:17px}.pset small{color:var(--dim);font-size:12.5px}
+.trow{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:9px 12px;border-radius:12px;background:#141417;font-size:13px}
+.tog{width:40px;height:23px;border-radius:99px;background:#2c2c30;position:relative;transition:background .5s}.tog::after{content:"";position:absolute;left:3px;top:3px;width:17px;height:17px;border-radius:50%;background:#fff;transition:transform .5s var(--spring)}
+.qbox{margin:8px 0 0;width:92px;height:92px;border-radius:12px;background:#fff;padding:7px;opacity:0;transform:scale(.8);transition:opacity .6s .5s,transform .7s var(--spring) .5s}
+.qr{width:100%;height:100%;display:block}
+.qlabel{display:block;text-align:left;margin-top:7px;color:var(--dim);font-size:11.5px;opacity:0;transition:opacity .5s .9s}
+.toast{position:absolute;left:46%;top:62px;transform:translate(-50%,-20px);opacity:0;background:#1f1f23;border:1px solid #333339;border-radius:14px;padding:11px 16px;font-size:13.5px;display:flex;align-items:center;gap:12px;white-space:nowrap;transition:transform .6s var(--spring),opacity .4s;z-index:4}
+.toast .al{background:#fff;color:#000;border-radius:99px;padding:4px 12px;font-size:12.5px;font-weight:500}
+/* the phone */
+.ph2{position:absolute;right:0;top:20px;width:260px;height:520px;border-radius:40px;background:#070708;border:1px solid #2a2a2e;box-shadow:0 40px 100px rgba(0,0,0,.6),inset 0 0 0 6px #121214;padding:18px 12px 14px;transform:translate3d(140px,60px,0);opacity:0;transition:transform 1s var(--ease),opacity .8s;overflow:hidden}
+.ph2::before{content:"";position:absolute;left:50%;top:11px;width:70px;height:20px;margin-left:-35px;border-radius:12px;background:#000;z-index:3}
+.cam,.chats{position:absolute;inset:6px;border-radius:34px;overflow:hidden;transition:opacity .7s}
+.cam{background:radial-gradient(70% 50% at 50% 55%,#1b1d24,#0a0a0c);display:grid;place-items:center;opacity:0}
+.vf{position:relative;width:150px;height:150px}
+.vf i{position:absolute;width:26px;height:26px;border:3px solid #fff;border-radius:6px}
+.vf i:nth-child(1){left:0;top:0;border-right:0;border-bottom:0}.vf i:nth-child(2){right:0;top:0;border-left:0;border-bottom:0}.vf i:nth-child(3){left:0;bottom:0;border-right:0;border-top:0}.vf i:nth-child(4){right:0;bottom:0;border-left:0;border-top:0}
+.vf .scan{position:absolute;left:6px;right:6px;top:6px;height:2px;z-index:3;background:#4ad991;box-shadow:0 0 14px #4ad991;animation:scan 2.2s ease-in-out infinite}
+@keyframes scan{0%,100%{transform:translateY(0)}50%{transform:translateY(136px)}}
+.cam p{position:absolute;bottom:30px;left:0;right:0;text-align:center;color:var(--mute);font-size:13px;height:20px}.cam p span{position:absolute;left:0;right:0}.cam .t2{opacity:0;color:#6ee7a8;font-weight:500}
+.cam .room{position:absolute;inset:0;background:radial-gradient(60% 40% at 25% 20%,rgba(120,100,200,.25),transparent 70%),radial-gradient(50% 40% at 80% 80%,rgba(60,140,200,.18),transparent 70%)}
+.vf{z-index:2}.cqr{position:absolute;left:50%;top:50%;width:104px;height:104px;margin:-66px 0 0 -52px;background:#fff;border-radius:9px;padding:7px;opacity:0;transform:translate(52px,-30px) rotate(14deg) scale(.7)}.cqr .qr{width:100%;height:100%}
+.st2 .cqr{animation:cqIn 1.1s var(--ease) .3s forwards,cqLock .5s var(--spring) 2.4s forwards}
+@keyframes cqIn{to{opacity:1;transform:translate(0,0) rotate(0) scale(1)}}@keyframes cqLock{from{box-shadow:0 0 0 0 rgba(74,217,145,.8)}to{box-shadow:0 0 0 14px rgba(74,217,145,0)}}
+.st2 .vf i{animation:lockc .4s ease 2.4s forwards}@keyframes lockc{to{border-color:#4ad991}}
+.st2 .vf .scan{animation:scan 1.1s ease-in-out 1.1s 2,gone .25s 2.4s forwards}@keyframes gone{to{opacity:0}}
+.st2 .cam .t1{animation:gone .25s 2.3s forwards}.st2 .cam .t2{animation:fadein .35s 2.5s forwards}@keyframes fadein{to{opacity:1}}
+.chats{background:#070708;padding:30px 12px 12px;opacity:0;display:grid;grid-template-rows:auto 1fr auto}
+.chatset{display:none}.chatset.on{display:contents}
+.ph{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid #1d1d20;font-size:14px}.ph b{font-weight:500}.ph .char{width:26px!important;height:26px!important}
+.chat{display:flex;flex-direction:column;gap:9px;padding-top:12px;overflow:hidden}
+.bub{max-width:86%;padding:9px 13px;border-radius:18px;font-size:13px;line-height:1.4;opacity:0;transform:translateY(12px) scale(.96)}
+.bub.u{align-self:flex-end;background:#2b6cff;border-bottom-right-radius:5px}
+.bub.b{align-self:flex-start;background:#1c1c1f;border-bottom-left-radius:5px;color:#e6e6ea}
+.st3 .chatset.on .bub{animation:bubble .6s var(--spring) calc(.5s + var(--n)*.8s) forwards}
+@keyframes bubble{to{opacity:1;transform:none}}
+.pin{margin-top:8px;padding:10px 14px;border-radius:99px;border:1px solid #232327;color:var(--dim);font-size:12.5px}
+.conn{position:absolute;left:30px;bottom:56px;display:flex;align-items:center;gap:9px;background:#14241b;border:1px solid #1f4d33;color:#6ee7a8;border-radius:99px;padding:8px 15px;font-size:13px;opacity:0;transform:translateY(10px);transition:opacity .6s,transform .6s var(--spring)}
+.conn::before{content:"";width:8px;height:8px;border-radius:50%;background:#4ad991;animation:ping2 1.6s infinite}
+@keyframes ping2{0%{box-shadow:0 0 0 0 rgba(74,217,145,.7)}100%{box-shadow:0 0 0 8px rgba(74,217,145,0)}}
+/* the three scenes */
+.st1 .tog{background:#4ad991}.st1 .tog::after{transform:translateX(17px)}
+.st1 .qbox,.st2 .qbox,.st3 .qbox{opacity:1;transform:none}.st1 .qlabel,.st2 .qlabel,.st3 .qlabel{opacity:1}
+.st2 .tog,.st3 .tog{background:#4ad991}.st2 .tog::after,.st3 .tog::after{transform:translateX(17px)}
+.st2 .ph2,.st3 .ph2{transform:none;opacity:1}
+.st2 .lap{transform:translateX(-6px) scale(.97)}
+.st2 .toast{opacity:1;transform:translate(-50%,0);transition-delay:3.1s,3.1s}
+.st2 .toast .al{animation:pressed .6s 4.8s forwards}
+@keyframes pressed{to{background:#4ad991}}
+.st3 .lap{transform:translateX(-14px) scale(.95);opacity:.9}
+.st3 .conn{opacity:1;transform:none}
+.st2 .cam{opacity:1}.st3 .cam{opacity:0}
+.st3 .chats{opacity:1}
+
+/* videos */
+.vid{position:relative;border-radius:34px;overflow:hidden;background:#000;border:1px solid var(--line);aspect-ratio:16/9;cursor:pointer;user-select:none}
+.vid video{width:100%;height:100%;display:block;object-fit:cover;transition:opacity .35s}
+.vid video.fade{opacity:0}
+.arr{position:absolute;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;border:0;background:rgba(20,20,22,.82);cursor:pointer;display:grid;place-items:center;opacity:0;transition:opacity .25s,background .2s}
+.vid:hover .arr,.arr:focus-visible{opacity:1}
+.arr:hover{background:rgba(40,40,44,.95)}
+.arr svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.arr.prev{left:18px}.arr.next{right:18px}
+.snd{position:absolute;left:18px;bottom:18px;display:flex;align-items:center;gap:9px;background:rgba(20,20,22,.82);padding:10px 16px;border-radius:999px;font-size:14.5px;transition:opacity .3s}
+.snd svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dots{display:flex;gap:8px;justify-content:center;margin-top:22px}
+.dots button{width:8px;height:8px;border-radius:99px;border:0;background:#3a3a3f;cursor:pointer;padding:0;transition:width .3s var(--ease),background .3s}
+.dots button.on{width:28px;background:#fff}
+
+/* download */
+.dlcard{background:linear-gradient(180deg,var(--card),#101012);border:1px solid var(--line);border-radius:36px;padding:clamp(30px,5vw,68px);display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center}
+.dlcard h2{font-size:clamp(34px,4.6vw,58px)}
+.dlcard p.s{color:var(--mute);margin-top:16px;font-size:18.5px;max-width:380px}
+.oss{display:grid;gap:12px}
+.os{display:flex;align-items:center;gap:18px;background:#101012;border:1px solid var(--line);border-radius:22px;padding:22px 26px;transition:background .25s,transform .4s var(--spring),border-color .25s}
+.os:hover{background:var(--card2);transform:translateY(-3px);border-color:#38383e}
+.os svg.l{width:30px;height:30px;fill:currentColor;flex:none}
+.os b{display:block;font-weight:500;font-size:18px}
+.os span{color:var(--mute);font-size:15px}
+.os .go{margin-left:auto;width:22px;height:22px;stroke:var(--mute);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease)}
+.os:hover .go{transform:translateY(3px)}
+.extras{grid-column:1/-1;border-top:1px solid var(--line);padding-top:34px}
+.extras h3{font-size:clamp(22px,2.4vw,30px);font-weight:500;letter-spacing:-.02em}
+.extras>p{color:var(--mute);margin-top:10px;font-size:16.5px;max-width:640px}
+.xgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+.xc{background:#101012;border:1px solid var(--line);border-radius:22px;padding:24px 26px;display:flex;flex-direction:column;gap:10px}
+.xc .xs{color:#6aa9ff;font-size:14px;font-weight:500;letter-spacing:.02em}
+.xc b{font-weight:500;font-size:20px}
+.xc p{color:var(--mute);font-size:15.5px;line-height:1.55}
+.xc p.why{color:#b9b9c0}.xc p.why b{font-size:15.5px;color:var(--ink)}
+.os.main{background:#fff;color:#000;border-color:#fff}.os.main:hover{background:#ececee}.os.main span{color:#555}.os.main .go{stroke:#000}
+.tag{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:999px;background:var(--card2);color:var(--mute);font-size:12px;font-weight:500;vertical-align:2px}
+.first{margin-top:24px;color:var(--dim);font-size:14.5px}
+.first summary{cursor:pointer;color:var(--mute)}
+.first p{margin-top:8px;color:var(--mute)}
+
+/* questions: smooth accordion */
+.faqs{display:grid;grid-template-columns:1fr 1.5fr;gap:56px}
+.faqs h2{font-size:clamp(30px,3.4vw,46px)}
+.qi{border-bottom:1px solid var(--line);opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease) calc(var(--i,0)*.07s),transform .8s var(--ease) calc(var(--i,0)*.07s)}
+.qi.shown{opacity:1;transform:none}
+.qq{width:100%;background:none;border:0;padding:19px 0;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;font-size:16.5px;cursor:pointer;color:var(--ink);transition:padding-left .4s var(--ease)}
+.qq:hover{padding-left:10px}
+.qq i{position:relative;flex:none;width:26px;height:26px;border-radius:50%;border:1px solid #303036;transition:background .4s,border-color .4s,transform .5s var(--spring)}
+.qq i::before,.qq i::after{content:"";position:absolute;left:50%;top:50%;width:11px;height:1.6px;margin:-.8px 0 0 -5.5px;background:#fff;border-radius:2px;transition:transform .5s var(--ease),background .4s}
+.qq i::after{transform:rotate(90deg)}
+.qi.open .qq i{background:#fff;border-color:#fff;transform:rotate(180deg)}
+.qi.open .qq i::before,.qi.open .qq i::after{background:#000}
+.qi.open .qq i::after{transform:rotate(0)}
+.qa{display:grid;grid-template-rows:0fr;transition:grid-template-rows .6s var(--ease)}
+.qa>div{overflow:hidden;min-height:0}
+.qa p{color:var(--mute);padding:0 44px 20px 0;font-size:15.5px;opacity:0;transform:translateY(-10px);transition:opacity .5s var(--ease),transform .6s var(--ease)}
+.qi.open .qa{grid-template-rows:1fr}
+.qi.open .qa p{opacity:1;transform:none;transition-delay:.12s}
+.more{margin-top:28px}
+#faqMore .qi{opacity:1;transform:none}
+
+footer{border-top:1px solid var(--line);padding:34px 0 52px;color:var(--dim);font-size:14.5px}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
+footer .brand{font-size:16px;color:var(--mute)}footer .brand img{width:24px;height:24px;border-radius:7px}
+
+/* glide in as you scroll (opacity and movement only, which keeps scrolling smooth) */
+.js .rv{opacity:0;transform:translateY(36px);transition:opacity .9s var(--ease) var(--d,0s),transform .9s var(--ease) var(--d,0s)}
+.js .rv.in{opacity:1;transform:none}
+
+@media (max-width:1280px){.cards{display:none}}
+@media (max-width:980px){
+  .lgrid{grid-template-columns:1fr}
+  .stage{transform:scale(.8);transform-origin:top center;height:460px;margin-bottom:-60px}
+}
+@media (max-width:860px){
+  .links{display:none}
+  .hero{min-height:560px}
+  .big,.dlcard,.faqs,.feats,.xgrid{grid-template-columns:1fr}
+  .art{margin:10px 0 -20px}
+  .arr{opacity:1;width:42px;height:42px}
+  section{padding:68px 0}
+  .link{height:auto}.link-in{position:relative;height:auto;padding:30px 0}
+  .stage{transform:scale(.62);height:380px;margin-bottom:-80px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.js .rv,.up,.fci,.hero h1 .wd,.bub,.note,.qi{opacity:1!important;transform:none!important}}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="wrap">
+  <a class="brand" href="#top"><img src="/icon-v2.png" alt="">Wayzerr</a>
+  <div class="links"><a href="#features">Features</a><a href="#phone">Phone</a><a href="#videos">Videos</a><a href="#download">Download</a><a href="#faq">Questions</a></div>
+  <a class="btn w sm dlmain" href="/download/mac">Download</a>
+</div></nav>
+
+<main id="top">
+<header class="hero" id="hero">
+  <div class="cards" aria-hidden="true"><div class="fc" data-r="-5" data-k="1.0" data-s="-1" style="left:calc(50% - 640px + 10px);top:17%;--d:0.1s;--rot:-5"><div class="fci"><span class="char" data-eyes="wide" data-shape="orb" data-color="#A77BFF" data-acc="" style="width:56px;height:56px;--blink-delay:-0.9s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="56" height="56" aria-hidden="true">
+        <defs>
+          <radialGradient id="c2" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#f4c8ff"/>
+            <stop offset=".22" stop-color="#cb9fff"/>
+            <stop offset=".5" stop-color="#ac80ff"/>
+            <stop offset=".8" stop-color="#885ce0"/>
+            <stop offset="1" stop-color="#6a3ec2"/>
+          </radialGradient>
+          <radialGradient id="c2r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#fed2ff" stop-opacity=".7"/><stop offset="1" stop-color="#fed2ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c2b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c2h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c2o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c2s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c2k"><circle cx="50" cy="55" r="39" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c2s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <circle cx="50" cy="55" r="39" fill="url(#c2)"/>
+          <g clip-path="url(#c2k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c2o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c2r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c2h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><circle cx="38" cy="54" r="9.2" fill="#fff"/><g class="c-pupil"><circle cx="38" cy="54.6" r="4.8" fill="#161616"/><circle cx="39.6" cy="52.8" r="1.6" fill="#fff"/><circle cx="36.3" cy="56.4" r=".75" fill="#fff" opacity=".7"/></g></g><g class="c-eye c-eye-r"><circle cx="62" cy="54" r="9.2" fill="#fff"/><g class="c-pupil"><circle cx="62" cy="54.6" r="4.8" fill="#161616"/><circle cx="63.6" cy="52.8" r="1.6" fill="#fff"/><circle cx="60.3" cy="56.4" r=".75" fill="#fff" opacity=".7"/></g></g></g>
+            <path d="M45 66 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="64" rx="6.5" ry="4" fill="url(#c2b)" opacity=".9"/><ellipse cx="71" cy="64" rx="6.5" ry="4" fill="url(#c2b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><div class="ft"><b>Homework helper</b><span>is quizzing you on biology</span></div><small>Memory on</small></div></div><div class="fc" data-r="3" data-k="1.35" data-s="-1" style="left:calc(50% - 640px + -34px);top:41%;--d:0.22s;--rot:3"><div class="fci"><span class="char" data-eyes="dots" data-shape="pebble" data-color="#4F8BFF" data-acc="" style="width:56px;height:56px;--blink-delay:-4.74s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="56" height="56" aria-hidden="true">
+        <defs>
+          <radialGradient id="c4" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#9cd8ff"/>
+            <stop offset=".22" stop-color="#73afff"/>
+            <stop offset=".5" stop-color="#5490ff"/>
+            <stop offset=".8" stop-color="#306ce0"/>
+            <stop offset="1" stop-color="#124ec2"/>
+          </radialGradient>
+          <radialGradient id="c4r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#a6e2ff" stop-opacity=".7"/><stop offset="1" stop-color="#a6e2ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c4b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c4h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c4o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c4s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c4k"><rect x="12" y="18" width="76" height="72" rx="27" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c4s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <rect x="12" y="18" width="76" height="72" rx="27" fill="url(#c4)"/>
+          <g clip-path="url(#c4k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c4o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c4r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c4h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><circle cx="38" cy="52" r="6.4" fill="#161616"/><circle cx="39.9" cy="49.9" r="2.1" fill="#fff" opacity=".95"/><circle cx="35.8" cy="54.6" r=".9" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><circle cx="62" cy="52" r="6.4" fill="#161616"/><circle cx="63.9" cy="49.9" r="2.1" fill="#fff" opacity=".95"/><circle cx="59.8" cy="54.6" r=".9" fill="#fff" opacity=".6"/></g></g></g>
+            <path d="M45 64 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="62" rx="6.5" ry="4" fill="url(#c4b)" opacity=".9"/><ellipse cx="71" cy="62" rx="6.5" ry="4" fill="url(#c4b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><div class="ft"><b>Inbox sorter</b><span>found 3 emails to answer today</span></div><small>Gmail connected</small></div></div><div class="fc" data-r="-3" data-k="0.8" data-s="-1" style="left:calc(50% - 640px + 22px);top:65%;--d:0.34s;--rot:-3"><div class="fci"><span class="char" data-eyes="dots" data-shape="bun" data-color="#2FCB7A" data-acc="" style="width:56px;height:56px;--blink-delay:-3.12s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="56" height="56" aria-hidden="true">
+        <defs>
+          <radialGradient id="c10" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#7cffc7"/>
+            <stop offset=".22" stop-color="#53ef9e"/>
+            <stop offset=".5" stop-color="#34d07f"/>
+            <stop offset=".8" stop-color="#10ac5b"/>
+            <stop offset="1" stop-color="#008e3d"/>
+          </radialGradient>
+          <radialGradient id="c10r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#86ffd1" stop-opacity=".7"/><stop offset="1" stop-color="#86ffd1" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c10b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c10h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c10o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c10s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c10k"><circle cx="27" cy="33" r="11" fill="#000"/><circle cx="73" cy="33" r="11" fill="#000"/><ellipse cx="50" cy="60" rx="40" ry="31" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c10s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <circle cx="27" cy="33" r="11" fill="url(#c10)"/><circle cx="73" cy="33" r="11" fill="url(#c10)"/><ellipse cx="50" cy="60" rx="40" ry="31" fill="url(#c10)"/>
+          <g clip-path="url(#c10k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c10o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c10r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c10h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><circle cx="38" cy="58" r="6.4" fill="#161616"/><circle cx="39.9" cy="55.9" r="2.1" fill="#fff" opacity=".95"/><circle cx="35.8" cy="60.6" r=".9" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><circle cx="62" cy="58" r="6.4" fill="#161616"/><circle cx="63.9" cy="55.9" r="2.1" fill="#fff" opacity=".95"/><circle cx="59.8" cy="60.6" r=".9" fill="#fff" opacity=".6"/></g></g></g>
+            <path d="M45 70 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="68" rx="6.5" ry="4" fill="url(#c10b)" opacity=".9"/><ellipse cx="71" cy="68" rx="6.5" ry="4" fill="url(#c10b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><div class="ft"><b>Recipe finder</b><span>is making your shopping list</span></div><small>Has its own computer</small></div></div><div class="fc" data-r="4" data-k="1.2" data-s="1" style="right:calc(50% - 640px + 20px);top:15%;--d:0.16s;--rot:4"><div class="fci"><span class="char" data-eyes="wide" data-shape="bean" data-color="#FFB020" data-acc="" style="width:56px;height:56px;--blink-delay:-4.11s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="56" height="56" aria-hidden="true">
+        <defs>
+          <radialGradient id="c6" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#fffd6d"/>
+            <stop offset=".22" stop-color="#ffd444"/>
+            <stop offset=".5" stop-color="#ffb525"/>
+            <stop offset=".8" stop-color="#e09101"/>
+            <stop offset="1" stop-color="#c27300"/>
+          </radialGradient>
+          <radialGradient id="c6r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#ffff77" stop-opacity=".7"/><stop offset="1" stop-color="#ffff77" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c6b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c6h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c6o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c6s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c6k"><ellipse cx="50" cy="58" rx="42" ry="34" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c6s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <ellipse cx="50" cy="58" rx="42" ry="34" fill="url(#c6)"/>
+          <g clip-path="url(#c6k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c6o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c6r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c6h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><circle cx="38" cy="57" r="9.2" fill="#fff"/><g class="c-pupil"><circle cx="38" cy="57.6" r="4.8" fill="#161616"/><circle cx="39.6" cy="55.8" r="1.6" fill="#fff"/><circle cx="36.3" cy="59.4" r=".75" fill="#fff" opacity=".7"/></g></g><g class="c-eye c-eye-r"><circle cx="62" cy="57" r="9.2" fill="#fff"/><g class="c-pupil"><circle cx="62" cy="57.6" r="4.8" fill="#161616"/><circle cx="63.6" cy="55.8" r="1.6" fill="#fff"/><circle cx="60.3" cy="59.4" r=".75" fill="#fff" opacity=".7"/></g></g></g>
+            <ellipse cx="50" cy="70" rx="2.6" ry="2.2" fill="#161616"/>
+            <ellipse cx="29" cy="67" rx="6.5" ry="4" fill="url(#c6b)" opacity=".9"/><ellipse cx="71" cy="67" rx="6.5" ry="4" fill="url(#c6b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><div class="ft"><b>News digest</b><span>is reading 5 sites for you</span></div><small>Has its own computer</small></div></div><div class="fc" data-r="-4" data-k="0.9" data-s="1" style="right:calc(50% - 640px + -20px);top:40%;--d:0.28s;--rot:-4"><div class="fci"><span class="char" data-eyes="ovals" data-shape="capsule" data-color="#FF6B5B" data-acc="" style="width:56px;height:56px;--blink-delay:-2.58s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="56" height="56" aria-hidden="true">
+        <defs>
+          <radialGradient id="c8" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#ffb8a8"/>
+            <stop offset=".22" stop-color="#ff8f7f"/>
+            <stop offset=".5" stop-color="#ff7060"/>
+            <stop offset=".8" stop-color="#e04c3c"/>
+            <stop offset="1" stop-color="#c22e1e"/>
+          </radialGradient>
+          <radialGradient id="c8r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#ffc2b2" stop-opacity=".7"/><stop offset="1" stop-color="#ffc2b2" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c8b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c8h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c8o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c8s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c8k"><rect x="20" y="12" width="60" height="80" rx="30" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c8s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <rect x="20" y="12" width="60" height="80" rx="30" fill="url(#c8)"/>
+          <g clip-path="url(#c8k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c8o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c8r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c8h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><ellipse cx="38" cy="44" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="39.5" cy="41" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="36.4" cy="47.6" r=".8" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><ellipse cx="62" cy="44" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="63.5" cy="41" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="60.4" cy="47.6" r=".8" fill="#fff" opacity=".6"/></g></g></g>
+            
+            <ellipse cx="29" cy="54" rx="6.5" ry="4" fill="url(#c8b)" opacity=".6"/><ellipse cx="71" cy="54" rx="6.5" ry="4" fill="url(#c8b)" opacity=".6"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><div class="ft"><b>Price watcher</b><span>is watching the blue headphones</span></div><small>Checks daily</small></div></div><div class="fc" data-r="4" data-k="1.4" data-s="1" style="right:calc(50% - 640px + 14px);top:64%;--d:0.4s;--rot:4"><div class="fci"><span class="char" data-eyes="ovals" data-shape="bean" data-color="#FF7AB6" data-acc="" style="width:56px;height:56px;--blink-delay:-3.37s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="56" height="56" aria-hidden="true">
+        <defs>
+          <radialGradient id="c12" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#ffc7ff"/>
+            <stop offset=".22" stop-color="#ff9eda"/>
+            <stop offset=".5" stop-color="#ff7fbb"/>
+            <stop offset=".8" stop-color="#e05b97"/>
+            <stop offset="1" stop-color="#c23d79"/>
+          </radialGradient>
+          <radialGradient id="c12r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#ffd1ff" stop-opacity=".7"/><stop offset="1" stop-color="#ffd1ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c12b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c12h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c12o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c12s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c12k"><ellipse cx="50" cy="58" rx="42" ry="34" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c12s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <ellipse cx="50" cy="58" rx="42" ry="34" fill="url(#c12)"/>
+          <g clip-path="url(#c12k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c12o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c12r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c12h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><ellipse cx="38" cy="57" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="39.5" cy="54" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="36.4" cy="60.6" r=".8" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><ellipse cx="62" cy="57" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="63.5" cy="54" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="60.4" cy="60.6" r=".8" fill="#fff" opacity=".6"/></g></g></g>
+            <path d="M45 69 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="67" rx="6.5" ry="4" fill="url(#c12b)" opacity=".9"/><ellipse cx="71" cy="67" rx="6.5" ry="4" fill="url(#c12b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><div class="ft"><b>Research buddy</b><span>is comparing two articles</span></div><small>Notes saved</small></div></div></div>
+  <div class="hero-in">
+    <h1><span class="wd" style="--i:0">AI</span> <span class="wd" style="--i:1">bots</span> <span class="wd" style="--i:2">that</span> <span class="wd" style="--i:3">work</span> <span class="wd" style="--i:4">like</span> <span class="wd" style="--i:5">teammates</span></h1>
+    <p class="lead up" style="animation-delay:.75s">Give each bot a job. It keeps its own memory, works in its own computer and runs on the AI you already pay for.</p>
+    <div class="row up" style="animation-delay:.9s">
+      <a class="btn w dlmain" href="/download/mac"><span class="dlname">Download for Mac</span></a>
+      <a class="btn g" href="#features">See how it works</a>
+    </div>
+    <p class="also up" style="animation-delay:1.05s">Also for <a class="alt" data-os="windows" href="/download/windows">Windows</a><a class="alt" data-os="linux" href="/download/linuxdeb">Linux</a><a class="alt" data-os="mac" href="/download/mac" hidden>Mac</a></p>
+    <div class="lxseg up" style="animation-delay:1.1s" id="lxtop"><span>Linux</span><a data-k="deb" href="/download/linuxdeb">.deb</a><a data-k="x64" href="/download/linux">AppImage</a><a data-k="arm" href="/download/linuxarm">ARM</a></div>
+  </div>
+  <div class="cue" aria-hidden="true"></div>
+</header>
+
+<div class="wrap">
+<section><div class="big rv">
+  <div><span class="eyebrow">Teammates</span><h2>Message bots like teammates</h2><p>Ask a bot for something the way you would ask a friend. It takes the job from start to finish, remembers how you like things done and checks with you before anything important.</p></div>
+  <div class="art" id="art"><span class="char track" data-eyes="dots" data-shape="blob" data-color="#C97BEA" data-acc="tophat" style="width:440px;height:440px;--blink-delay:-3.23s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="440" height="440" aria-hidden="true">
+        <defs>
+          <radialGradient id="c13" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#ffc8ff"/>
+            <stop offset=".22" stop-color="#ed9fff"/>
+            <stop offset=".5" stop-color="#ce80ef"/>
+            <stop offset=".8" stop-color="#aa5ccb"/>
+            <stop offset="1" stop-color="#8c3ead"/>
+          </radialGradient>
+          <radialGradient id="c13r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#ffd2ff" stop-opacity=".7"/><stop offset="1" stop-color="#ffd2ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c13b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c13h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c13o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c13s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c13k"><path d="M50 14 C74 14 90 30 90 54 C90 78 74 93 50 93 C26 93 10 78 10 54 C10 30 26 14 50 14Z" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c13s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <path d="M50 14 C74 14 90 30 90 54 C90 78 74 93 50 93 C26 93 10 78 10 54 C10 30 26 14 50 14Z" fill="url(#c13)"/>
+          <g clip-path="url(#c13k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c13o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c13r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c13h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><circle cx="38" cy="55" r="6.4" fill="#161616"/><circle cx="39.9" cy="52.9" r="2.1" fill="#fff" opacity=".95"/><circle cx="35.8" cy="57.6" r=".9" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><circle cx="62" cy="55" r="6.4" fill="#161616"/><circle cx="63.9" cy="52.9" r="2.1" fill="#fff" opacity=".95"/><circle cx="59.8" cy="57.6" r=".9" fill="#fff" opacity=".6"/></g></g></g>
+            
+            <ellipse cx="29" cy="65" rx="6.5" ry="4" fill="url(#c13b)" opacity=".6"/><ellipse cx="71" cy="65" rx="6.5" ry="4" fill="url(#c13b)" opacity=".6"/>
+            
+          </g>
+          <g class="c-acc c-acc-tophat"><defs><linearGradient id="c13a" x1="0" y1="0" x2="0.35" y2="1"><stop offset="0" stop-color="#5d5d69"/><stop offset=".55" stop-color="#2a2a36"/><stop offset="1" stop-color="#000003"/></linearGradient><radialGradient id="c13ash"><stop offset="0" stop-color="#000" stop-opacity=".28"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient></defs><ellipse cx="52.0" cy="20.3" rx="24.9" ry="4.3" fill="url(#c13ash)" clip-path="url(#c13k)" transform="rotate(7 52 18.25)"/><g transform="translate(52.0 18.3) rotate(7) scale(1.082)"><ellipse cx="0" cy="0" rx="23" ry="4.6" fill="#15151c"/><rect x="-14" y="-27" width="28" height="27" rx="4" fill="url(#c13a)"/><rect x="-14" y="-9" width="28" height="5.5" fill="#E0445E"/><ellipse cx="0" cy="-27" rx="14" ry="3" fill="#3a3a48"/><ellipse cx="-8" cy="-19" rx="2.2" ry="6" fill="#fff" opacity=".35" transform="rotate(0 -8 -19)"/></g></g>
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><i class="tw a"></i><i class="tw b"></i><i class="tw c"></i><i class="tw d"></i></div>
+</div></section>
+
+<section id="features">
+  <div class="head rv"><span class="eyebrow">Features</span><h2>Everything a bot needs</h2><p>Memory, a computer, a brain of your choice and your own apps.</p></div>
+  <div class="feats">
+    <div class="feat rv"><div class="vis">
+      <div class="term"><div class="tb"><i></i><i></i><i></i></div>
+        <div class="tl"><span>bot@wayzerr</span><em>:~$</em> <b class="ty">sudo apt install gimp</b></div>
+        <div class="tl ln2"><em>Setting up gimp…</em></div></div>
+      <div class="bar2"><i></i></div>
+      <div class="chip2"><span class="char" data-eyes="ovals" data-shape="bean" data-color="#FF7AB6" data-acc="" style="width:28px;height:28px;--blink-delay:-3.37s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
+        <defs>
+          <radialGradient id="c11" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#ffc7ff"/>
+            <stop offset=".22" stop-color="#ff9eda"/>
+            <stop offset=".5" stop-color="#ff7fbb"/>
+            <stop offset=".8" stop-color="#e05b97"/>
+            <stop offset="1" stop-color="#c23d79"/>
+          </radialGradient>
+          <radialGradient id="c11r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#ffd1ff" stop-opacity=".7"/><stop offset="1" stop-color="#ffd1ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c11b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c11h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c11o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c11s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c11k"><ellipse cx="50" cy="58" rx="42" ry="34" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c11s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <ellipse cx="50" cy="58" rx="42" ry="34" fill="url(#c11)"/>
+          <g clip-path="url(#c11k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c11o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c11r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c11h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><ellipse cx="38" cy="57" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="39.5" cy="54" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="36.4" cy="60.6" r=".8" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><ellipse cx="62" cy="57" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="63.5" cy="54" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="60.4" cy="60.6" r=".8" fill="#fff" opacity=".6"/></g></g></g>
+            <path d="M45 69 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="67" rx="6.5" ry="4" fill="url(#c11b)" opacity=".9"/><ellipse cx="71" cy="67" rx="6.5" ry="4" fill="url(#c11b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span> Research buddy is installing</div></div>
+      <h3>Its own computer</h3><p>Every bot gets a small Linux computer inside Wayzerr. It can open apps, install them and test them, and it never touches your files.</p></div>
+    <div class="feat rv" style="--d:.08s"><div class="vis">
+      <div class="mhead"><span class="char" data-eyes="wide" data-shape="orb" data-color="#A77BFF" data-acc="" style="width:28px;height:28px;--blink-delay:-0.9s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
+        <defs>
+          <radialGradient id="c1" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#f4c8ff"/>
+            <stop offset=".22" stop-color="#cb9fff"/>
+            <stop offset=".5" stop-color="#ac80ff"/>
+            <stop offset=".8" stop-color="#885ce0"/>
+            <stop offset="1" stop-color="#6a3ec2"/>
+          </radialGradient>
+          <radialGradient id="c1r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#fed2ff" stop-opacity=".7"/><stop offset="1" stop-color="#fed2ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c1k"><circle cx="50" cy="55" r="39" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c1s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <circle cx="50" cy="55" r="39" fill="url(#c1)"/>
+          <g clip-path="url(#c1k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c1o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c1r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c1h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><circle cx="38" cy="54" r="9.2" fill="#fff"/><g class="c-pupil"><circle cx="38" cy="54.6" r="4.8" fill="#161616"/><circle cx="39.6" cy="52.8" r="1.6" fill="#fff"/><circle cx="36.3" cy="56.4" r=".75" fill="#fff" opacity=".7"/></g></g><g class="c-eye c-eye-r"><circle cx="62" cy="54" r="9.2" fill="#fff"/><g class="c-pupil"><circle cx="62" cy="54.6" r="4.8" fill="#161616"/><circle cx="63.6" cy="52.8" r="1.6" fill="#fff"/><circle cx="60.3" cy="56.4" r=".75" fill="#fff" opacity=".7"/></g></g></g>
+            <path d="M45 66 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="64" rx="6.5" ry="4" fill="url(#c1b)" opacity=".9"/><ellipse cx="71" cy="64" rx="6.5" ry="4" fill="url(#c1b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span> <span>Updated memory for <b>Homework helper</b></span><em class="sv" style="font-style:normal">Saved</em></div>
+      <div class="note" style="--n:0">Exam is on Friday</div><div class="note" style="--n:1">Prefers short answers</div><div class="note" style="--n:2">Learns best with quizzes</div></div>
+      <h3>A memory that stays</h3><p>Bots keep what matters about you between chats, so you only explain things once.</p></div>
+    <div class="feat rv"><div class="vis"><div class="pick" id="pick">
+      <div class="opt sel"><i style="background:#10a37f">C</i>ChatGPT</div>
+      <div class="opt"><i style="background:#d97757">C</i>Claude</div>
+      <div class="opt"><i style="background:#4285f4">G</i>Gemini</div>
+      <div class="opt"><i style="background:#3a3a40">#</i>Your own API key</div></div></div>
+      <h3>Pick the brain</h3><p>Sign in with an AI plan you already pay for, or paste your own API key.</p></div>
+    <div class="feat rv" style="--d:.08s"><div class="vis"><div class="apps">
+      <div class="app" style="--n:0"><b></b><i style="background:#ea4335">M</i>Gmail</div>
+      <div class="app" style="--n:1"><b></b><i style="background:#4285f4">31</i>Calendar</div>
+      <div class="app" style="--n:2"><b></b><i style="background:#1fa463">D</i>Drive</div>
+      <div class="app" style="--n:3"><b></b><i style="background:#0f9d58">C</i>Classroom</div>
+      <div class="app" style="--n:4"><b></b><i style="background:#2b2b2e">N</i>Notion</div>
+      <div class="app" style="--n:5"><b></b><i style="background:#3a3a40">+</i>More</div></div></div>
+      <h3>Connect your apps</h3><p>Link Gmail, Calendar, Classroom, Notion and more. Bots use them before they reach for the web.</p></div>
+  </div>
+</section>
+</div>
+
+<div class="marq rv" aria-hidden="true"><div class="track"><span class="mp"><em style="--c:#A77BFF"></em>Homework helper</span><span class="mp"><em style="--c:#4F8BFF"></em>Inbox sorter</span><span class="mp"><em style="--c:#FFB020"></em>News digest</span><span class="mp"><em style="--c:#FF6B5B"></em>Price watcher</span><span class="mp"><em style="--c:#2FCB7A"></em>Recipe finder</span><span class="mp"><em style="--c:#FF7AB6"></em>Research buddy</span><span class="mp"><em style="--c:#2DD4BF"></em>Language tutor</span><span class="mp"><em style="--c:#4F8BFF"></em>Trip planner</span><span class="mp"><em style="--c:#2FCB7A"></em>Meal planner</span><span class="mp"><em style="--c:#A77BFF"></em>Study group</span><span class="mp"><em style="--c:#FF6B5B"></em>Fitness coach</span><span class="mp"><em style="--c:#FFB020"></em>Budget tracker</span><span class="mp"><em style="--c:#A77BFF"></em>Homework helper</span><span class="mp"><em style="--c:#4F8BFF"></em>Inbox sorter</span><span class="mp"><em style="--c:#FFB020"></em>News digest</span><span class="mp"><em style="--c:#FF6B5B"></em>Price watcher</span><span class="mp"><em style="--c:#2FCB7A"></em>Recipe finder</span><span class="mp"><em style="--c:#FF7AB6"></em>Research buddy</span><span class="mp"><em style="--c:#2DD4BF"></em>Language tutor</span><span class="mp"><em style="--c:#4F8BFF"></em>Trip planner</span><span class="mp"><em style="--c:#2FCB7A"></em>Meal planner</span><span class="mp"><em style="--c:#A77BFF"></em>Study group</span><span class="mp"><em style="--c:#FF6B5B"></em>Fitness coach</span><span class="mp"><em style="--c:#FFB020"></em>Budget tracker</span></div><div class="track rev"><span class="mp"><em style="--c:#FFB020"></em>Budget tracker</span><span class="mp"><em style="--c:#FF6B5B"></em>Fitness coach</span><span class="mp"><em style="--c:#A77BFF"></em>Study group</span><span class="mp"><em style="--c:#2FCB7A"></em>Meal planner</span><span class="mp"><em style="--c:#4F8BFF"></em>Trip planner</span><span class="mp"><em style="--c:#2DD4BF"></em>Language tutor</span><span class="mp"><em style="--c:#FF7AB6"></em>Research buddy</span><span class="mp"><em style="--c:#2FCB7A"></em>Recipe finder</span><span class="mp"><em style="--c:#FF6B5B"></em>Price watcher</span><span class="mp"><em style="--c:#FFB020"></em>News digest</span><span class="mp"><em style="--c:#4F8BFF"></em>Inbox sorter</span><span class="mp"><em style="--c:#A77BFF"></em>Homework helper</span><span class="mp"><em style="--c:#FFB020"></em>Budget tracker</span><span class="mp"><em style="--c:#FF6B5B"></em>Fitness coach</span><span class="mp"><em style="--c:#A77BFF"></em>Study group</span><span class="mp"><em style="--c:#2FCB7A"></em>Meal planner</span><span class="mp"><em style="--c:#4F8BFF"></em>Trip planner</span><span class="mp"><em style="--c:#2DD4BF"></em>Language tutor</span><span class="mp"><em style="--c:#FF7AB6"></em>Research buddy</span><span class="mp"><em style="--c:#2FCB7A"></em>Recipe finder</span><span class="mp"><em style="--c:#FF6B5B"></em>Price watcher</span><span class="mp"><em style="--c:#FFB020"></em>News digest</span><span class="mp"><em style="--c:#4F8BFF"></em>Inbox sorter</span><span class="mp"><em style="--c:#A77BFF"></em>Homework helper</span></div></div>
+
+<div class="link" id="phone"><div class="link-in"><div class="wrap"><div class="lgrid">
+  <div class="rv">
+    <span class="eyebrow">Phone</span><h2>Connect your phone</h2>
+    <div class="steps" id="steps">
+      <button class="step on" type="button" data-i="0"><span class="n">1</span><div><b>Turn on Phone</b><span class="d">On your computer, open Settings and switch on Phone. A code appears.</span></div><div class="pg"><i></i></div></button>
+      <button class="step" type="button" data-i="1"><span class="n">2</span><div><b>Scan the code</b><span class="d">Point your phone camera at it, then press Allow on your computer.</span></div><div class="pg"><i></i></div></button>
+      <button class="step" type="button" data-i="2"><span class="n">3</span><div><b>Chat from anywhere</b><span class="d">Your bots keep working on your computer while you talk to them from your phone.</span></div><div class="pg"><i></i></div></button>
+    </div>
+    <button class="btn w next" id="nextStep" type="button">Next step <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+  <div class="stage st1 rv" id="stage" style="--d:.1s" aria-hidden="true">
+    <div class="lap"><div class="scr">
+      <div class="mbar"><svg viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.1-1.2 2.9-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.4-.9-2.4-3.9zM14 5.5c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg><b>Wayzerr</b><span>File</span><span>Edit</span><span>View</span><span>Window</span><em>Wed 9:41</em></div>
+      <div class="win"><div class="tbar"><i></i><i></i><i></i><span>Wayzerr · Settings · Phone</span></div>
+        <div class="body"><div class="sidebar"><div class="sb"><span class="char" data-eyes="wide" data-shape="orb" data-color="#A77BFF" data-acc="" style="width:28px;height:28px;--blink-delay:-0.9s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
+        <defs>
+          <radialGradient id="c1" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#f4c8ff"/>
+            <stop offset=".22" stop-color="#cb9fff"/>
+            <stop offset=".5" stop-color="#ac80ff"/>
+            <stop offset=".8" stop-color="#885ce0"/>
+            <stop offset="1" stop-color="#6a3ec2"/>
+          </radialGradient>
+          <radialGradient id="c1r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#fed2ff" stop-opacity=".7"/><stop offset="1" stop-color="#fed2ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c1k"><circle cx="50" cy="55" r="39" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c1s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <circle cx="50" cy="55" r="39" fill="url(#c1)"/>
+          <g clip-path="url(#c1k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c1o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c1r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c1h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><circle cx="38" cy="54" r="9.2" fill="#fff"/><g class="c-pupil"><circle cx="38" cy="54.6" r="4.8" fill="#161616"/><circle cx="39.6" cy="52.8" r="1.6" fill="#fff"/><circle cx="36.3" cy="56.4" r=".75" fill="#fff" opacity=".7"/></g></g><g class="c-eye c-eye-r"><circle cx="62" cy="54" r="9.2" fill="#fff"/><g class="c-pupil"><circle cx="62" cy="54.6" r="4.8" fill="#161616"/><circle cx="63.6" cy="52.8" r="1.6" fill="#fff"/><circle cx="60.3" cy="56.4" r=".75" fill="#fff" opacity=".7"/></g></g></g>
+            <path d="M45 66 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="64" rx="6.5" ry="4" fill="url(#c1b)" opacity=".9"/><ellipse cx="71" cy="64" rx="6.5" ry="4" fill="url(#c1b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><span>Homework helper</span></div><div class="sb"><span class="char" data-eyes="dots" data-shape="pebble" data-color="#4F8BFF" data-acc="" style="width:28px;height:28px;--blink-delay:-4.74s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
+        <defs>
+          <radialGradient id="c3" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#9cd8ff"/>
+            <stop offset=".22" stop-color="#73afff"/>
+            <stop offset=".5" stop-color="#5490ff"/>
+            <stop offset=".8" stop-color="#306ce0"/>
+            <stop offset="1" stop-color="#124ec2"/>
+          </radialGradient>
+          <radialGradient id="c3r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#a6e2ff" stop-opacity=".7"/><stop offset="1" stop-color="#a6e2ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c3b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c3h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c3o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c3s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c3k"><rect x="12" y="18" width="76" height="72" rx="27" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c3s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <rect x="12" y="18" width="76" height="72" rx="27" fill="url(#c3)"/>
+          <g clip-path="url(#c3k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c3o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c3r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c3h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><circle cx="38" cy="52" r="6.4" fill="#161616"/><circle cx="39.9" cy="49.9" r="2.1" fill="#fff" opacity=".95"/><circle cx="35.8" cy="54.6" r=".9" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><circle cx="62" cy="52" r="6.4" fill="#161616"/><circle cx="63.9" cy="49.9" r="2.1" fill="#fff" opacity=".95"/><circle cx="59.8" cy="54.6" r=".9" fill="#fff" opacity=".6"/></g></g></g>
+            <path d="M45 64 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="62" rx="6.5" ry="4" fill="url(#c3b)" opacity=".9"/><ellipse cx="71" cy="62" rx="6.5" ry="4" fill="url(#c3b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><span>Inbox sorter</span></div><div class="sb"><span class="char" data-eyes="ovals" data-shape="capsule" data-color="#FF6B5B" data-acc="" style="width:28px;height:28px;--blink-delay:-2.58s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
+        <defs>
+          <radialGradient id="c7" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#ffb8a8"/>
+            <stop offset=".22" stop-color="#ff8f7f"/>
+            <stop offset=".5" stop-color="#ff7060"/>
+            <stop offset=".8" stop-color="#e04c3c"/>
+            <stop offset="1" stop-color="#c22e1e"/>
+          </radialGradient>
+          <radialGradient id="c7r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#ffc2b2" stop-opacity=".7"/><stop offset="1" stop-color="#ffc2b2" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c7b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c7h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c7o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c7s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c7k"><rect x="20" y="12" width="60" height="80" rx="30" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c7s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <rect x="20" y="12" width="60" height="80" rx="30" fill="url(#c7)"/>
+          <g clip-path="url(#c7k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c7o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c7r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c7h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><ellipse cx="38" cy="44" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="39.5" cy="41" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="36.4" cy="47.6" r=".8" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><ellipse cx="62" cy="44" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="63.5" cy="41" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="60.4" cy="47.6" r=".8" fill="#fff" opacity=".6"/></g></g></g>
+            
+            <ellipse cx="29" cy="54" rx="6.5" ry="4" fill="url(#c7b)" opacity=".6"/><ellipse cx="71" cy="54" rx="6.5" ry="4" fill="url(#c7b)" opacity=".6"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><span>Price watcher</span></div><div class="sb"><span class="char" data-eyes="ovals" data-shape="bean" data-color="#FF7AB6" data-acc="" style="width:28px;height:28px;--blink-delay:-3.37s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
+        <defs>
+          <radialGradient id="c11" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#ffc7ff"/>
+            <stop offset=".22" stop-color="#ff9eda"/>
+            <stop offset=".5" stop-color="#ff7fbb"/>
+            <stop offset=".8" stop-color="#e05b97"/>
+            <stop offset="1" stop-color="#c23d79"/>
+          </radialGradient>
+          <radialGradient id="c11r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#ffd1ff" stop-opacity=".7"/><stop offset="1" stop-color="#ffd1ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c11b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c11h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c11o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c11s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c11k"><ellipse cx="50" cy="58" rx="42" ry="34" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c11s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <ellipse cx="50" cy="58" rx="42" ry="34" fill="url(#c11)"/>
+          <g clip-path="url(#c11k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c11o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c11r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c11h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><ellipse cx="38" cy="57" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="39.5" cy="54" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="36.4" cy="60.6" r=".8" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><ellipse cx="62" cy="57" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="63.5" cy="54" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="60.4" cy="60.6" r=".8" fill="#fff" opacity=".6"/></g></g></g>
+            <path d="M45 69 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="67" rx="6.5" ry="4" fill="url(#c11b)" opacity=".9"/><ellipse cx="71" cy="67" rx="6.5" ry="4" fill="url(#c11b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><span>Research buddy</span></div></div>
+          <div class="pset"><h4>Phone access</h4><small>Bots keep running here</small>
+            <div class="trow">Phone<span class="tog"></span></div>
+            <div class="qbox"><svg class="qr" viewBox="0 0 25 25" shape-rendering="crispEdges" fill="#111"><rect x="0" y="0" width="7" height="1.02"/><rect x="11" y="0" width="3" height="1.02"/><rect x="16" y="0" width="1" height="1.02"/><rect x="18" y="0" width="7" height="1.02"/><rect x="0" y="1" width="1" height="1.02"/><rect x="6" y="1" width="1" height="1.02"/><rect x="9" y="1" width="2" height="1.02"/><rect x="13" y="1" width="4" height="1.02"/><rect x="18" y="1" width="1" height="1.02"/><rect x="24" y="1" width="1" height="1.02"/><rect x="0" y="2" width="1" height="1.02"/><rect x="2" y="2" width="3" height="1.02"/><rect x="6" y="2" width="1" height="1.02"/><rect x="8" y="2" width="2" height="1.02"/><rect x="12" y="2" width="1" height="1.02"/><rect x="14" y="2" width="1" height="1.02"/><rect x="18" y="2" width="1" height="1.02"/><rect x="20" y="2" width="3" height="1.02"/><rect x="24" y="2" width="1" height="1.02"/><rect x="0" y="3" width="1" height="1.02"/><rect x="2" y="3" width="3" height="1.02"/><rect x="6" y="3" width="1" height="1.02"/><rect x="8" y="3" width="1" height="1.02"/><rect x="10" y="3" width="2" height="1.02"/><rect x="13" y="3" width="3" height="1.02"/><rect x="18" y="3" width="1" height="1.02"/><rect x="20" y="3" width="3" height="1.02"/><rect x="24" y="3" width="1" height="1.02"/><rect x="0" y="4" width="1" height="1.02"/><rect x="2" y="4" width="3" height="1.02"/><rect x="6" y="4" width="1" height="1.02"/><rect x="8" y="4" width="1" height="1.02"/><rect x="10" y="4" width="1" height="1.02"/><rect x="13" y="4" width="1" height="1.02"/><rect x="16" y="4" width="1" height="1.02"/><rect x="18" y="4" width="1" height="1.02"/><rect x="20" y="4" width="3" height="1.02"/><rect x="24" y="4" width="1" height="1.02"/><rect x="0" y="5" width="1" height="1.02"/><rect x="6" y="5" width="1" height="1.02"/><rect x="8" y="5" width="1" height="1.02"/><rect x="10" y="5" width="1" height="1.02"/><rect x="12" y="5" width="1" height="1.02"/><rect x="14" y="5" width="2" height="1.02"/><rect x="18" y="5" width="1" height="1.02"/><rect x="24" y="5" width="1" height="1.02"/><rect x="0" y="6" width="7" height="1.02"/><rect x="8" y="6" width="1" height="1.02"/><rect x="10" y="6" width="1" height="1.02"/><rect x="12" y="6" width="1" height="1.02"/><rect x="14" y="6" width="1" height="1.02"/><rect x="16" y="6" width="1" height="1.02"/><rect x="18" y="6" width="7" height="1.02"/><rect x="8" y="7" width="3" height="1.02"/><rect x="12" y="7" width="1" height="1.02"/><rect x="14" y="7" width="1" height="1.02"/><rect x="16" y="7" width="1" height="1.02"/><rect x="0" y="8" width="1" height="1.02"/><rect x="2" y="8" width="5" height="1.02"/><rect x="11" y="8" width="1" height="1.02"/><rect x="18" y="8" width="5" height="1.02"/><rect x="1" y="9" width="2" height="1.02"/><rect x="8" y="9" width="2" height="1.02"/><rect x="13" y="9" width="1" height="1.02"/><rect x="19" y="9" width="1" height="1.02"/><rect x="23" y="9" width="1" height="1.02"/><rect x="1" y="10" width="7" height="1.02"/><rect x="9" y="10" width="2" height="1.02"/><rect x="13" y="10" width="3" height="1.02"/><rect x="18" y="10" width="4" height="1.02"/><rect x="23" y="10" width="2" height="1.02"/><rect x="0" y="11" width="3" height="1.02"/><rect x="4" y="11" width="1" height="1.02"/><rect x="7" y="11" width="2" height="1.02"/><rect x="10" y="11" width="4" height="1.02"/><rect x="17" y="11" width="3" height="1.02"/><rect x="24" y="11" width="1" height="1.02"/><rect x="0" y="12" width="1" height="1.02"/><rect x="4" y="12" width="1" height="1.02"/><rect x="6" y="12" width="1" height="1.02"/><rect x="9" y="12" width="1" height="1.02"/><rect x="11" y="12" width="2" height="1.02"/><rect x="14" y="12" width="7" height="1.02"/><rect x="22" y="12" width="3" height="1.02"/><rect x="0" y="13" width="2" height="1.02"/><rect x="5" y="13" width="1" height="1.02"/><rect x="10" y="13" width="1" height="1.02"/><rect x="16" y="13" width="2" height="1.02"/><rect x="19" y="13" width="1" height="1.02"/><rect x="21" y="13" width="1" height="1.02"/><rect x="23" y="13" width="1" height="1.02"/><rect x="0" y="14" width="1" height="1.02"/><rect x="2" y="14" width="1" height="1.02"/><rect x="4" y="14" width="9" height="1.02"/><rect x="15" y="14" width="1" height="1.02"/><rect x="19" y="14" width="3" height="1.02"/><rect x="23" y="14" width="2" height="1.02"/><rect x="0" y="15" width="1" height="1.02"/><rect x="4" y="15" width="2" height="1.02"/><rect x="7" y="15" width="1" height="1.02"/><rect x="9" y="15" width="1" height="1.02"/><rect x="11" y="15" width="1" height="1.02"/><rect x="14" y="15" width="1" height="1.02"/><rect x="17" y="15" width="4" height="1.02"/><rect x="24" y="15" width="1" height="1.02"/><rect x="0" y="16" width="1" height="1.02"/><rect x="3" y="16" width="4" height="1.02"/><rect x="9" y="16" width="1" height="1.02"/><rect x="11" y="16" width="1" height="1.02"/><rect x="15" y="16" width="6" height="1.02"/><rect x="22" y="16" width="1" height="1.02"/><rect x="8" y="17" width="2" height="1.02"/><rect x="12" y="17" width="3" height="1.02"/><rect x="16" y="17" width="1" height="1.02"/><rect x="20" y="17" width="2" height="1.02"/><rect x="0" y="18" width="7" height="1.02"/><rect x="9" y="18" width="1" height="1.02"/><rect x="13" y="18" width="2" height="1.02"/><rect x="16" y="18" width="1" height="1.02"/><rect x="18" y="18" width="1" height="1.02"/><rect x="20" y="18" width="1" height="1.02"/><rect x="22" y="18" width="3" height="1.02"/><rect x="0" y="19" width="1" height="1.02"/><rect x="6" y="19" width="1" height="1.02"/><rect x="8" y="19" width="1" height="1.02"/><rect x="10" y="19" width="1" height="1.02"/><rect x="12" y="19" width="2" height="1.02"/><rect x="16" y="19" width="1" height="1.02"/><rect x="20" y="19" width="2" height="1.02"/><rect x="23" y="19" width="1" height="1.02"/><rect x="0" y="20" width="1" height="1.02"/><rect x="2" y="20" width="3" height="1.02"/><rect x="6" y="20" width="1" height="1.02"/><rect x="8" y="20" width="1" height="1.02"/><rect x="10" y="20" width="1" height="1.02"/><rect x="12" y="20" width="1" height="1.02"/><rect x="14" y="20" width="7" height="1.02"/><rect x="22" y="20" width="1" height="1.02"/><rect x="24" y="20" width="1" height="1.02"/><rect x="0" y="21" width="1" height="1.02"/><rect x="2" y="21" width="3" height="1.02"/><rect x="6" y="21" width="1" height="1.02"/><rect x="8" y="21" width="2" height="1.02"/><rect x="17" y="21" width="2" height="1.02"/><rect x="20" y="21" width="5" height="1.02"/><rect x="0" y="22" width="1" height="1.02"/><rect x="2" y="22" width="3" height="1.02"/><rect x="6" y="22" width="1" height="1.02"/><rect x="8" y="22" width="2" height="1.02"/><rect x="11" y="22" width="2" height="1.02"/><rect x="17" y="22" width="1" height="1.02"/><rect x="21" y="22" width="2" height="1.02"/><rect x="24" y="22" width="1" height="1.02"/><rect x="0" y="23" width="1" height="1.02"/><rect x="6" y="23" width="1" height="1.02"/><rect x="9" y="23" width="3" height="1.02"/><rect x="14" y="23" width="3" height="1.02"/><rect x="19" y="23" width="3" height="1.02"/><rect x="24" y="23" width="1" height="1.02"/><rect x="0" y="24" width="7" height="1.02"/><rect x="8" y="24" width="4" height="1.02"/><rect x="19" y="24" width="6" height="1.02"/></svg></div><span class="qlabel">Scan with your phone camera</span></div></div></div>
+      <div class="dock"><img src="/icon-v2.png" alt=""><i style="background:linear-gradient(#5aa9ff,#2b6cff)"></i><i style="background:linear-gradient(#ffd45a,#ff9f1a)"></i><i style="background:linear-gradient(#5be7a0,#12a05c)"></i><i style="background:linear-gradient(#444,#111)"></i></div>
+    </div><div class="neck"></div><div class="foot"></div></div>
+    <div class="toast"><span>Allow “Alex’s iPhone”?</span><span class="al">Allow</span></div>
+    <div class="conn">Alex’s iPhone is connected</div>
+    <div class="ph2">
+      <div class="cam"><div class="room"></div><div class="cqr"><svg class="qr cq" viewBox="0 0 25 25" shape-rendering="crispEdges" fill="#111"><rect x="0" y="0" width="7" height="1.02"/><rect x="11" y="0" width="3" height="1.02"/><rect x="16" y="0" width="1" height="1.02"/><rect x="18" y="0" width="7" height="1.02"/><rect x="0" y="1" width="1" height="1.02"/><rect x="6" y="1" width="1" height="1.02"/><rect x="9" y="1" width="2" height="1.02"/><rect x="13" y="1" width="4" height="1.02"/><rect x="18" y="1" width="1" height="1.02"/><rect x="24" y="1" width="1" height="1.02"/><rect x="0" y="2" width="1" height="1.02"/><rect x="2" y="2" width="3" height="1.02"/><rect x="6" y="2" width="1" height="1.02"/><rect x="8" y="2" width="2" height="1.02"/><rect x="12" y="2" width="1" height="1.02"/><rect x="14" y="2" width="1" height="1.02"/><rect x="18" y="2" width="1" height="1.02"/><rect x="20" y="2" width="3" height="1.02"/><rect x="24" y="2" width="1" height="1.02"/><rect x="0" y="3" width="1" height="1.02"/><rect x="2" y="3" width="3" height="1.02"/><rect x="6" y="3" width="1" height="1.02"/><rect x="8" y="3" width="1" height="1.02"/><rect x="10" y="3" width="2" height="1.02"/><rect x="13" y="3" width="3" height="1.02"/><rect x="18" y="3" width="1" height="1.02"/><rect x="20" y="3" width="3" height="1.02"/><rect x="24" y="3" width="1" height="1.02"/><rect x="0" y="4" width="1" height="1.02"/><rect x="2" y="4" width="3" height="1.02"/><rect x="6" y="4" width="1" height="1.02"/><rect x="8" y="4" width="1" height="1.02"/><rect x="10" y="4" width="1" height="1.02"/><rect x="13" y="4" width="1" height="1.02"/><rect x="16" y="4" width="1" height="1.02"/><rect x="18" y="4" width="1" height="1.02"/><rect x="20" y="4" width="3" height="1.02"/><rect x="24" y="4" width="1" height="1.02"/><rect x="0" y="5" width="1" height="1.02"/><rect x="6" y="5" width="1" height="1.02"/><rect x="8" y="5" width="1" height="1.02"/><rect x="10" y="5" width="1" height="1.02"/><rect x="12" y="5" width="1" height="1.02"/><rect x="14" y="5" width="2" height="1.02"/><rect x="18" y="5" width="1" height="1.02"/><rect x="24" y="5" width="1" height="1.02"/><rect x="0" y="6" width="7" height="1.02"/><rect x="8" y="6" width="1" height="1.02"/><rect x="10" y="6" width="1" height="1.02"/><rect x="12" y="6" width="1" height="1.02"/><rect x="14" y="6" width="1" height="1.02"/><rect x="16" y="6" width="1" height="1.02"/><rect x="18" y="6" width="7" height="1.02"/><rect x="8" y="7" width="3" height="1.02"/><rect x="12" y="7" width="1" height="1.02"/><rect x="14" y="7" width="1" height="1.02"/><rect x="16" y="7" width="1" height="1.02"/><rect x="0" y="8" width="1" height="1.02"/><rect x="2" y="8" width="5" height="1.02"/><rect x="11" y="8" width="1" height="1.02"/><rect x="18" y="8" width="5" height="1.02"/><rect x="1" y="9" width="2" height="1.02"/><rect x="8" y="9" width="2" height="1.02"/><rect x="13" y="9" width="1" height="1.02"/><rect x="19" y="9" width="1" height="1.02"/><rect x="23" y="9" width="1" height="1.02"/><rect x="1" y="10" width="7" height="1.02"/><rect x="9" y="10" width="2" height="1.02"/><rect x="13" y="10" width="3" height="1.02"/><rect x="18" y="10" width="4" height="1.02"/><rect x="23" y="10" width="2" height="1.02"/><rect x="0" y="11" width="3" height="1.02"/><rect x="4" y="11" width="1" height="1.02"/><rect x="7" y="11" width="2" height="1.02"/><rect x="10" y="11" width="4" height="1.02"/><rect x="17" y="11" width="3" height="1.02"/><rect x="24" y="11" width="1" height="1.02"/><rect x="0" y="12" width="1" height="1.02"/><rect x="4" y="12" width="1" height="1.02"/><rect x="6" y="12" width="1" height="1.02"/><rect x="9" y="12" width="1" height="1.02"/><rect x="11" y="12" width="2" height="1.02"/><rect x="14" y="12" width="7" height="1.02"/><rect x="22" y="12" width="3" height="1.02"/><rect x="0" y="13" width="2" height="1.02"/><rect x="5" y="13" width="1" height="1.02"/><rect x="10" y="13" width="1" height="1.02"/><rect x="16" y="13" width="2" height="1.02"/><rect x="19" y="13" width="1" height="1.02"/><rect x="21" y="13" width="1" height="1.02"/><rect x="23" y="13" width="1" height="1.02"/><rect x="0" y="14" width="1" height="1.02"/><rect x="2" y="14" width="1" height="1.02"/><rect x="4" y="14" width="9" height="1.02"/><rect x="15" y="14" width="1" height="1.02"/><rect x="19" y="14" width="3" height="1.02"/><rect x="23" y="14" width="2" height="1.02"/><rect x="0" y="15" width="1" height="1.02"/><rect x="4" y="15" width="2" height="1.02"/><rect x="7" y="15" width="1" height="1.02"/><rect x="9" y="15" width="1" height="1.02"/><rect x="11" y="15" width="1" height="1.02"/><rect x="14" y="15" width="1" height="1.02"/><rect x="17" y="15" width="4" height="1.02"/><rect x="24" y="15" width="1" height="1.02"/><rect x="0" y="16" width="1" height="1.02"/><rect x="3" y="16" width="4" height="1.02"/><rect x="9" y="16" width="1" height="1.02"/><rect x="11" y="16" width="1" height="1.02"/><rect x="15" y="16" width="6" height="1.02"/><rect x="22" y="16" width="1" height="1.02"/><rect x="8" y="17" width="2" height="1.02"/><rect x="12" y="17" width="3" height="1.02"/><rect x="16" y="17" width="1" height="1.02"/><rect x="20" y="17" width="2" height="1.02"/><rect x="0" y="18" width="7" height="1.02"/><rect x="9" y="18" width="1" height="1.02"/><rect x="13" y="18" width="2" height="1.02"/><rect x="16" y="18" width="1" height="1.02"/><rect x="18" y="18" width="1" height="1.02"/><rect x="20" y="18" width="1" height="1.02"/><rect x="22" y="18" width="3" height="1.02"/><rect x="0" y="19" width="1" height="1.02"/><rect x="6" y="19" width="1" height="1.02"/><rect x="8" y="19" width="1" height="1.02"/><rect x="10" y="19" width="1" height="1.02"/><rect x="12" y="19" width="2" height="1.02"/><rect x="16" y="19" width="1" height="1.02"/><rect x="20" y="19" width="2" height="1.02"/><rect x="23" y="19" width="1" height="1.02"/><rect x="0" y="20" width="1" height="1.02"/><rect x="2" y="20" width="3" height="1.02"/><rect x="6" y="20" width="1" height="1.02"/><rect x="8" y="20" width="1" height="1.02"/><rect x="10" y="20" width="1" height="1.02"/><rect x="12" y="20" width="1" height="1.02"/><rect x="14" y="20" width="7" height="1.02"/><rect x="22" y="20" width="1" height="1.02"/><rect x="24" y="20" width="1" height="1.02"/><rect x="0" y="21" width="1" height="1.02"/><rect x="2" y="21" width="3" height="1.02"/><rect x="6" y="21" width="1" height="1.02"/><rect x="8" y="21" width="2" height="1.02"/><rect x="17" y="21" width="2" height="1.02"/><rect x="20" y="21" width="5" height="1.02"/><rect x="0" y="22" width="1" height="1.02"/><rect x="2" y="22" width="3" height="1.02"/><rect x="6" y="22" width="1" height="1.02"/><rect x="8" y="22" width="2" height="1.02"/><rect x="11" y="22" width="2" height="1.02"/><rect x="17" y="22" width="1" height="1.02"/><rect x="21" y="22" width="2" height="1.02"/><rect x="24" y="22" width="1" height="1.02"/><rect x="0" y="23" width="1" height="1.02"/><rect x="6" y="23" width="1" height="1.02"/><rect x="9" y="23" width="3" height="1.02"/><rect x="14" y="23" width="3" height="1.02"/><rect x="19" y="23" width="3" height="1.02"/><rect x="24" y="23" width="1" height="1.02"/><rect x="0" y="24" width="7" height="1.02"/><rect x="8" y="24" width="4" height="1.02"/><rect x="19" y="24" width="6" height="1.02"/></svg></div><div class="vf"><i></i><i></i><i></i><i></i><div class="scan"></div></div><p><span class="t1">Point at the code</span><span class="t2">Code found</span></p></div>
+      <div class="chats"><div class="chatset on" data-i="0"><div class="ph"><span class="char" data-eyes="wide" data-shape="orb" data-color="#A77BFF" data-acc="" style="width:28px;height:28px;--blink-delay:-0.9s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
+        <defs>
+          <radialGradient id="c1" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#f4c8ff"/>
+            <stop offset=".22" stop-color="#cb9fff"/>
+            <stop offset=".5" stop-color="#ac80ff"/>
+            <stop offset=".8" stop-color="#885ce0"/>
+            <stop offset="1" stop-color="#6a3ec2"/>
+          </radialGradient>
+          <radialGradient id="c1r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#fed2ff" stop-opacity=".7"/><stop offset="1" stop-color="#fed2ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c1s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c1k"><circle cx="50" cy="55" r="39" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c1s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <circle cx="50" cy="55" r="39" fill="url(#c1)"/>
+          <g clip-path="url(#c1k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c1o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c1r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c1h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><circle cx="38" cy="54" r="9.2" fill="#fff"/><g class="c-pupil"><circle cx="38" cy="54.6" r="4.8" fill="#161616"/><circle cx="39.6" cy="52.8" r="1.6" fill="#fff"/><circle cx="36.3" cy="56.4" r=".75" fill="#fff" opacity=".7"/></g></g><g class="c-eye c-eye-r"><circle cx="62" cy="54" r="9.2" fill="#fff"/><g class="c-pupil"><circle cx="62" cy="54.6" r="4.8" fill="#161616"/><circle cx="63.6" cy="52.8" r="1.6" fill="#fff"/><circle cx="60.3" cy="56.4" r=".75" fill="#fff" opacity=".7"/></g></g></g>
+            <path d="M45 66 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="64" rx="6.5" ry="4" fill="url(#c1b)" opacity=".9"/><ellipse cx="71" cy="64" rx="6.5" ry="4" fill="url(#c1b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><b>Homework helper</b></div><div class="chat"><div class="bub u" style="--n:0">Quiz me on photosynthesis</div><div class="bub b" style="--n:1">Sure. Question 1: where in a plant cell does photosynthesis happen?</div><div class="bub u" style="--n:2">The chloroplasts?</div><div class="bub b" style="--n:3">Correct! Next: what do plants take in from the air?</div></div></div><div class="chatset" data-i="1"><div class="ph"><span class="char" data-eyes="dots" data-shape="pebble" data-color="#4F8BFF" data-acc="" style="width:28px;height:28px;--blink-delay:-4.74s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
+        <defs>
+          <radialGradient id="c3" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#9cd8ff"/>
+            <stop offset=".22" stop-color="#73afff"/>
+            <stop offset=".5" stop-color="#5490ff"/>
+            <stop offset=".8" stop-color="#306ce0"/>
+            <stop offset="1" stop-color="#124ec2"/>
+          </radialGradient>
+          <radialGradient id="c3r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#a6e2ff" stop-opacity=".7"/><stop offset="1" stop-color="#a6e2ff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c3b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c3h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c3o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c3s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c3k"><rect x="12" y="18" width="76" height="72" rx="27" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c3s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <rect x="12" y="18" width="76" height="72" rx="27" fill="url(#c3)"/>
+          <g clip-path="url(#c3k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c3o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c3r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c3h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><circle cx="38" cy="52" r="6.4" fill="#161616"/><circle cx="39.9" cy="49.9" r="2.1" fill="#fff" opacity=".95"/><circle cx="35.8" cy="54.6" r=".9" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><circle cx="62" cy="52" r="6.4" fill="#161616"/><circle cx="63.9" cy="49.9" r="2.1" fill="#fff" opacity=".95"/><circle cx="59.8" cy="54.6" r=".9" fill="#fff" opacity=".6"/></g></g></g>
+            <path d="M45 64 q5 4.5 10 0" stroke="#161616" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="29" cy="62" rx="6.5" ry="4" fill="url(#c3b)" opacity=".9"/><ellipse cx="71" cy="62" rx="6.5" ry="4" fill="url(#c3b)" opacity=".9"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><b>Inbox sorter</b></div><div class="chat"><div class="bub u" style="--n:0">Anything urgent today?</div><div class="bub b" style="--n:1">3 emails need you: your teacher, the landlord and a bill due Friday. Drafts are ready.</div><div class="bub u" style="--n:2">Send the one to my teacher</div><div class="bub b" style="--n:3">Sent. I will tell you when they answer.</div></div></div><div class="chatset" data-i="2"><div class="ph"><span class="char" data-eyes="ovals" data-shape="capsule" data-color="#FF6B5B" data-acc="" style="width:28px;height:28px;--blink-delay:-2.58s">
+      <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
+      <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+      <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
+      <span class="c-3d"><span class="c-slab"></span>
+      <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true">
+        <defs>
+          <radialGradient id="c7" cx="34%" cy="26%" r="88%">
+            <stop offset="0" stop-color="#ffb8a8"/>
+            <stop offset=".22" stop-color="#ff8f7f"/>
+            <stop offset=".5" stop-color="#ff7060"/>
+            <stop offset=".8" stop-color="#e04c3c"/>
+            <stop offset="1" stop-color="#c22e1e"/>
+          </radialGradient>
+          <radialGradient id="c7r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="#ffc2b2" stop-opacity=".7"/><stop offset="1" stop-color="#ffc2b2" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c7b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c7h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c7o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <radialGradient id="c7s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".32"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+          <clipPath id="c7k"><rect x="20" y="12" width="60" height="80" rx="30" fill="#000"/></clipPath>
+        </defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="30" ry="5" fill="url(#c7s)"/>
+        <g class="c-body"><g class="c-turn">
+          
+          <rect x="20" y="12" width="60" height="80" rx="30" fill="url(#c7)"/>
+          <g clip-path="url(#c7k)">
+            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#c7o)"/>
+            <ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#c7r)"/>
+            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#c7h)" transform="rotate(-24 35 29)"/>
+            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
+            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>
+            <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
+          </g>
+          <g class="c-face">
+            <g class="c-eyes"><g class="c-eye c-eye-l"><g class="c-pupil"><ellipse cx="38" cy="44" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="39.5" cy="41" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="36.4" cy="47.6" r=".8" fill="#fff" opacity=".6"/></g></g><g class="c-eye c-eye-r"><g class="c-pupil"><ellipse cx="62" cy="44" rx="4.8" ry="7.8" fill="#161616"/><ellipse cx="63.5" cy="41" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="60.4" cy="47.6" r=".8" fill="#fff" opacity=".6"/></g></g></g>
+            
+            <ellipse cx="29" cy="54" rx="6.5" ry="4" fill="url(#c7b)" opacity=".6"/><ellipse cx="71" cy="54" rx="6.5" ry="4" fill="url(#c7b)" opacity=".6"/>
+            
+          </g>
+          
+        </g></g>
+        <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
+        <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
+      </svg>
+      </span>
+    </span><b>Price watcher</b></div><div class="chat"><div class="bub u" style="--n:0">Watch the blue headphones</div><div class="bub b" style="--n:1">On it. They cost €89 now.</div><div class="bub b" style="--n:2">Good news: they are €69 today. Want me to open the page?</div></div></div><div class="pin">Message your bot</div></div>
+    </div>
+  </div>
+</div></div></div></div>
+
+<div class="wrap">
+<section id="videos">
+  <div class="head rv"><span class="eyebrow">Videos</span><h2>See it in action</h2></div>
+  <div class="vid rv" id="vid" title="Click for sound">
+    <video id="vv" autoplay muted loop playsinline preload="auto" disablepictureinpicture disableremoteplayback src="/media/chatgpt.mp4"></video>
+    <button class="arr prev" id="vprev" type="button" aria-label="Previous video"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="arr next" id="vnext" type="button" aria-label="Next video"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    <div class="snd" id="snd"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM17 9l4 6M21 9l-4 6"/></svg><span>Click for sound</span></div>
+  </div>
+  <div class="dots" id="vdots"><button class="on" type="button" aria-label="Video 1"></button><button type="button" aria-label="Video 2"></button><button type="button" aria-label="Video 3"></button></div>
+</section>
+
+<section id="download"><div class="dlcard rv">
+  <div><span class="eyebrow">Download</span><h2>Download Wayzerr</h2><p class="s">Free. One team of bots on your desk, whatever computer you use.</p>
+    <details class="first"><summary>First time opening it?</summary>
+      <p><b>Mac:</b> right-click Wayzerr, choose Open, then Open again.</p>
+      <p><b>Windows:</b> double-click the downloaded Wayzerr file (if it doesn&rsquo;t end in .exe, rename the end to .exe) and wait a minute while it installs. If it says the app is unrecognised, press More info, then Run anyway. Prefer no installer? <a href="/download/windowszip" style="text-decoration:underline">Download the zip</a>, unzip it and open Wayzerr.exe.</p>
+      <p><b>Linux:</b> double-click the downloaded Wayzerr file and press Install, or run <code>sudo apt install ./Wayzerr.deb</code>. Another kind of Linux? <a href="/download/linux" style="text-decoration:underline">Get the AppImage</a> (or the <a href="/download/linuxarm" style="text-decoration:underline">ARM64 AppImage</a> for ARM computers such as a Raspberry Pi), run <code>chmod +x Wayzerr.AppImage</code>, then open it.</p></details>
+  </div>
+  <div class="dlright">
+  <div class="oss" id="oss">
+    <a class="os" data-os="mac" href="/download/mac"><svg class="l" viewBox="0 0 24 24"><path d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.1-1.7-2.9-1.9-3.5-1.9-1.5-.2-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6 0-3.1 1-4 2.4-1.7 3-.4 7.4 1.2 9.8.8 1.2 1.8 2.5 3 2.4 1.2 0 1.7-.8 3.1-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.1-1.2 2.9-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.4-.9-2.4-3.9zM14 5.5c.7-.8 1.1-1.9 1-3-1 0-2.1.7-2.8 1.5-.6.7-1.2 1.8-1 2.9 1 .1 2.1-.6 2.8-1.4z"/></svg><div><b>macOS</b><span>Apple silicon and Intel</span></div><svg class="go" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></a>
+    <a class="os" data-os="windows" href="/download/windows"><svg class="l" viewBox="0 0 24 24"><path d="M3 5.500l7.500-1v7H3zM11.500 4.350L21 3v8.500h-9.500zM3 12.500h7.500v7L3 18.500zM11.500 12.500H21V21l-9.500-1.350z"/></svg><div><b>Windows<i class="tag">Beta</i></b><span>Windows 10 and 11, 64-bit installer</span></div><svg class="go" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></a>
+    <a class="os" data-os="linux" href="/download/linuxdeb"><svg class="l" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3.300 4.300L6 9.600 8.400 12 6 14.400l1.300 1.300L11 12zM12 15v1.800h5V15z"/></svg><div><b>Linux<i class="tag">Beta</i></b><span>Installer for Ubuntu and Debian, 64-bit</span></div><svg class="go" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></a>
+  </div>
+  <div class="lxwrap dl-lx" id="lx">
+    <div class="lxseg"><span>Linux</span><a data-k="deb" href="/download/linuxdeb">.deb</a><a data-k="x64" href="/download/linux">AppImage</a><a data-k="arm" href="/download/linuxarm">ARM</a></div>
+    <button type="button" class="lxmore" id="lxtog" aria-expanded="false">Terminal command</button>
+    <em id="lxnote"></em>
+    <div class="lxcmd" id="lxcmdbox" hidden><code id="lxcmd">cd ~/Downloads &amp;&amp; chmod +x Wayzerr.AppImage &amp;&amp; ./Wayzerr.AppImage</code><button type="button" id="lxcopy">Copy</button><span id="lxhelp">Won&rsquo;t start? Run <code>sudo apt install libfuse2</code> first, or add <code>--no-sandbox</code> at the end.</span></div>
+  </div>
+  <p class="winnote" id="winnote">Windows: if the file doesn&rsquo;t end in <b>.exe</b>, rename the end to <b>.exe</b>, then open it.</p>
+  </div>
+  <div class="extras">
+    <h3>Two extras you add when you want them</h3>
+    <p>The app itself stays small. When you first open it, Wayzerr offers these and you choose what to add.</p>
+    <div class="xgrid">
+      <div class="xc"><span class="xs">About 1 GB download, once</span><b>A computer for each bot</b><p>The compressed size; it holds about 3 GB of software once unpacked. Every bot gets its own Linux computer from this one download. For Apple silicon Macs.</p><p class="why"><b>Why you would want it:</b> a bot can install and run programs, download and test apps, and finish jobs that need a real desktop, even when a search or the browser can&rsquo;t. It can&rsquo;t touch your files, only the shared Wayzerr Files folder.</p></div>
+      <div class="xc"><span class="xs">0 MB to download</span><b>A browser</b><p>It is built into Wayzerr, so turning it on adds nothing to the download. It keeps what you sign in to, usually 20 to 60 MB.</p><p class="why"><b>Why you would want it:</b> it starts instantly, so bots can read pages, click through sites, fill in forms and sign in with your saved logins without waiting for a computer to start.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="faq"><div class="faqs">
+  <div class="rv"><span class="eyebrow">Questions</span><h2>FAQs</h2></div>
+  <div id="faqList"><div class="q"><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>What is Wayzerr?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Wayzerr gives you AI bots, each with its own personality, memory and tools. Ask them questions, or have them research, write, plan, and use the web and your apps for you. Your chats stay on your computer.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>Why use Wayzerr?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Each bot has its own personality and memory, so you stop explaining yourself every time. It uses the AI plan you already pay for, has its own computer (a small Linux desktop that runs only inside Wayzerr; on Windows and Linux it still has its own browser), and keeps your chats on your computer. You can give one bot a job each: homework, your inbox, the news.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>Is Wayzerr free?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Wayzerr itself is free. The AI behind your bots is what costs money, and that depends on how you connect it: a plan you already have (Cloud) costs nothing extra, and an API key is charged by the company that gave you the key.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>How do I connect an AI?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Open Settings → AI &amp; apps. Under Cloud, sign in with a Claude, ChatGPT, Gemini or other plan you already pay for. No key needed. Under API, paste a key from OpenAI, Anthropic, Google and others. You can connect several and pick one for each bot with the model button next to the message box.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>Cloud or API key: which should I use?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Cloud uses a plan you already have, so there's nothing extra to pay. An API key charges per use, gives you more models and is needed for good pictures. Start with Cloud and add an API key later if you want one.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>Is my data private?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Chats, memories and saved logins stay on your computer, and logins are encrypted. Your messages go only to the AI you picked. Wayzerr has no accounts and sends no usage statistics. Details are in Settings → General → Privacy.</p></div></div></div><div id="faqMore" hidden><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>How do I make a new bot or a group chat?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Press the + at the top of the sidebar. Give the bot a name and a short description (they decide who it is), pick its look and create it. For a group, choose New group in the same place and pick the bots. They can talk to each other.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>Can a bot do things by itself at a certain time?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Yes. Open a bot, press the monitor button, and choose the Schedule tab. Press New task, say what the bot should do, then pick the date, time and how often (once, every day, every week and more). Press Open calendar for the full week view: drag a bot onto any time to schedule it, and open Run logs to see what happened. You can also just tell a bot in the chat ("every morning at 8, read me the news") and it sets it up. Wayzerr has to be open at that time; it keeps the computer awake while tasks are waiting.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>Why do my messages use so many tokens, and how do I use fewer?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Every message re-sends the whole chat plus the AI's own built-in instructions, and a long chat keeps growing. Click the bot's name and press Compact chat to shrink it. A blue dot shows when it's worth doing. In Settings → General, AI usage set to Low saves the most.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>How do I connect Gmail, Drive or Classroom?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Open Settings → AI &amp; apps → Connectors, paste your free Composio key once (you make it at dashboard.composio.dev), then press Connect on an app. Or tell a bot "use your computer" and it works in its own computer instead.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>Can a bot use websites and log in for me?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Yes. A bot can use the browser (quick, for reading pages, clicking and forms) and, on Apple silicon Macs, its own computer. The Screen panel on the right shows them live: click one to open it full screen, where you can log in yourself too. Saved passwords live in Settings → General → Passwords &amp; cards, and bots never see them.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>How do I stop an answer, try again, or find an old message?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Press the square Stop button in the message box. If a reply fails, press Try again. Press ⌘K to search all your chats, and ↑ in the message box to bring back your last message.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>Why do my pictures look bad, and how do I get better ones?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Without a picture AI, bots use a free service that makes lower quality pictures. For better ones add an OpenAI, Gemini, OpenRouter or xAI API key in Settings → AI &amp; apps → API. A ChatGPT cloud plan can't make pictures here.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>Which computers does it work on?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Wayzerr runs on Mac (macOS 13 or newer, Intel and Apple silicon). Windows 10 and 11 and Linux (Ubuntu and Debian) are available as a beta. Bots' own computers are for Apple silicon Macs for now.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>How do I update Wayzerr?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>When a new version is out, an update card appears in the app. Press Restart to update and it installs itself. You can also pick a downloaded Wayzerr.dmg in Settings → General → Install an update from a file.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>My Mac says it can't open Wayzerr</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Right-click Wayzerr in Applications, choose Open, then Open again. If it still blocks it, go to System Settings → Privacy &amp; Security and press Open Anyway. You only need to do this the first time.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>Can a bot run apps on my computer?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Yes, but not on your Mac itself. On Apple silicon Macs every bot can have its own Linux computer inside Wayzerr. It is an optional one-time download of about 1 GB (already compressed, about 3 GB of software once unpacked); each bot then adds only what it installs. A bot can open a terminal there, install apps, test them and keep going when a search or the browser can't do the job. It cannot touch your files except the shared Wayzerr Files folder in your home folder. The browser is built into Wayzerr: turning it on downloads nothing.</p></div></div></div><div class="qi"><button class="qq" type="button" aria-expanded="false"><span>How do I delete my data?</span><i aria-hidden="true"></i></button><div class="qa"><div><p>Click your picture, then Delete account. It erases your bots, chats, memories and saved logins from this computer and restarts Wayzerr fresh.</p></div></div></div></div></div>
+    <button class="btn g more" type="button" id="faqBtn">Show more questions</button></div>
+</div></section>
+</div>
+
+<footer><div class="wrap"><a class="brand" href="#top"><img src="/icon-v2.png" alt="">Wayzerr</a><span id="ver">© 2026 Wayzerr</span></div></footer>
+</main>
+
+<script>
+(function(){
+  var $=function(s){return document.querySelector(s)}, $$=function(s){return [].slice.call(document.querySelectorAll(s))};
+  var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var clamp=function(v,a,b){return Math.max(a,Math.min(b,v))};
+
+  // which computer is this? The main button follows it, the other two stay in reach.
+  var ua=navigator.userAgent||'', pf=(navigator.userAgentData&&navigator.userAgentData.platform)||navigator.platform||'';
+  var os=/Win/i.test(pf)||/Windows/i.test(ua)?'windows':(/Linux/i.test(pf)||/X11/i.test(ua))&&!/Android/i.test(ua)?'linux':'mac';
+  var names={mac:'Mac',windows:'Windows',linux:'Linux'};
+  $$('.dlmain').forEach(function(a){a.href='/download/'+os});
+  $('.dlname').textContent='Download for '+names[os];
+  $$('.alt').forEach(function(a){a.hidden=a.dataset.os===os});
+  var box=$('#oss'), mine=box.querySelector('[data-os="'+os+'"]');
+  if(mine){mine.classList.add('main');var s=mine.querySelector('span');s.textContent=s.textContent+' · your computer';box.insertBefore(mine,box.firstChild)}
+  // Which Linux? Debian-family names in the browser's own text get the .deb, an ARM chip gets the ARM AppImage, and anything else the AppImage, which runs on most of them.
+  var LXP={deb:'/download/linuxdeb',x64:'/download/linux',arm:'/download/linuxarm'}, LXS={deb:'Installer for Ubuntu and Debian, 64-bit',x64:'AppImage, works on most Linux, 64-bit',arm:'AppImage for ARM Linux, 64-bit'};
+  function lxPick(arm){
+    var k=arm?'arm':/Ubuntu|Debian|Mint|Pop!_OS|elementary|Kali|Zorin/i.test(ua)?'deb':'x64';
+    $$('.lxseg a').forEach(function(a){a.classList.toggle('rec',a.dataset.k===k)});
+    $$('#lxnote').forEach(function(n){n.textContent='We picked '+(k==='deb'?'the .deb':k==='arm'?'ARM':'the AppImage')+' for you'});
+    $$('.dlmain,.alt[data-os="linux"],#oss [data-os="linux"]').forEach(function(x){x.setAttribute('href',LXP[k])});
+    var sp=box.querySelector('[data-os="linux"] span');if(sp)sp.textContent=LXS[k]+(os==='linux'?' · your computer':'');
+    var CM={deb:'cd ~/Downloads && sudo apt install ./Wayzerr.deb',x64:'cd ~/Downloads && chmod +x Wayzerr.AppImage && ./Wayzerr.AppImage',arm:'cd ~/Downloads && chmod +x Wayzerr-arm64.AppImage && ./Wayzerr-arm64.AppImage'};
+    var c=document.getElementById('lxcmd');if(c)c.textContent=CM[k];
+    var hp=document.getElementById('lxhelp');if(hp)hp.style.display=k==='deb'?'none':'';
+  }
+  (function(){var t=document.getElementById('lxtog'),bx=document.getElementById('lxcmdbox');if(t&&bx)t.addEventListener('click',function(){bx.hidden=!bx.hidden;t.setAttribute('aria-expanded',String(!bx.hidden))})})();
+  (function(){var b=document.getElementById('lxcopy');if(b)b.addEventListener('click',function(){var t=document.getElementById('lxcmd').textContent;try{navigator.clipboard.writeText(t);b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1500)}catch(e){}})})();
+  if(os==='linux'){
+    if(navigator.userAgentData&&navigator.userAgentData.getHighEntropyValues)navigator.userAgentData.getHighEntropyValues(['architecture']).then(function(v){lxPick(/arm/i.test(v.architecture||''))}).catch(function(){lxPick(/aarch64|arm/i.test(ua))});else lxPick(/aarch64|arm/i.test(ua));
+  } else {var sp0=box.querySelector('[data-os="linux"] span');if(sp0)sp0.textContent=LXS.x64;}
+  fetch('/latest.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(j){
+    if(!j)return; $('#ver').textContent='Version '+j.version+' · © 2026 Wayzerr';
+    var map={mac:j,windows:j.downloads&&j.downloads.windows};
+    Object.keys(map).forEach(function(k){var p=map[k],a=box.querySelector('[data-os="'+k+'"] span');if(p&&p.size&&a)a.textContent=a.textContent.replace(/( · [\d.]+ MB)?( · your computer)?$/,function(m,x,y){return ' · '+Math.round(p.size/1048576)+' MB'+(y||'')})});
+  }).catch(function(){});
+
+  // glide in as you scroll
+  var rv=$$('.rv');
+  if('IntersectionObserver' in window&&!calm){
+    var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.1,rootMargin:'0px 0px -5% 0px'});
+    rv.forEach(function(el){io.observe(el)});
+  } else rv.forEach(function(el){el.classList.add('in')});
+
+  // one scroll handler: nav line, the six hero cards spreading out, the phone steps
+  var nav=$('#nav'), cards=$$('.fc'), link=$('#phone'), stage=$('#stage'), steps=$$('.step'), chatsets=$$('.chatset'), tick=false, cur=-1;
+  cards.forEach(function(c){c.r=+c.dataset.r;c.k=+c.dataset.k;c.s=+c.dataset.s});
+  function setStep(i){
+    if(i===cur)return; cur=i;
+    stage.className=stage.className.replace(/\bst\d\b/g,'').trim()+' st'+(i+1);
+    steps.forEach(function(t,k){t.classList.toggle('on',k===i)});
+    if(i===2){var n=chatsets.length,w=-1;chatsets.forEach(function(c,k){if(c.classList.contains('on'))w=k});var nx=(w+1)%n;chatsets.forEach(function(c,k){c.classList.toggle('on',k===nx)})}
+  }
+  function frame(){
+    tick=false;
+    var y=window.scrollY||0, vh=window.innerHeight||800;
+    nav.classList.toggle('on',y>12);
+    if(y<vh*1.4&&!calm){
+      var p=clamp(y/(vh*.8),0,1);
+      cards.forEach(function(c){c.style.transform='translate3d('+(p*c.s*c.k*420).toFixed(1)+'px,'+(p*c.k*-120).toFixed(1)+'px,0) rotate('+(c.r+p*c.s*14).toFixed(2)+'deg)';c.style.opacity=(1-p*1.5).toFixed(3)});
+    }
+  }
+  window.addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(frame)}},{passive:true});
+  window.addEventListener('resize',frame);
+  steps.forEach(function(t,k){t.addEventListener('click',function(){setStep(k)})});
+  function nextStep(){setStep((Math.max(cur,0)+1)%steps.length)}
+  $('#nextStep').addEventListener('click',nextStep);
+  stage.addEventListener('click',nextStep);
+  setStep(0); frame();
+
+  // the brain picker keeps moving on its own
+  var opts=$$('#pick .opt'), oi=0;
+  if(opts.length&&!calm)setInterval(function(){opts[oi].classList.remove('sel');oi=(oi+1)%opts.length;opts[oi].classList.add('sel')},2200);
+
+  // the big bot does a different little move every few seconds (no speech), and a click makes it do one at once
+  var arts=$('#art'), bot=arts&&arts.querySelector('svg'), lastMv='';
+  var MOVES={
+    hop:[[{transform:'translateY(0) scale(1,1)'},{transform:'translateY(4px) scale(1.06,.94)',offset:.18},{transform:'translateY(-34px) scale(.97,1.04)',offset:.5},{transform:'translateY(0) scale(1.07,.93)',offset:.82},{transform:'translateY(0) scale(1,1)'}],1000,'cubic-bezier(.3,.1,.3,1)'],
+    wiggle:[[{transform:'rotate(0)'},{transform:'rotate(-7deg)',offset:.2},{transform:'rotate(7deg)',offset:.4},{transform:'rotate(-5deg)',offset:.6},{transform:'rotate(4deg)',offset:.8},{transform:'rotate(0)'}],900,'ease-in-out'],
+    spin:[[{transform:'translateY(0) rotate(0)'},{transform:'translateY(-22px) rotate(180deg)',offset:.5},{transform:'translateY(0) rotate(360deg)'}],1100,'cubic-bezier(.45,.05,.3,1)'],
+    tilt:[[{transform:'rotate(0) translateY(0)'},{transform:'rotate(-13deg) translateY(2px)',offset:.35},{transform:'rotate(-13deg) translateY(2px)',offset:.7},{transform:'rotate(0) translateY(0)'}],1300,'ease-in-out'],
+    squish:[[{transform:'scale(1,1)'},{transform:'scale(1.1,.88)',offset:.25},{transform:'scale(.93,1.08)',offset:.55},{transform:'scale(1.03,.98)',offset:.8},{transform:'scale(1,1)'}],900,'ease-in-out'],
+    roll:[[{transform:'translateX(0) rotate(0)'},{transform:'translateX(-30px) rotate(-16deg)',offset:.3},{transform:'translateX(30px) rotate(16deg)',offset:.7},{transform:'translateX(0) rotate(0)'}],1500,'ease-in-out'],
+    turn:[[{transform:'perspective(700px) rotateY(0)'},{transform:'perspective(700px) rotateY(34deg)',offset:.35},{transform:'perspective(700px) rotateY(-30deg)',offset:.7},{transform:'perspective(700px) rotateY(0)'}],1500,'ease-in-out'],
+    nod:[[{transform:'translateY(0)'},{transform:'translateY(7px) scale(1.02,.97)',offset:.2},{transform:'translateY(0)',offset:.4},{transform:'translateY(7px) scale(1.02,.97)',offset:.6},{transform:'translateY(0)'}],900,'ease-in-out']
+  };
+  function move(name){
+    if(!bot||!bot.animate)return;
+    var names=Object.keys(MOVES); if(!name){do{name=names[Math.floor(Math.random()*names.length)]}while(name===lastMv)} lastMv=name;
+    var m=MOVES[name]; bot.style.transformOrigin='50% 90%'; bot.animate(m[0],{duration:m[1],easing:m[2]});
+  }
+  if(arts&&!calm){
+    var mvT=setInterval(function(){var r=arts.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight||document.hidden)return;move()},3200);
+    arts.addEventListener('click',function(){move()});
+  }
+  // the big bot's eyes follow you
+  var face=$('.art .c-face'), artEl=$('.art');
+  if(face&&artEl&&!calm)window.addEventListener('pointermove',function(ev){
+    var r=artEl.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight)return;
+    var dx=ev.clientX-(r.left+r.width/2), dy=ev.clientY-(r.top+r.height*.55), d=Math.max(1,Math.hypot(dx,dy)), k=Math.min(1,d/500);
+    face.style.transform='translate('+(dx/d*4*k).toFixed(2)+'px,'+(dy/d*3*k).toFixed(2)+'px)';
+  },{passive:true});
+
+  // videos: they loop on their own, start silent, a click turns the sound on or off, and they can't be paused
+  var list=['chatgpt','settings','team'], idx=0, v=$('#vv'), vid=$('#vid'), dots=$$('#vdots button'), away=false;
+  function go(n){
+    idx=(n+list.length)%list.length;
+    dots.forEach(function(d,i){d.classList.toggle('on',i===idx)});
+    v.classList.add('fade');
+    setTimeout(function(){v.src='/media/'+list[idx]+'.mp4';v.load();var p=v.play();if(p&&p.catch)p.catch(function(){});v.classList.remove('fade')},300);
+  }
+  $('#vprev').addEventListener('click',function(e){e.stopPropagation();go(idx-1)});
+  $('#vnext').addEventListener('click',function(e){e.stopPropagation();go(idx+1)});
+  dots.forEach(function(d,i){d.addEventListener('click',function(){go(i)})});
+  vid.addEventListener('click',function(){
+    v.muted=!v.muted;
+    $('#snd').style.opacity=v.muted?1:0;
+    var p=v.play();if(p&&p.catch)p.catch(function(){});
+  });
+  v.addEventListener('pause',function(){if(!away&&!document.hidden&&!v.ended){var p=v.play();if(p&&p.catch)p.catch(function(){})}});
+  v.addEventListener('contextmenu',function(e){e.preventDefault()});
+  if('IntersectionObserver' in window)new IntersectionObserver(function(es){away=!es[0].isIntersecting;if(away)v.pause();else{var p=v.play();if(p&&p.catch)p.catch(function(){})}},{threshold:.2}).observe(vid);
+
+  // questions: they open smoothly, and glide in one after another
+  var qs=$$('#faqList .qi');
+  qs.forEach(function(q,i){q.style.setProperty('--i',i%7)});
+  if('IntersectionObserver' in window&&!calm){
+    var qo=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('shown');qo.unobserve(x.target)}})},{threshold:.2});
+    qs.forEach(function(q){qo.observe(q)});
+  } else qs.forEach(function(q){q.classList.add('shown')});
+  $('#faqList').addEventListener('click',function(e){
+    var b=e.target.closest('.qq'); if(!b)return;
+    var qi=b.parentNode, open=!qi.classList.contains('open');
+    $$('#faqList .qi.open').forEach(function(o){if(o!==qi){o.classList.remove('open');o.querySelector('.qq').setAttribute('aria-expanded','false')}});
+    qi.classList.toggle('open',open); b.setAttribute('aria-expanded',open);
+  });
+  var m=$('#faqMore'), fb=$('#faqBtn');
+  fb.addEventListener('click',function(){m.hidden=!m.hidden;fb.textContent=m.hidden?'Show more questions':'Show fewer questions'});
+})();
+</script>
+</body>
+</html>

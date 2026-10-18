@@ -1,0 +1,9 @@
+How to open Wayzerr the first time
+
+1. Drag Wayzerr onto Applications.
+2. Open Wayzerr. macOS may say it can't check it for malicious software. Click Done (not "Move to Trash").
+3. Open System Settings > Privacy & Security, scroll down, click "Open Anyway" next to Wayzerr, and confirm.
+
+You only do this once. (On older macOS you can also right-click Wayzerr > Open > Open.)
+
+Then sign in with your email, take the short tour and make your first bot. Pick how your bots think: sign in with the Claude, ChatGPT or Gemini plan you already have, or paste an API key.
