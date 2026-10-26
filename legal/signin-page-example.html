@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in · Wayzerr</title>
+<!-- Reference for the wayzerr.com sign-in page. The front end below only helps the user.
+     The SERVER must enforce the same rules (see BACKEND-REQUIREMENTS.md #1): do not start the Google
+     sign-in or create an account unless the request says age_ok=1 and terms_version is the current one. -->
+<style>
+:root{color-scheme:dark;--bg:#0a0a0b;--card:#141416;--ink:#f6f6f7;--mute:#a8a8b0;--line:#242428}
+@media (prefers-color-scheme:light){:root{color-scheme:light;--bg:#fff;--card:#f6f6f8;--ink:#17171a;--mute:#55555e;--line:#e4e4e8}}
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--ink);font:400 16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.card{width:min(420px,calc(100% - 32px));padding:28px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+h1{font-size:22px;margin:0 0 6px}p{margin:0 0 14px;color:var(--mute)}
+label{display:block;margin:14px 0 6px;font-weight:600}
+input[type=number]{width:100%;box-sizing:border-box;padding:10px;font:inherit;border:1px solid var(--line);border-radius:8px;background:transparent;color:inherit}
+.agree{display:flex;gap:10px;align-items:flex-start;margin:16px 0;font-weight:400;color:var(--ink)}
+.agree input{margin-top:4px;width:16px;height:16px;flex:none}
+button{width:100%;padding:12px;font:inherit;font-weight:600;border:0;border-radius:10px;background:#fff;color:#111;cursor:pointer}
+button:disabled{opacity:.4;cursor:not-allowed}
+a{color:inherit;text-underline-offset:3px}
+.err{color:#ff8a8a;min-height:1.4em;margin:8px 0 0}
+</style>
+</head>
+<body>
+<main class="card">
+<h1>Sign in to Wayzerr</h1>
+<p>Three quick steps.</p>
+
+<label for="age">1. How old are you?</label>
+<input id="age" type="number" inputmode="numeric" min="1" max="120" autocomplete="off">
+<div id="err" class="err" role="alert"></div>
+
+<label class="agree" for="ok"><input id="ok" type="checkbox" disabled>
+  <span>2. I agree to the <a href="/terms" target="_blank" rel="noopener">Terms of Service</a> and have read the <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+
+<button id="go" type="button" disabled>3. Continue with Google</button>
+
+<script>
+(function () {
+  var MIN_AGE = 16, TERMS_VERSION = '2026-10-26';
+  var age = document.getElementById('age'), ok = document.getElementById('ok'), go = document.getElementById('go'), err = document.getElementById('err');
+  function ageOk() { var n = parseInt(age.value, 10); return n >= MIN_AGE && n <= 120; }
+  function update() {
+    var n = parseInt(age.value, 10);
+    err.textContent = (age.value !== '' && n < MIN_AGE) ? 'Sorry, Wayzerr is for people aged ' + MIN_AGE + ' and over.' : '';
+    ok.disabled = !ageOk();
+    if (ok.disabled) ok.checked = false;
+    go.disabled = !(ageOk() && ok.checked);
+  }
+  age.addEventListener('input', update); ok.addEventListener('change', update);
+  go.addEventListener('click', function () {
+    if (go.disabled) return;
+    // Do NOT send or store the exact age: only the yes/no answer (collect as little as possible).
+    var q = new URLSearchParams(location.search);
+    q.set('age_ok', '1'); q.set('terms_version', TERMS_VERSION);
+    location.href = '/auth/google/start?' + q.toString(); // your backend route; it must re-check age_ok and terms_version
+  });
+  update();
+})();
+</script>
+</main>
+</body>
+</html>
