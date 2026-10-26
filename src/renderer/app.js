@@ -204,10 +204,12 @@ function stashDraft() {
 function render() {
   applyTheme();
   stashDraft();
+  const needsTerms = !!(S.settings.terms && !S.settings.terms.accepted);
   const needsLogin = !!(S.account && S.account.required) && !S.account.signedIn;
   const needsSetup = !S.ready && !S.settings.setupSkipped;
-  $('#sidebar').classList.toggle('hidden', needsLogin || needsSetup);
-  $('#screen').classList.toggle('hidden', needsLogin || needsSetup);
+  $('#sidebar').classList.toggle('hidden', needsTerms || needsLogin || needsSetup);
+  $('#screen').classList.toggle('hidden', needsTerms || needsLogin || needsSetup);
+  if (needsTerms) { mounted = null; return renderTerms(); }
   if (needsLogin) { mounted = null; return renderLogin(); }
   $('#main').dataset.lg = '';
   if (needsSetup) { mounted = null; return renderSetup(); }
@@ -317,6 +319,41 @@ function openChat(id) {
   run(() => api.setActive(id));
 }
 
+// ---------- terms (before first use, and again when the Terms change) ----------
+const LEGAL_URL = 'https://wayzerr.com/';
+const legalLinks = () => `<a href="#" data-legal="terms">Terms of Service</a> · <a href="#" data-legal="privacy">Privacy Policy</a>`;
+document.addEventListener('click', (e) => {
+  const a = e.target.closest && e.target.closest('[data-legal]');
+  if (a) { e.preventDefault(); api.openExternal(LEGAL_URL + a.dataset.legal).catch(() => {}); }
+});
+function renderTerms() {
+  if ($('#main .tm-card')) return;
+  $('#main').dataset.lg = '';
+  $('#main').innerHTML = `
+    <div class="setup"><div class="setup-card lg-card tm-card">
+      <div class="lg-brand"><img class="lg-dark" src="../icon.png" alt="" width="26" height="26"><img class="lg-light" src="../icon-light.png" alt="" width="26" height="26"><span>Wayzerr</span></div>
+      <h1>Before you start</h1>
+      <p class="lead">Please read and agree to how Wayzerr works.</p>
+      <ul class="tm-list">
+        <li><b>Bots act for you.</b> They can browse, use your connected apps and, if you allow it, send, buy, post or delete things. You are responsible for what they do, so check what they ask to do before you approve it.</li>
+        <li><b>AI can be wrong.</b> Don’t rely on answers for medical, legal, financial or safety decisions without checking.</li>
+        <li><b>Your data goes where you send it.</b> Chats and logins stay on this computer. Messages go to the AI you pick, and your account is only your email address.</li>
+      </ul>
+      <label class="tm-agree"><input type="checkbox" id="tm-ok"><span>I am at least 16 years old, or have a parent or guardian’s permission, and I agree to the ${legalLinks()}.</span></label>
+      <div class="lg-row"><button class="btn ghost" id="tm-quit" type="button">Quit</button><button class="btn primary" id="tm-go" type="button" disabled>Agree and continue</button></div>
+      <div class="lg-err" role="alert"></div>
+    </div></div>`;
+  const ok = $('#tm-ok'), go = $('#tm-go');
+  ok.onchange = () => { go.disabled = !ok.checked; };
+  $('#tm-quit').onclick = () => api.quitApp().catch(() => {});
+  go.onclick = async () => {
+    if (!ok.checked) return;
+    go.disabled = true;
+    try { S = await api.acceptTerms(); render(); } catch (e) { go.disabled = false; $('.tm-card .lg-err').textContent = e.message || 'Something went wrong. Try again.'; }
+  };
+  ok.focus();
+}
+
 // ---------- setup (first run) ----------
 // First screen: pick how your bots think. Cloud = sign in with a plan you already have (easiest),
 // API key = paste a key from a provider. Both forms stay in the page, so nothing typed is lost when you switch.
@@ -338,7 +375,7 @@ function renderLogin() {
       <p class="lead">Sign in or create an account in your browser. You only need to do this once on this computer.</p>
       ${waiting}
       <div class="lg-err" role="alert">${esc(A.error || '')}</div>
-      <p class="lg-fine">Your chats and saved passwords stay on this computer. Your account is only your email address.</p>
+      <p class="lg-fine">Your chats and saved passwords stay on this computer. Your account is only your email address. ${legalLinks()}</p>
     </div></div>`;
   const go = $('#lg-go');
   if (go) go.onclick = async () => { go.disabled = true; go.textContent = 'Opening your browser…'; try { await api.accountStart(); } catch (e) { go.disabled = false; go.textContent = 'Continue in browser'; $('.lg-err').textContent = e.message; } };
@@ -377,6 +414,7 @@ function renderSetup() {
         <button id="su-go" class="btn primary">Connect</button>
       </div>
       <p class="su-note">${icon('lock')}<span>Your chats and saved passwords stay on this computer. Your messages go only to the AI you pick. Details are in Settings → General → Privacy.</span></p>
+      <p class="su-note">${icon('info')}<span>Signing in with a plan uses that company’s own app on this computer. Check that your plan’s terms allow this; if you are unsure, use an API key.</span></p>
     </div></div>`;
   const label = () => {
     const go = $('#su-go');
@@ -2724,6 +2762,7 @@ function tabGeneral() {
       <div class="card-row"><div class="grow"><div class="nm">Download logos online</div><div class="ds">Logos come from Google’s icon service, which sees the site names. Off shows letters.</div></div>
         <label class="switch"><input type="checkbox" id="pv-icons" ${S.settings.onlineIcons !== false ? 'checked' : ''}><span></span></label></div>
     </div>
+    <div class="card simple"><div class="card-row"><div class="grow"><div class="nm">Legal</div><div class="ds">${legalLinks()} · <a href="#" data-legal="open-source">Open source</a></div></div></div></div>
     <div class="section-title sm">Account</div>
     <div class="card simple" id="account-card">
       <div class="card-row"><div class="grow"><div class="nm">Delete account</div><div class="ds">Erases all your bots, chats, saved logins and keys from this computer.</div></div><button class="btn danger" id="st-delete" type="button">Delete…</button></div>
@@ -3862,7 +3901,7 @@ function initChrome() {
 function openDeleteAccount() {
   modal(`<h3>Delete your account?</h3>
     <p class="lead">This erases everything Wayzerr keeps on this computer. It can’t be undone.</p>
-    <ul class="del-list"><li>All your bots, group chats and memories</li><li>Saved logins, payment cards and API keys</li><li>Pictures, skills, settings and app connections</li></ul>
+    <ul class="del-list"><li>All your bots, group chats and memories</li><li>Saved logins, payment cards and API keys</li><li>Pictures, skills, settings and app connections</li><li>Your account on wayzerr.com (your email address and phone link), when you are online</li></ul>
     <p class="hint">Not touched: your Claude, ChatGPT or other plan accounts themselves, and chats those apps saved on their own. Wayzerr then restarts as a new install.</p>
     <label class="f" for="del-word">Type DELETE to confirm</label>
     <input id="del-word" autocomplete="off" spellcheck="false" placeholder="DELETE" />
@@ -3873,8 +3912,14 @@ function openDeleteAccount() {
   go_.onclick = async () => {
     if (go_.disabled) return;
     go_.disabled = true; word.disabled = true; go_.textContent = 'Deleting…';
-    try { await api.deleteAccount(word.value); try { localStorage.clear(); } catch (_) {} toast('Everything was deleted. Restarting…'); }
-    catch (e) { toast(e.message, true); go_.textContent = 'Delete everything'; word.disabled = false; go_.disabled = false; }
+    const run = async (localOnly) => {
+      try { await api.deleteAccount({ word: word.value, localOnly }); try { localStorage.clear(); } catch (_) {} toast('Everything was deleted. Restarting…'); }
+      catch (e) {
+        toast(e.message, true); go_.textContent = 'Delete everything'; word.disabled = false; go_.disabled = false;
+        if (!$('#del-local')) { const b = document.createElement('button'); b.className = 'btn'; b.id = 'del-local'; b.type = 'button'; b.textContent = 'Erase this computer only'; b.onclick = () => { b.disabled = true; go_.disabled = true; run(true); }; go_.parentNode.prepend(b); }
+      }
+    };
+    run(false);
   };
   word.focus();
 }

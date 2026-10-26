@@ -1878,3 +1878,12 @@ details.thought > summary { list-style: none; display: inline-flex; align-items:
 details.thought > summary::-webkit-details-marker { display: none; }
 details.thought > summary:hover { background: color-mix(in srgb, var(--text) 6%, transparent); color: var(--text-2); }
 details.thought .thought-body { margin-left: 0; }
+
+/* terms screen */
+.tm-list { margin: 16px 0 14px; padding-left: 18px; font-size: 13.5px; line-height: 1.55; color: var(--muted); }
+.tm-list li { margin: 0 0 8px; }
+.tm-list b { color: var(--text); font-weight: 600; }
+.tm-agree { display: flex; align-items: flex-start; gap: 10px; margin: 18px 0 16px; font-size: 13.5px; line-height: 1.5; cursor: pointer; }
+.tm-agree input { margin-top: 3px; width: 16px; height: 16px; flex: none; }
+.tm-agree a, .lg-fine a, .ds a[data-legal] { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.tm-card .lg-row { justify-content: flex-end; }

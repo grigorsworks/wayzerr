@@ -51,6 +51,12 @@ Your chats, memory and saved logins stay on your computer. Bots send your messag
 
 Bug reports, ideas and pull requests are welcome. Please open an issue first for bigger changes. For security problems, see [SECURITY.md](SECURITY.md).
 
+## Legal
+
+[Terms of Service](https://wayzerr.com/terms) · [Privacy Policy](https://wayzerr.com/privacy) · [Trademarks](TRADEMARKS.md) · [Code of Conduct](CODE_OF_CONDUCT.md) · [Contributing](CONTRIBUTING.md)
+
+Wayzerr is not affiliated with Anthropic, OpenAI, Google or any other AI company. Bots can act on your accounts and your computer: you are responsible for what they do, so review what they ask to do before you approve it.
+
 ## License
 
 [MIT](LICENSE). Third-party components are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

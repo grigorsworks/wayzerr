@@ -75,6 +75,18 @@ module.exports = function createAccount({ store, enc, dec, base, openUrl, onChan
     } catch (_) { /* offline */ }
   }
 
+  // Delete this account on wayzerr.com (email, sign-in tokens, phone address). { ok:true } when it is gone or there is nothing to delete.
+  async function remove() {
+    const t = data()?.token ? dec(data().token) : '';
+    if (!t) return { ok: true, nothing: true };
+    try {
+      const r = await call('/api/account/delete', {}, t);
+      if (r.status >= 200 && r.status < 300) return { ok: true };
+      if (r.status === 401) return { ok: true }; // this computer was already signed out there
+      return { ok: false, status: r.status };
+    } catch (_) { return { ok: false, offline: true }; }
+  }
+
   async function probe() {
     try {
       const r = await call('/api/health');
@@ -83,5 +95,5 @@ module.exports = function createAccount({ store, enc, dec, base, openUrl, onChan
     onChange();
   }
 
-  return { state, start, cancel, logout, check, probe };
+  return { state, start, cancel, logout, check, probe, remove };
 };

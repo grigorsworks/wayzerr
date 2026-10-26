@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Accessibility · Wayzerr</title>
+<meta name="description" content="How accessible Wayzerr is and how to report a problem.">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-v5-32.png">
+<style>
+:root{color-scheme:dark;--bg:#0a0a0b;--ink:#f6f6f7;--mute:#a8a8b0;--line:#242428}
+@media (prefers-color-scheme:light){:root{color-scheme:light;--bg:#fff;--ink:#17171a;--mute:#55555e;--line:#e4e4e8}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto;padding:48px 20px 80px}
+h1{font-size:34px;margin:0 0 6px}h2{font-size:20px;margin:36px 0 8px}
+.mute{color:var(--mute)}a{color:inherit;text-underline-offset:3px}
+nav.top a{color:var(--mute)}
+hr{border:0;border-top:1px solid var(--line);margin:36px 0}
+footer nav{display:flex;gap:8px 18px;flex-wrap:wrap}footer a{color:var(--mute)}
+</style>
+</head>
+<body>
+<main>
+<nav class="top" aria-label="Back"><a href="/">← Wayzerr</a></nav>
+<h1>Accessibility</h1>
+<p class="mute">Last updated: [DATE]</p>
+<p>We want everyone to be able to use wayzerr.com and the Wayzerr app. We aim to meet the Web Content Accessibility Guidelines (WCAG) 2.1 level AA.</p>
+
+<h2>What we have done</h2>
+<ul>
+<li>Run automated accessibility checks (axe-core) on the website's main pages and fixed the problems they found.</li>
+<li>Used semantic headings, landmarks, text alternatives for icons and sufficient colour contrast on the website's legal pages and footer.</li>
+<li>Made the website work without third-party scripts or trackers, and with browser zoom and text size changes.</li>
+<li>Provided a light and dark appearance in the app and respected your system setting.</li>
+</ul>
+
+<h2>Known limitations</h2>
+<ul>
+<li>The demo videos on the home page do not yet have captions or a text transcript. [UPDATE when added.]</li>
+<li>Automated tools find only part of the possible problems. We have not yet had the website and app tested by people who use screen readers, switch devices or voice control, so some parts may be hard to use.</li>
+<li>The app's optional bot computer is a graphical Linux desktop shown as a picture. Its contents may not be readable by screen readers.</li>
+<li>Third-party sites that bots open, and AI-generated content, are outside our control.</li>
+</ul>
+
+<h2>Tell us about a problem</h2>
+<p>If something is hard to use, email <a href="mailto:hello@wayzerr.com">hello@wayzerr.com</a> with the page or screen, what you were trying to do, and the device or assistive technology you use. We aim to reply within [5] working days and to offer another way to get what you need, such as a plain-text version of information on this site.</p>
+
+<p class="mute">This statement describes our goals and the work we have done so far. It is not a guarantee that every part of the website or app meets WCAG 2.1 AA.</p>
+
+<hr>
+<footer><nav aria-label="Legal"><a href="/terms">Terms of Service</a><a href="/privacy">Privacy Policy</a><a href="/accessibility">Accessibility</a><a href="/open-source">Open source</a><a href="/imprint">Legal notice</a></nav></footer>
+</main>
+</body>
+</html>

@@ -24,9 +24,8 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wayzerr","applicationCategory":"ProductivityApplication","operatingSystem":"macOS, Windows, Linux","description":"Wayzerr gives you AI bots with their own memory and their own computer. Give each one a job.","url":"https://wayzerr.com/","image":"https://wayzerr.com/icon-v2.png","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 <meta property="og:title" content="Wayzerr">
 <meta property="og:description" content="AI bots that work like teammates. Free for Mac, Windows and Linux.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap">
+<link rel="preload" href="/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:"Geist";font-style:normal;font-display:swap;font-weight:100 900;src:url(/fonts/geist-latin-ext-wght-normal.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:"Geist";font-style:normal;font-display:swap;font-weight:100 900;src:url(/fonts/geist-latin-wght-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}</style>
 <script>document.documentElement.className='js'</script>
 <style>
 :root{color-scheme:dark;--bg:#0a0a0b;--card:#141416;--card2:#1b1b1e;--line:#242428;--ink:#f6f6f7;--mute:#9a9aa1;--dim:#66666d;--ease:cubic-bezier(.22,.7,.2,1);--spring:cubic-bezier(.34,1.45,.5,1);--sans:"Geist",ui-sans-serif,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
@@ -333,7 +332,8 @@ section{padding:112px 0}
 .more{margin-top:28px}
 #faqMore .qi{opacity:1;transform:none}
 
-footer{border-top:1px solid var(--line);padding:34px 0 52px;color:var(--dim);font-size:14.5px}
+footer{border-top:1px solid var(--line);padding:34px 0 52px;color:var(--mute);font-size:14.5px}
+footer .legal{display:flex;gap:8px 18px;flex-wrap:wrap;width:100%;order:3}footer .legal a{color:var(--mute);text-decoration:underline;text-underline-offset:3px}footer .legal a:hover{color:var(--ink)}
 footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}
 footer .brand{font-size:16px;color:var(--mute)}footer .brand img{width:24px;height:24px;border-radius:7px}
 
@@ -1185,7 +1185,7 @@ footer .brand{font-size:16px;color:var(--mute)}footer .brand img{width:24px;heig
 </section>
 
 <section id="download"><div class="dlcard rv">
-  <div><span class="eyebrow">Download</span><h2>Download Wayzerr</h2><p class="s">Free. One team of bots on your desk, whatever computer you use.</p>
+  <div><span class="eyebrow">Download</span><h2>Download Wayzerr</h2><p class="s">Free. One team of bots on your desk, whatever computer you use. By downloading or using Wayzerr you agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.</p>
     <details class="first"><summary>First time opening it?</summary>
       <p><b>Mac:</b> right-click Wayzerr, choose Open, then Open again.</p>
       <p><b>Windows:</b> double-click the downloaded Wayzerr file (if it doesn&rsquo;t end in .exe, rename the end to .exe) and wait a minute while it installs. If it says the app is unrecognised, press More info, then Run anyway. Prefer no installer? <a href="/download/windowszip" style="text-decoration:underline">Download the zip</a>, unzip it and open Wayzerr.exe.</p>
@@ -1222,7 +1222,7 @@ footer .brand{font-size:16px;color:var(--mute)}footer .brand img{width:24px;heig
 </div></section>
 </div>
 
-<footer><div class="wrap"><a class="brand" href="#top"><img src="/icon-v2.png" alt="">Wayzerr</a><span id="ver">© 2026 Wayzerr</span><span class="legal"><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></span></div></footer>
+<footer><div class="wrap"><a class="brand" href="#top"><img src="/icon-v2.png" alt="">Wayzerr</a><span id="ver">© 2026 Wayzerr</span><div class="legal" role="group" aria-label="Legal"><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/accessibility">Accessibility</a><a href="/open-source">Open source</a><a href="/imprint">Legal notice</a></div></div></footer>
 </main>
 
 <script>

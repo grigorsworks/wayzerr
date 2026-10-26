@@ -15,3 +15,9 @@ Wayzerr's own code is MIT licensed (see `LICENSE`). It bundles or downloads the 
 | cloudflared (phone link helper) | downloaded at run time | Apache-2.0 (Cloudflare) |
 
 Names such as Claude, ChatGPT, Gemini, Gmail and Google are trademarks of their owners; Wayzerr is not affiliated with them.
+
+## Source code for GPL software (written offer)
+
+Wayzerr's optional "computer for each bot" downloads a QEMU build and a Linux system image from Wayzerr's servers. They contain software licensed under the GNU General Public License and similar licences. The corresponding source code is available at [URL for QEMU and system-image sources], and is listed on https://wayzerr.com/open-source. For three years after you download them, we will also send the complete corresponding source on a physical medium for the cost of the medium and shipping: email hello@wayzerr.com with the version you received.
+
+Versions: QEMU [VERSION and any patches]; system image [DISTRIBUTION, RELEASE and package list].

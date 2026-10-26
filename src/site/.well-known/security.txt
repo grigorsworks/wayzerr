@@ -1,0 +1,5 @@
+Contact: mailto:hello@wayzerr.com
+Expires: 2027-10-26T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://wayzerr.com/.well-known/security.txt
+Policy: https://github.com/grigorsworks/wayzerr/blob/main/SECURITY.md

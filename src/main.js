@@ -31,6 +31,7 @@ const CHANGELOG = (() => { try { return require('./changelog.json'); } catch (_)
 const skills = require('./skills');
 const updater = require('./updater');
 const createAccount = require('./account');
+const TERMS_VERSION = '2026-10-26'; // bump when the Terms or Privacy Policy change materially: everyone sees the agree screen again
 let account = null, accountReady = null;
 const publisher = require('./publisher');
 const { createPhone } = require('./phone');
@@ -447,7 +448,7 @@ function publicState() {
     scheduleAwake: store.data.settings.scheduleAwake !== false,
     ready: !!resolveModel(null),
     account: account ? account.state() : { signedIn: false, email: '', flow: null, error: '' },
-    settings: { setupSkipped: d.settings.setupSkipped === true, tutorialDone: d.settings.tutorialDone === true, guide: d.settings.guide || null, autoCompact: d.settings.autoCompact === true, computerTarget: d.settings.computerTarget === 'mine' ? 'mine' : 'bot', computerOn: d.settings.computerOn !== false, myComputerName: myComputerName(), myMac: mymac.permissions(), smartCompact: d.settings.smartCompact !== false, leanCodex: d.settings.leanCodex !== false, freshEach: d.settings.freshEach === true, showTokens: d.settings.showTokens === true, voiceLang: d.settings.voiceLang || '', voiceWords: d.settings.voiceWords || '', phoneUnlocked: d.settings.phoneUnlocked === true, freeImages: d.settings.freeImages !== false, onlineIcons: d.settings.onlineIcons !== false, replyLanguage: d.settings.replyLanguage || 'auto', theme: themeOf(), appModes: d.settings.appModes || {}, appsVia: d.settings.appsVia === 'browser' ? 'browser' : 'connector', usageMode: ['low', 'max'].includes(d.settings.usageMode) ? d.settings.usageMode : 'balanced', linkOpen: d.settings.linkOpen || 'ask', userName: d.settings.userName, defaultModel: d.settings.defaultModel || null, defaultEffort: d.settings.defaultEffort || 'default' },
+    settings: { terms: { version: TERMS_VERSION, accepted: !!(d.settings.terms && d.settings.terms.version === TERMS_VERSION) }, setupSkipped: d.settings.setupSkipped === true, tutorialDone: d.settings.tutorialDone === true, guide: d.settings.guide || null, autoCompact: d.settings.autoCompact === true, computerTarget: d.settings.computerTarget === 'mine' ? 'mine' : 'bot', computerOn: d.settings.computerOn !== false, myComputerName: myComputerName(), myMac: mymac.permissions(), smartCompact: d.settings.smartCompact !== false, leanCodex: d.settings.leanCodex !== false, freshEach: d.settings.freshEach === true, showTokens: d.settings.showTokens === true, voiceLang: d.settings.voiceLang || '', voiceWords: d.settings.voiceWords || '', phoneUnlocked: d.settings.phoneUnlocked === true, freeImages: d.settings.freeImages !== false, onlineIcons: d.settings.onlineIcons !== false, replyLanguage: d.settings.replyLanguage || 'auto', theme: themeOf(), appModes: d.settings.appModes || {}, appsVia: d.settings.appsVia === 'browser' ? 'browser' : 'connector', usageMode: ['low', 'max'].includes(d.settings.usageMode) ? d.settings.usageMode : 'balanced', linkOpen: d.settings.linkOpen || 'ask', userName: d.settings.userName, defaultModel: d.settings.defaultModel || null, defaultEffort: d.settings.defaultEffort || 'default' },
     providers: providers().map((p) => ({ id: p.id, type: p.type, name: p.name, baseUrl: p.baseUrl, hasKey: !!p.key, keyPreview: TYPES[p.type]?.account ? p.account || 'Signed in' : maskKey(dec(p.key)), account: !!TYPES[p.type]?.account, models: p.models || [] })),
     providerTypes: TYPES,
     personas: d.personas,
@@ -876,9 +877,18 @@ async function compactChat(id, { smart = false, signal } = {}) {
   return out;
 }
 handle('compact-chat', async (arg) => { const id = typeof arg === 'object' ? arg.id : arg; const r = await compactChat(id, { smart: typeof arg === 'object' && !!arg.smart }); return { ...r, state: publicState() }; });
-// ----- Delete account: erases everything Wayzerr keeps on this computer, then starts again as a new install -----
-handle('delete-account', async (word) => {
+// ----- Terms of Service: shown before first use and again whenever TERMS_VERSION changes (change it when the Terms or Privacy Policy change in a material way) -----
+handle('accept-terms', () => { store.data.settings.terms = { version: TERMS_VERSION, at: Date.now() }; store.save(); pushState(); return publicState(); });
+handle('quit-app', () => { app.quit(); return true; });
+// ----- Delete account: erases the account on wayzerr.com (when online), then everything Wayzerr keeps on this computer, then starts again as a new install -----
+handle('delete-account', async (arg) => {
+  const word = arg && typeof arg === 'object' ? arg.word : arg;
+  const localOnly = !!(arg && typeof arg === 'object' && arg.localOnly);
   if (String(word || '').trim().toUpperCase() !== 'DELETE') throw new Error('Type DELETE to confirm.');
+  if (!localOnly && account) {
+    const r = await account.remove();
+    if (!r.ok) { const e = new Error(r.offline ? "Couldn't reach Wayzerr to delete your account there. Check your internet connection and try again, or erase this computer only." : "Wayzerr's server couldn't delete your account right now. Try again later, or erase this computer only and email hello@wayzerr.com to finish."); e.remoteFailed = true; throw e; }
+  }
   for (const ctl of running.values()) { try { ctl.abort(); } catch (_) {} }
   store.wipe();
   const dir = dataDir();
