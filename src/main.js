@@ -804,6 +804,7 @@ function resetCloudChats(bp) {
 // so the next message re-reads a few hundred words instead of the whole conversation. Costs nothing (no AI call).
 // Every message stays visible in the app; only what is sent to the AI gets shorter.
 const COMPACT_KEEP = 12, COMPACT_CHARS = 14000;
+const AUTO_COMPACT_TOKENS = 400_000; // with "Compact automatically" on, a chat is folded once one message needs more than this much context
 const SMART_PROMPT = `You keep the memory of a long chat between a user and an AI assistant, so the assistant can carry on exactly where it left off after the old messages are removed. Merge the previous note (if any) with the new messages into ONE note, in the language of the chat. Be thorough: the assistant must not need to ask the user anything again. Use only these headings and skip empty ones: GOAL (what the user is after), NOW (what is being worked on and where it stands), DECISIONS (agreed choices; the newest wins), FACTS (exact names, numbers, dates, links, commands, code, file names, results and outputs the user pasted, what the user said they use or meant, e.g. which app or system), TRIED (what was already suggested or tried, and what worked or failed, so it is not repeated), PREFERENCES (how the user wants things done, corrections), OPEN (unfinished tasks, questions waiting, promises made). Keep exact values and short quotes of important instructions. Skip only greetings, thanks and pure repeats. Never invent anything. Up to about 900 words. Reply with the note only.`;
 // A trimmed copy of the old messages for the AI to read: newest first, about 2,500 tokens at most, so the note costs little.
 function packForNote(msgs, cap = 90000) {
@@ -1398,10 +1399,10 @@ function runBotTurn(persona, text, { attachments, from, depth = 0, chatKey, grou
           waitForBot: (p) => waitFor(p), // talking to another bot counts as waiting, not stuck
         },
       });
-      // Chats are never shortened behind your back. Only when one message needed more than 1 million tokens of context
+      // Chats are never shortened behind your back. Only when one message needed more than 400,000 tokens of context
       // is the old part folded away automatically (down to a small note + the latest messages, so it is not repeated
       // every message); otherwise you press Compact.
-      if (store.data.settings.autoCompact === true && turnUse.peak > 1_000_000 && !ctl.signal.aborted && !compacting.has(evId)) {
+      if (store.data.settings.autoCompact === true && turnUse.peak > AUTO_COMPACT_TOKENS && !ctl.signal.aborted && !compacting.has(evId)) {
         const cc = new AbortController();
         const promise = compactChat(evId, { smart: store.data.settings.smartCompact !== false, signal: cc.signal }).catch(() => {}).finally(() => { compacting.delete(evId); pushState(); });
         compacting.set(evId, { promise, ctl: cc });
