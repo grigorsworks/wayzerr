@@ -10,7 +10,7 @@
   const MIN = 60000, DAY = 86400000, HOUR_H = 60;
   const bots = () => (S.personas || []).filter((p) => !p.group);
   const botById = (id) => (S.personas || []).find((p) => p.id === id);
-  const colorOf = (p) => { try { return charOf(p).color || '#C97BEA'; } catch (_) { return '#C97BEA'; } };
+  const colorOf = (p) => { try { return charOf(p).color || '#4F8BFF'; } catch (_) { return '#4F8BFF'; } };
   const list = () => S.schedules || [];
   const sod = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
   const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);

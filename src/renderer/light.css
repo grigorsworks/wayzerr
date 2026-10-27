@@ -338,21 +338,21 @@ html.light .prow-top .ic {
     background: #e2e2e2
 }
 html.light .tag-mcp {
-    color: #3c008f
+    color: #115e59
 }
 html.light .mp-plus {
     border: 1px dashed #c2c2c2
 }
 html.light .mp-big-ic {
     background: #e0e0e0;
-    color: #3c008f
+    color: #115e59
 }
 html.light #btn-connectors .cx i {
     color: #b3b3b3;
     background: #e6e6e6
 }
 html.light #btn-connectors .cx i.mcp.on {
-    color: #3c008f
+    color: #115e59
 }
 html.light .acct-note {
     background: #ececec
@@ -415,8 +415,8 @@ html.light .comp-app.linked {
     border-color: #bcd8ca
 }
 html.light .sk-ic {
-    background: #dcdbe2;
-    color: #3c008f
+    background: #dddde0;
+    color: #115e59
 }
 html.light .cloud-card {
     background: #ececec
@@ -506,7 +506,7 @@ html.light .bt-bubble {
     background: #e0e0e0
 }
 html.light .bt-row.from .bt-bubble {
-    background: #c2b8da
+    background: #c4cfe4
 }
 html.light .acct-soon {
     background: #dddddd
@@ -529,7 +529,7 @@ html.light .link-opt:hover {
     background: #dadada
 }
 html.light .uc-link {
-    color: #270689
+    color: #1d4ed8
 }
 html.light .teach-txt b {
     color: #8f0011
@@ -667,13 +667,13 @@ html.light .c-mic:hover {
 }
 html.light {
   --bg: #ffffff;
-  --side: #f7f5fb;
-  --panel: #f4f2f9;
-  --raised: #edebf3;
-  --bubble: #f1eff6;
-  --bubble-user: #e6e3f0;
-  --line: #e8e5ef;
-  --line-2: #ddd9e7;
+  --side: #f8f8f8;
+  --panel: #f5f5f6;
+  --raised: #eeeef0;
+  --bubble: #f2f2f3;
+  --bubble-user: #e8e8eb;
+  --line: #e9e9eb;
+  --line-2: #dedee2;
   --text: #111111;
   --text-2: #4a4a4f;
   --muted: #5a5a62;
@@ -687,7 +687,7 @@ html.light .cl-sv:hover { background: #eef4ff; }
 
 /* Light theme readability: pale accent text and grey hints that were hard to read on light backgrounds */
 html.light .tag-api { color: #1d4ed8; background: rgba(37,99,235,.12); }
-html.light .tag-mcp { color: #6d28d9; background: rgba(124,58,237,.12); }
+html.light .tag-mcp { color: #115e59; background: rgba(13,148,136,.12); }
 html.light .tag-acct { color: #166534; background: rgba(22,163,74,.14); }
 html.light .tag-conn { color: #92400e; background: rgba(217,119,6,.16); }
 html.light #btn-connectors .cx i { color: #55555c; background: #dcdce0; }
@@ -701,7 +701,7 @@ html.light .st-l small { color: var(--muted); }
 /* Light theme: the rest of the pale accent text, darkened so it can be read */
 html.light .mp-pill { color: #166534; background: rgba(22,163,74,.12); }
 html.light .mp-pill.warn { color: #92400e; background: rgba(217,119,6,.14); }
-html.light .mp-big-ic, html.light .sk-ic { color: #6d28d9; }
+html.light .mp-big-ic, html.light .sk-ic { color: #115e59; }
 html.light .ptile em.si, html.light .at-ok, html.light .cm-done, html.light .pub-on { color: #166534; }
 html.light .comp-app em, html.light .as-item .at-nm em { color: #1d4ed8; }
 html.light .comp-app.linked svg.i { color: #16a34a; }

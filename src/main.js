@@ -333,7 +333,7 @@ app.whenReady().then(async () => {
       name = String(name || '').trim().slice(0, 40);
       if (!name) throw new Error('Give your bot a name.');
       const p = createBot({ name, tag: String(tag || '').trim().slice(0, 30), description: String(description || '').trim().slice(0, 500) });
-      if (character && typeof character === 'object') { p.character = { shape: String(character.shape || 'orb'), color: /^#[0-9a-f]{6}$/i.test(character.color) ? character.color : '#A77BFF', eyes: String(character.eyes || 'dots'), extra: String(character.extra || 'none'), mouth: String(character.mouth || 'smile'), acc: String(character.acc || 'none') }; store.save(); pushState(); }
+      if (character && typeof character === 'object') { p.character = { shape: String(character.shape || 'orb'), color: /^#[0-9a-f]{6}$/i.test(character.color) ? character.color : '#4F8BFF', eyes: String(character.eyes || 'dots'), extra: String(character.extra || 'none'), mouth: String(character.mouth || 'smile'), acc: String(character.acc || 'none') }; store.save(); pushState(); }
       return p.id;
     },
     newGroup: ({ name, members }) => {
