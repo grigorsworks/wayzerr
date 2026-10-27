@@ -5,7 +5,7 @@ Nothing here makes you impossible to sue. It makes claims harder to bring, easie
 ## Publishing status (October 27, 2026)
 **Ready to publish (no personal details, no brackets):** `src/site/terms.html`, `src/site/de/nutzungsbedingungen.html`, the updated `src/site/index.html` (footer shows Terms only), `src/site/_headers`, `src/site/fonts/`, the app's age + Terms screen.
 
-**NOT ready, don't deploy yet** (they still contain `[BRACKETS]` or need the operator's name/address): `privacy.html`, `imprint.html`, `accessibility.html`, `open-source.html`, `de/datenschutz.html`, `de/impressum.html`. They are not linked from anywhere. Before the app collects emails or uses Google sign-in, the Privacy Policy and the Impressum are required in Germany; finish them first. To show their links again: footer in `index.html`, `legalLinks()` in `src/renderer/app.js`, and the Privacy line in `legal/signin-page-example.html`.
+**NOT ready (moved to `legal/drafts/`, so they are not published):** `privacy.html`, `imprint.html`, `accessibility.html`, `open-source.html`, `de/datenschutz.html`, `de/impressum.html`. They still contain `[BRACKETS]` or need the operator's name/address. Before the app collects emails or uses Google sign-in, the Privacy Policy and the Impressum are required in Germany; finish them first. To show their links again: footer in `index.html`, `legalLinks()` in `src/renderer/app.js`, and the Privacy line in `legal/signin-page-example.html`.
 
 The Terms have no operator name or address on purpose. Have a German lawyer check them, in particular the liability clause (section 14 EN / 13 DE) and the section about signing in with an AI plan.
 
