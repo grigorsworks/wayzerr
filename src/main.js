@@ -31,7 +31,7 @@ const CHANGELOG = (() => { try { return require('./changelog.json'); } catch (_)
 const skills = require('./skills');
 const updater = require('./updater');
 const createAccount = require('./account');
-const TERMS_VERSION = '2026-10-26'; // bump when the Terms or Privacy Policy change materially: everyone sees the agree screen again
+const TERMS_VERSION = '2026-10-27'; // bump when the Terms or Privacy Policy change materially: everyone sees the agree screen again
 let account = null, accountReady = null;
 const publisher = require('./publisher');
 const { createPhone } = require('./phone');

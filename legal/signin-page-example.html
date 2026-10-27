@@ -33,13 +33,13 @@ a{color:inherit;text-underline-offset:3px}
 <div id="err" class="err" role="alert"></div>
 
 <label class="agree" for="ok"><input id="ok" type="checkbox" disabled>
-  <span>2. I agree to the <a href="/terms" target="_blank" rel="noopener">Terms of Service</a> and have read the <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</span></label>
+  <span>2. I agree to the <a href="/terms" target="_blank" rel="noopener">Terms of Service</a>.</span></label>
 
 <button id="go" type="button" disabled>3. Continue with Google</button>
 
 <script>
 (function () {
-  var MIN_AGE = 16, TERMS_VERSION = '2026-10-26';
+  var MIN_AGE = 16, TERMS_VERSION = '2026-10-27';
   var age = document.getElementById('age'), ok = document.getElementById('ok'), go = document.getElementById('go'), err = document.getElementById('err');
   function ageOk() { var n = parseInt(age.value, 10); return n >= MIN_AGE && n <= 120; }
   function update() {

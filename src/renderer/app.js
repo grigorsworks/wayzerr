@@ -321,7 +321,8 @@ function openChat(id) {
 
 // ---------- terms (before first use, and again when the Terms change) ----------
 const LEGAL_URL = 'https://wayzerr.com/';
-const legalLinks = () => `<a href="#" data-legal="terms">Terms of Service</a> · <a href="#" data-legal="privacy">Privacy Policy</a>`;
+const MIN_AGE = 16;
+const legalLinks = () => `<a href="#" data-legal="terms">Terms of Service</a>`; // add the Privacy Policy link here when that page is published
 document.addEventListener('click', (e) => {
   const a = e.target.closest && e.target.closest('[data-legal]');
   if (a) { e.preventDefault(); api.openExternal(LEGAL_URL + a.dataset.legal).catch(() => {}); }
@@ -339,19 +340,29 @@ function renderTerms() {
         <li><b>AI can be wrong.</b> Don’t rely on answers for medical, legal, financial or safety decisions without checking.</li>
         <li><b>Your data goes where you send it.</b> Chats and logins stay on this computer. Messages go to the AI you pick, and your account is only your email address.</li>
       </ul>
-      <label class="tm-agree"><input type="checkbox" id="tm-ok"><span>I am at least 16 years old, or have a parent or guardian’s permission, and I agree to the ${legalLinks()}.</span></label>
+      <label class="f" for="tm-age">1. How old are you?</label>
+      <input id="tm-age" type="number" inputmode="numeric" min="1" max="120" autocomplete="off" />
+      <div class="lg-err tm-agerr" role="alert"></div>
+      <label class="tm-agree"><input type="checkbox" id="tm-ok" disabled><span>2. I agree to the ${legalLinks()}.</span></label>
       <div class="lg-row"><button class="btn ghost" id="tm-quit" type="button">Quit</button><button class="btn primary" id="tm-go" type="button" disabled>Agree and continue</button></div>
       <div class="lg-err" role="alert"></div>
     </div></div>`;
-  const ok = $('#tm-ok'), go = $('#tm-go');
-  ok.onchange = () => { go.disabled = !ok.checked; };
+  const ok = $('#tm-ok'), go = $('#tm-go'), age = $('#tm-age');
+  const ageOk = () => { const n = parseInt(age.value, 10); return n >= MIN_AGE && n <= 120; };
+  const update = () => {
+    const n = parseInt(age.value, 10);
+    $('.tm-agerr').textContent = age.value !== '' && n < MIN_AGE ? `Sorry, Wayzerr is for people aged ${MIN_AGE} and over.` : '';
+    ok.disabled = !ageOk(); if (ok.disabled) ok.checked = false;
+    go.disabled = !(ageOk() && ok.checked);
+  };
+  age.oninput = update; ok.onchange = update;
   $('#tm-quit').onclick = () => api.quitApp().catch(() => {});
   go.onclick = async () => {
-    if (!ok.checked) return;
+    if (!ok.checked || !ageOk()) return; // only the yes/no is kept, never the exact age
     go.disabled = true;
     try { S = await api.acceptTerms(); render(); } catch (e) { go.disabled = false; $('.tm-card .lg-err').textContent = e.message || 'Something went wrong. Try again.'; }
   };
-  ok.focus();
+  age.focus();
 }
 
 // ---------- setup (first run) ----------
@@ -2762,7 +2773,7 @@ function tabGeneral() {
       <div class="card-row"><div class="grow"><div class="nm">Download logos online</div><div class="ds">Logos come from Google’s icon service, which sees the site names. Off shows letters.</div></div>
         <label class="switch"><input type="checkbox" id="pv-icons" ${S.settings.onlineIcons !== false ? 'checked' : ''}><span></span></label></div>
     </div>
-    <div class="card simple"><div class="card-row"><div class="grow"><div class="nm">Legal</div><div class="ds">${legalLinks()} · <a href="#" data-legal="open-source">Open source</a></div></div></div></div>
+    <div class="card simple"><div class="card-row"><div class="grow"><div class="nm">Legal</div><div class="ds">${legalLinks()}</div></div></div></div>
     <div class="section-title sm">Account</div>
     <div class="card simple" id="account-card">
       <div class="card-row"><div class="grow"><div class="nm">Delete account</div><div class="ds">Erases all your bots, chats, saved logins and keys from this computer.</div></div><button class="btn danger" id="st-delete" type="button">Delete…</button></div>
