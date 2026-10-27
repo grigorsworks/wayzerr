@@ -12,7 +12,10 @@ if (cmd === 'prepare') {
   if (arg) pkg.version = arg;
   const d = new Date();
   const p2 = (n) => String(n).padStart(2, '0');
-  pkg.build.buildVersion = `${d.getUTCFullYear()}${p2(d.getUTCMonth() + 1)}${p2(d.getUTCDate())}${p2(d.getUTCHours())}${p2(d.getUTCMinutes())}`;
+  // WAYZERR_BUILD lets several machines (the GitHub build jobs) share ONE build stamp, so every download of a release carries the same one.
+  pkg.build.buildVersion = /^\d{12}$/.test(process.env.WAYZERR_BUILD || '') ? process.env.WAYZERR_BUILD : `${d.getUTCFullYear()}${p2(d.getUTCMonth() + 1)}${p2(d.getUTCDate())}${p2(d.getUTCHours())}${p2(d.getUTCMinutes())}`;
+  // Windows and Linux read their build stamp from here (macOS reads it from the app's Info.plist).
+  fs.writeFileSync(path.join(__dirname, '..', 'src', 'buildinfo.json'), JSON.stringify({ build: pkg.build.buildVersion }));
   pkg.build.mac = { ...(pkg.build.mac || {}), extendInfo: { ...((pkg.build.mac || {}).extendInfo || {}), WayzerrNotes: (log[pkg.version] || []).join(' | '), PersonaNotes: (log[pkg.version] || []).join(' | ') } };
   fs.writeFileSync(pkgFile, JSON.stringify(pkg, null, 2) + '\n');
   console.log(`Wayzerr ${pkg.version} (build ${pkg.build.buildVersion}) — ${(log[pkg.version] || []).length} notes`);

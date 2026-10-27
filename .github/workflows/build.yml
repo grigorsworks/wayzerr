@@ -1,7 +1,9 @@
-# Builds the Wayzerr installers on GitHub's own Windows, Mac and Linux machines.
+# Builds the Wayzerr installers on GitHub's own Windows, Mac and Linux machines,
+# then packs them into an upload-ready "release kit".
 # Run it by hand: GitHub -> Actions -> "Build installers" -> Run workflow.
 # When it finishes, open the run and download the files under "Artifacts".
-# It only builds. It does NOT publish a release or change wayzerr.com/latest.json.
+# It only builds. It does NOT upload anything to wayzerr.com and does NOT change latest.json,
+# so nothing reaches users until a person uploads the kit (see docs/RELEASING.md).
 # The builds are not code-signed (see legal/ACTION-CHECKLIST.md).
 name: Build installers
 
@@ -12,8 +14,20 @@ permissions:
   contents: read
 
 jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.s.outputs.build }}
+    steps:
+      # one build stamp (yyyymmddhhmm, UTC) shared by every installer of this release
+      - id: s
+        run: echo "build=$(date -u +%Y%m%d%H%M)" >> "$GITHUB_OUTPUT"
+
   windows:
+    needs: stamp
     runs-on: windows-latest
+    env:
+      WAYZERR_BUILD: ${{ needs.stamp.outputs.build }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,7 +47,10 @@ jobs:
             dist/*.zip
 
   mac:
+    needs: stamp
     runs-on: macos-latest
+    env:
+      WAYZERR_BUILD: ${{ needs.stamp.outputs.build }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -50,7 +67,10 @@ jobs:
           path: dist/*.dmg
 
   linux:
+    needs: stamp
     runs-on: ubuntu-latest
+    env:
+      WAYZERR_BUILD: ${{ needs.stamp.outputs.build }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -67,3 +87,44 @@ jobs:
           path: |
             dist/*.AppImage
             dist/*.deb
+
+  linux-arm64:
+    needs: stamp
+    runs-on: ubuntu-24.04-arm
+    env:
+      WAYZERR_BUILD: ${{ needs.stamp.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: sh scripts/fetch-speech-model.sh
+      - run: node scripts/release-info.js prepare
+      - run: npx electron-builder --linux AppImage --arm64 -p never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wayzerr-linux-arm64
+          path: dist/*.AppImage
+
+  kit:
+    needs: [stamp, windows, mac, linux, linux-arm64]
+    runs-on: ubuntu-latest
+    env:
+      WAYZERR_BUILD: ${{ needs.stamp.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wayzerr-*
+          path: builds
+      - run: node scripts/release-info.js prepare
+      - run: node scripts/make-release-kit.js builds release-kit
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-kit
+          path: release-kit

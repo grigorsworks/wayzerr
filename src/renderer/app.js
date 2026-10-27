@@ -3924,7 +3924,7 @@ function openDeleteAccount() {
     if (go_.disabled) return;
     go_.disabled = true; word.disabled = true; go_.textContent = 'Deleting…';
     const run = async (localOnly) => {
-      try { await api.deleteAccount({ word: word.value, localOnly }); try { localStorage.clear(); } catch (_) {} toast('Everything was deleted. Restarting…'); }
+      try { const r = await api.deleteAccount({ word: word.value, localOnly }); try { localStorage.clear(); } catch (_) {} toast(r && r.remote === false ? 'Erased on this computer. Your email address is still on wayzerr.com: email info@wayzerr.com and we will remove it. Restarting…' : 'Everything was deleted. Restarting…'); }
       catch (e) {
         toast(e.message, true); go_.textContent = 'Delete everything'; word.disabled = false; go_.disabled = false;
         if (!$('#del-local')) { const b = document.createElement('button'); b.className = 'btn'; b.id = 'del-local'; b.type = 'button'; b.textContent = 'Erase this computer only'; b.onclick = () => { b.disabled = true; go_.disabled = true; run(true); }; go_.parentNode.prepend(b); }

@@ -54,8 +54,9 @@ a{color:inherit;text-underline-offset:3px}
     if (go.disabled) return;
     // Do NOT send or store the exact age: only the yes/no answer (collect as little as possible).
     var q = new URLSearchParams(location.search);
-    q.set('age_ok', '1'); q.set('terms_version', TERMS_VERSION);
-    location.href = '/auth/google/start?' + q.toString(); // your backend route; it must re-check age_ok and terms_version
+    q.set('age_ok', '1');
+    q.set('terms', TERMS_VERSION); q.delete('terms_version');
+    location.href = '/api/auth/google/start?' + q.toString(); // keeps ?code=<device code>; the server re-checks age_ok and terms when REQUIRE_TERMS=1
   });
   update();
 })();

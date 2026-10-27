@@ -31,3 +31,10 @@ Send sign-in codes only; no marketing without opt-in. Set SPF, DKIM, DMARC.
 
 ## 7. Subprocessors
 Keep a list of every service that touches personal data (host, email sender, Cloudflare, Composio) with a signed data processing agreement where available (Cloudflare, Composio and most email providers offer one).
+
+## What the Worker already does (found by reading its deployed code, October 27, 2026)
+- Sign in with Google (scope `openid email`) and by emailed code already exist: `/api/auth/google/start|callback`, `/api/auth/start|verify`, device flow `/api/device/*`.
+- Database tables: `users` (id, email, created, last_login), `sessions` (hashed token, 90 days on the web, 365 days in the app), `codes` (hashed, 10 minutes), `devices`, `limits` (keys contain **IP addresses and email addresses**; used for rate limits), `phone_tunnels`.
+- Cookies set on wayzerr.com sign-in: `wz_session` (up to 90 days), and `wz_gstate`, `wz_gdev` (10 minutes, during Google sign-in). All HttpOnly, Secure, SameSite=Lax. The privacy policy must name them as strictly necessary.
+- There was **no** `/api/account/delete` route and **no** age or Terms check. A patch for both exists (private). The Terms check is off until `REQUIRE_TERMS=1` is set, so the old login page keeps working until the new one is deployed.
+- The `limits` table keeps IPs; delete old rows regularly (`DELETE FROM limits WHERE reset < now`), because the policy promises a retention period.

@@ -885,9 +885,11 @@ handle('quit-app', () => { app.quit(); return true; });
 handle('delete-account', async (arg) => {
   const word = arg && typeof arg === 'object' ? arg.word : arg;
   const localOnly = !!(arg && typeof arg === 'object' && arg.localOnly);
+  let remoteSkipped = localOnly; // true when the account on wayzerr.com could not be deleted (the person is told)
   if (String(word || '').trim().toUpperCase() !== 'DELETE') throw new Error('Type DELETE to confirm.');
   if (!localOnly && account) {
     const r = await account.remove();
+    remoteSkipped = !!r.unsupported;
     if (!r.ok) { const e = new Error(r.offline ? "Couldn't reach Wayzerr to delete your account there. Check your internet connection and try again, or erase this computer only." : "Wayzerr's server couldn't delete your account right now. Try again later, or erase this computer only and email hello@wayzerr.com to finish."); e.remoteFailed = true; throw e; }
   }
   for (const ctl of running.values()) { try { ctl.abort(); } catch (_) {} }
@@ -898,8 +900,8 @@ handle('delete-account', async (arg) => {
   try { await session.fromPartition('persist:persona-browser').clearStorageData(); } catch (_) {}
   try { await session.defaultSession.clearStorageData(); await session.defaultSession.clearCache(); } catch (_) {}
   _mk = null;
-  setTimeout(() => { store.wipe(); try { app.relaunch(); } catch (_) {} app.exit(0); }, 400);
-  return true;
+  setTimeout(() => { store.wipe(); try { app.relaunch(); } catch (_) {} app.exit(0); }, remoteSkipped ? 6000 : 400); // longer when the person has a message to read first
+  return { ok: true, remote: !remoteSkipped };
 });
 // ----- Help: the common questions, and "ask the guide" answered by the connected AI from the app's own info -----
 const HELP_FAQ = (() => { try { return JSON.parse(fs.readFileSync(path.join(__dirname, 'help-faq.json'), 'utf8')); } catch (_) { return []; } })();

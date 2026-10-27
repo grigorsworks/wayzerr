@@ -83,6 +83,7 @@ module.exports = function createAccount({ store, enc, dec, base, openUrl, onChan
       const r = await call('/api/account/delete', {}, t);
       if (r.status >= 200 && r.status < 300) return { ok: true };
       if (r.status === 401) return { ok: true }; // this computer was already signed out there
+      if (r.status === 404 || r.status === 405 || r.status === 501) return { ok: true, unsupported: true }; // the server has no delete route yet
       return { ok: false, status: r.status };
     } catch (_) { return { ok: false, offline: true }; }
   }
