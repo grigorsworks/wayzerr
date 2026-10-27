@@ -1,0 +1,69 @@
+# Builds the Wayzerr installers on GitHub's own Windows, Mac and Linux machines.
+# Run it by hand: GitHub -> Actions -> "Build installers" -> Run workflow.
+# When it finishes, open the run and download the files under "Artifacts".
+# It only builds. It does NOT publish a release or change wayzerr.com/latest.json.
+# The builds are not code-signed (see legal/ACTION-CHECKLIST.md).
+name: Build installers
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: sh scripts/fetch-speech-model.sh
+        shell: bash
+      - run: node scripts/release-info.js prepare
+      - run: npx electron-builder --win nsis zip --x64 -p never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wayzerr-windows
+          path: |
+            dist/*.exe
+            dist/*.zip
+
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: sh scripts/fetch-speech-model.sh
+      - run: node scripts/release-info.js prepare
+      - run: npx electron-builder --mac dmg --arm64 -p never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wayzerr-mac
+          path: dist/*.dmg
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: sh scripts/fetch-speech-model.sh
+      - run: node scripts/release-info.js prepare
+      - run: npx electron-builder --linux AppImage deb --x64 -p never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wayzerr-linux
+          path: |
+            dist/*.AppImage
+            dist/*.deb
