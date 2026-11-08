@@ -2913,7 +2913,7 @@ function tabGeneral() {
       updateInfo = await api.updateCheck();
       showUpdatePill();
       if (updateInfo.update) renderSettings();
-      else { $('#up-status').textContent = "You're up to date."; e.target.disabled = false; e.target.textContent = 'Check for updates'; }
+      else { $('#up-status').textContent = updateInfo.unreachable ? "Couldn't reach the update server (wayzerr.com). Check your internet connection and try again, or download the newest Wayzerr.dmg from wayzerr.com." : "You're up to date."; e.target.disabled = false; e.target.textContent = 'Check for updates'; }
     } catch (err) { toast(err.message, true); e.target.disabled = false; e.target.textContent = 'Check for updates'; }
   });
   $('#up-feed').onchange = async (e) => { await run(() => api.updateFeed(e.target.value)); toast('Saved'); };
@@ -4052,7 +4052,7 @@ function openAccountMenu(anchor) {
     ['help', 'Help', () => go('settings', 'help')],
     ['connectors', 'Connectors', () => go('settings', 'connectors')],
     ['sparkle', "What's new", () => showWhatsNew(S.version, S.notes || [], false)],
-    ['download', 'Check for updates', async () => { try { const r = await api.updateCheck(); toast(r?.update ? `Wayzerr ${r.update.version} is ready — press “Restart to update” above your account` : `You're up to date. To update, put the new ${INSTALLER} in your Downloads folder.`); } catch (e) { toast(e.message, true); } }],
+    ['download', 'Check for updates', async () => { try { const r = await api.updateCheck(); toast(r?.update ? `Wayzerr ${r.update.version} is ready — press “Restart to update” above your account` : r?.unreachable ? "Couldn't reach the update server. Check your internet and try again." : `You're up to date. To update, put the new ${INSTALLER} in your Downloads folder.`); } catch (e) { toast(e.message, true); } }],
   ];
   const pop = openPopover(`<div class="acct-menu">
       <div class="acct-head"><span class="me acct-av">${esc(name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase())}</span>

@@ -183,7 +183,7 @@ async function check(feedUrl, { manual = false } = {}) {
   if (scan && !blocked) dmg = process.platform === 'darwin' ? await findDmg().catch(() => null) : findInstaller();
   const newest = (a, b) => (isStamp(a.build) && isStamp(b.build) ? Number(b.build) - Number(a.build) : cmpVer(b.version, a.version));
   const best = [dmg, feed, local].filter(Boolean).sort(newest)[0] || null;
-  return { current: current(), update: best, canInstall: !!bundlePath(), downloadsBlocked: blocked };
+  return { current: current(), update: best, canInstall: !!bundlePath(), downloadsBlocked: blocked, unreachable: !reached && !best };
 }
 
 const run = (cmd, args) => new Promise((res, rej) => execFile(cmd, args, { maxBuffer: 1 << 26 }, (e, so, se) => (e ? rej(new Error((se || e.message).toString().slice(0, 300))) : res(so))));
