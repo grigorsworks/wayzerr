@@ -283,7 +283,7 @@ class BotBrowser {
       await Promise.race([wc.loadURL(url), sleep(20000)]);
     } catch (e) {
       // ERR_ABORTED happens on redirects; the page usually still loads.
-      if (!/ERR_ABORTED/.test(e.message)) throw new Error('Could not open the page: ' + e.message.split('\n')[0]);
+      if (!/ERR_ABORTED/.test(e.message)) throw new Error('Could not open the page: ' + e.message.split('\n')[0] + ' — do not give up: try web_read on the same address, the address with or without www, a search for the page, or the saved copy at web.archive.org, and read it by browser_screenshot if the text will not load.');
     }
     await this.settle();
   }

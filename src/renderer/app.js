@@ -25,6 +25,8 @@ const seenRows = new Set();
 
 // ---------- icons ----------
 const I = {
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>',
+  shield: '<path d="M12 3 4.5 6v5.5c0 4.4 3 7.6 7.5 9.5 4.5-1.9 7.5-5.1 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
@@ -2718,69 +2720,81 @@ const PRESETS = [
   { key: 'thinking', domain: 'modelcontextprotocol.io', name: 'Step-by-step thinking', icon: '🪜', desc: 'Helps bots reason through hard problems.', args: ['-y', '@modelcontextprotocol/server-sequential-thinking'], env: [] },
 ];
 
+// The Settings pages, in the order of the left menu. A thin line is drawn between the groups.
+const SET_NAV = [
+  [['general', 'gear', 'General']],
+  [['appearance', 'sun', 'Appearance'], ['voice', 'mic', 'Voice'], ['notify', 'bell', 'Notifications']],
+  [['connectors', 'plug', 'AI & apps'], ['tools', 'sparkle', 'Skills'], ['computer', 'monitor', 'Computer'], ['browser', 'globe', 'Browser'], ['passwords', 'key', 'Passwords & cards']],
+  [['phone', 'phone', 'Phone'], ['updates', 'download', 'Updates'], ['privacy', 'shield', 'Privacy']],
+  [['help', 'help', 'Help']],
+];
 function renderSettings() {
   const keepScroll = $('#set-page')?.scrollTop || 0;
+  if (!SET_NAV.some((g) => g.some((t) => t[0] === settingsTab))) settingsTab = 'general';
   const sameTab = renderSettings.lastTab === settingsTab;
   renderSettings.lastTab = settingsTab;
-  const SUB = { tools: ['puzzle', 'Skills', 'What your bots can do'], passwords: ['key', 'Passwords & cards', 'Logins and cards your bots use'], notify: ['bell', 'Notifications', 'When a bot finishes'], voice: ['mic', 'Voice', 'Microphone, language and names'], phone: ['phone', 'Phone', 'Use Wayzerr on your phone'], browser: ['globe', 'Browser & apps', 'Browser or app connection, links, website data'], computer: ['monitor', 'Computer', 'Which computer bots use: theirs or yours'] };
-  const tabs = [
-    ['general', 'gear', 'General', 'You, skills, passwords, phone…'],
-    ['connectors', 'plug', 'AI & apps', 'ChatGPT, Claude, Gmail…'],
-    ['help', 'help', 'Help', 'Tour, questions, your guide'],
-  ];
-  const navOn = SUB[settingsTab] ? 'general' : settingsTab;
+  const cur = renderSettings.q ? '' : settingsTab; // while searching, no page is the current one
   $('#main').innerHTML = `
     <div class="chat-head"><div class="head-fade"></div><div class="head-right">${guideBtnHtml()}<button class="icon-btn" id="pg-close" title="Close">${icon('x')}</button></div></div>
-    <div class="settings">
-      <nav class="set-nav">
-        <div class="set-title">Settings</div>
+    <div class="settings"><div class="set-shell">
+      <nav class="set-nav" aria-label="Settings">
         <div class="set-search">${icon('search')}<input id="set-q" placeholder="Search settings" autocomplete="off" spellcheck="false" value="${esc(renderSettings.q || '')}"></div>
-        ${tabs.map(([k, ic, l, d]) => `<button class="set-tab${navOn === k ? ' on' : ''}" data-tab="${k}">${icon(ic)}<span class="st-l"><b>${l}</b><small>${d}</small></span></button>`).join('')}
+        ${SET_NAV.map((g) => `<div class="sn-group">${g.map(([k, ic, l]) => `<button class="sn-item${cur === k ? ' on' : ''}" data-tab="${k}" title="${l}"${cur === k ? ' aria-current="page"' : ''}>${icon(ic)}<span>${l}</span>${k === 'updates' && updateInfo?.update ? '<i class="sn-dot" title="An update is ready"></i>' : ''}</button>`).join('')}</div>`).join('')}
+        <div class="sn-foot">Wayzerr ${esc(S.version || '')}</div>
       </nav>
-      <div class="page" id="set-page"><div class="page-inner">${SUB[settingsTab] ? `<button class="set-back" id="set-back">${icon('back')}General</button>` : ''}<div id="set-body"></div></div></div>
-    </div>`;
+      <div class="page" id="set-page"><div class="page-inner"><div id="set-body"></div></div></div>
+    </div></div>`;
   $('#pg-close').onclick = () => go('chat');
-  $$('.set-tab').forEach((b) => (b.onclick = () => { renderSettings.q = ''; settingsTab = b.dataset.tab; renderSettings(); }));
-  $('#set-back')?.addEventListener('click', () => { settingsTab = 'general'; renderSettings(); });
-  renderSettings.SUB = SUB;
+  $$('.sn-item').forEach((b) => (b.onclick = () => { renderSettings.q = ''; settingsTab = b.dataset.tab; renderSettings(); }));
+  const navEl = $('.set-nav'), onEl = $('.sn-item.on'); // narrow window: the menu is a strip, show the current page in it
+  if (navEl && onEl && navEl.scrollWidth > navEl.clientWidth) navEl.scrollLeft += onEl.getBoundingClientRect().left - navEl.getBoundingClientRect().left - (navEl.clientWidth - onEl.offsetWidth) / 2;
   wireSettingsSearch();
   if (renderSettings.q) return drawSettingsResults(renderSettings.q);
-  ({ general: tabGeneral, connectors: tabConnectors, tools: tabConnectors, passwords: tabPasswords, notify: tabNotify, voice: tabVoice, phone: tabPhone, browser: tabBrowser, computer: tabComputer, help: tabHelp })[settingsTab]();
+  ({ general: tabGeneral, appearance: tabAppearance, updates: tabUpdates, privacy: tabPrivacy, connectors: tabConnectors, tools: tabConnectors, passwords: tabPasswords, notify: tabNotify, voice: tabVoice, phone: tabPhone, browser: tabBrowser, computer: tabComputer, help: tabHelp })[settingsTab]();
   if (sameTab && keepScroll) { const pg = $('#set-page'); pg.style.animation = 'none'; pg.scrollTop = keepScroll; }
+}
+// A new update arrived while Settings is open: the dot next to Updates in the menu.
+function syncUpdateDot() {
+  const b = $('.sn-item[data-tab="updates"]'); if (!b) return;
+  b.querySelector('.sn-dot')?.remove();
+  if (updateInfo?.update) b.insertAdjacentHTML('beforeend', '<i class="sn-dot" title="An update is ready"></i>');
 }
 
 // ----- search in settings -----
 const SETTINGS_INDEX = [
   ['Which computer bots use', 'computer mac my computer bot computer own linux control screen click type name rename use', 'computer', 'Which computer do bots use?'],
-  ['Terms of Service', 'terms of service tos legal agreement rules conditions law', 'general', 'Terms of Service'],
-  ['Privacy Policy', 'privacy policy data protection gdpr legal what is collected cookies', 'general', 'Privacy Policy'],
+  ['Terms of Service', 'terms of service tos legal agreement rules conditions law', 'privacy', 'Terms of Service'],
+  ['Privacy Policy', 'privacy policy data protection gdpr legal what is collected cookies', 'privacy', 'Privacy Policy'],
   ['Delete account', 'delete account erase remove everything data reset start over wipe', 'general', 'Delete account'],
-  ['Help, tour and questions', 'help tour tutorial guide questions faq ask how to use replay show me around', 'help'],
-  ['Your guide: change its look and name', 'guide tutorial bot look skin name customise customize accessory', 'help'],
+  ['Help, tour and questions', 'help tour tutorial guide questions faq ask how to use replay show me around', 'help', 'Common questions'],
+  ['Your guide: change its look and name', 'guide tutorial bot look skin name customise customize accessory', 'help', 'Guide settings'],
   ['Your name', 'name profile what bots call me', 'general'],
   ['Default AI', 'model default ai brain which ai', 'general'],
   ['Language', 'language reply answer english spanish español catalan idioma russian', 'general'],
-  ['Appearance', 'dark light mode theme appearance colour color night', 'general'],
-  ['Updates', 'update version check restart new', 'general', 'Wayzerr'],
-  ['Install an update from a file', 'dmg file update install manual', 'general', 'Install an update'],
+  ['Light or dark mode', 'dark light mode theme appearance colour color night', 'appearance', 'Theme'],
+  ['Updates', 'update version check restart new', 'updates', 'Wayzerr'],
+  ['Install an update from a file', 'dmg file update install manual', 'updates', 'Install an update'],
+  ['Update server', 'update server feed url latest json', 'updates', 'Update server'],
+  ['Keyboard shortcuts', 'keyboard shortcuts keys hotkeys cmd command ctrl new chat search jump', 'general', 'Keyboard shortcuts'],
+  ['Sign out', 'sign out log out logout account email signed in', 'general', 'Signed in'],
   ['Skills', 'skills tools abilities what bots can do', 'tools'],
   ['Passwords & accounts', 'password account login sign in google account school', 'passwords', 'Saved accounts'],
-  ['Payment cards', 'card cards payment pay visa buy', 'passwords', 'Cards'],
+  ['Payment cards', 'card cards payment pay visa buy', 'passwords', 'Payment cards'],
   ['Notifications', 'notification notify alert done finished', 'notify'],
-  ['Voice: microphone, language and names', 'voice microphone mic speech text talk dictate whisper language accent names words input device level', 'voice'],
+  ['Voice: microphone, language and names', 'voice microphone mic speech text talk dictate whisper language accent names words input device level', 'voice', 'Microphone'],
   ['Phone', 'phone iphone mobile qr connect', 'phone'],
   ['Save usage: low, balanced or max', 'usage tokens limit cost cheap save plan credits low balanced max', 'general', 'AI usage'],
   ['Show tokens used per chat', 'tokens show hide usage numbers credits chat size per reply counter', 'general', 'Show tokens used per chat'],
   ['Your apps: connections or browser', 'connection connections browser apps slides gmail classroom use my apps', 'general', 'Your apps'],
   ['Opening links in chats', 'links open browser', 'browser', 'Opening links'],
   ['Sign out of all sites', 'cookies clear browser data sign out', 'browser', 'Sign out of all sites'],
-  ['Text size', 'text size bigger larger font zoom read easier big letters accessibility eyes', 'general'],
-  ['Privacy', 'privacy data private where information goes stored computer tracking telemetry logos pictures free service google composio duckduckgo', 'general', 'Privacy'],
+  ['Text size', 'text size bigger larger font zoom read easier big letters accessibility eyes', 'appearance'],
+  ['Privacy', 'privacy data private where information goes stored computer tracking telemetry logos pictures free service google composio duckduckgo', 'privacy', 'Where your information goes'],
   ['Credits used', 'credits usage used how much tokens messages cost spend spent limit quota plan cloud count', 'connectors', null, 'cloud'],
-  ['API keys', 'api key openai anthropic claude gemini grok xai openrouter groq mistral deepseek', 'connectors', null, 'api'],
-  ['Sign in with ChatGPT, Claude, Gemini…', 'sign in account chatgpt claude gemini cursor copilot amp augment plan cloud', 'connectors', null, 'cloud'],
+  ['API keys', 'api key openai anthropic claude gemini grok xai openrouter groq mistral deepseek', 'connectors', 'Add a provider', 'api'],
+  ['Sign in with ChatGPT, Claude, Gemini…', 'sign in account chatgpt claude gemini cursor copilot amp augment plan cloud', 'connectors', 'Claude', 'cloud'],
   ['Any cloud server', 'server custom openai compatible company', 'connectors', 'Any cloud server', 'cloud'],
-  ['Your apps (Gmail, Classroom, Slides…)', 'apps connectors gmail classroom drive docs slides sheets calendar slack notion whatsapp instagram linkedin outlook github connection browser switch', 'connectors', null, 'conn'],
+  ['Your apps (Gmail, Classroom, Slides…)', 'apps connectors gmail classroom drive docs slides sheets calendar slack notion whatsapp instagram linkedin outlook github connection browser switch', 'connectors', 'Gmail', 'conn'],
 ];
 const SEARCH_STOP = new Set(['the', 'a', 'an', 'my', 'to', 'how', 'do', 'i', 'change', 'set', 'turn', 'on', 'off', 'of', 'for', 'and', 'in', 'is', 'can', 'where', 'what']);
 function editDist1(a, b) {
@@ -2819,9 +2833,11 @@ function searchSettings(q) {
   }).filter((x) => x.hits > 0).sort((a, b) => b.score - a.score).map((x) => x.it);
 }
 function settingsWhere(it) {
-  return { general: 'General', tools: 'General → Skills', passwords: 'General → Passwords & cards', notify: 'General → Notifications', phone: 'General → Phone', browser: 'General → Browser & apps', connectors: 'AI & apps' + (it[4] ? ' → ' + { api: 'API', cloud: 'Cloud', conn: 'Connectors' }[it[4]] : '') }[it[2]];
+  const names = { general: 'General', appearance: 'Appearance', voice: 'Voice', notify: 'Notifications', tools: 'Skills', computer: 'Computer', browser: 'Browser', passwords: 'Passwords & cards', phone: 'Phone', updates: 'Updates', privacy: 'Privacy', help: 'Help', connectors: 'AI & apps' };
+  return (names[it[2]] || 'General') + (it[2] === 'connectors' && it[4] ? ' → ' + { api: 'API', cloud: 'Cloud', conn: 'Connectors' }[it[4]] : '');
 }
 function drawSettingsResults(q) {
+  $$('.sn-item.on').forEach((b) => { b.classList.remove('on'); b.removeAttribute('aria-current'); }); // searching: no page is the current one
   const list = searchSettings(q);
   drawSettingsResults.list = list; drawSettingsResults.sel = 0;
   const tips = ['dark mode', 'update', 'password', 'Gmail', 'API key', 'phone'];
@@ -2872,18 +2888,14 @@ function modelOptions(sel) {
 
 const LANGS = [['auto', 'Same as my message'], ['English', 'English'], ['Español', 'Español'], ['Català', 'Català'], ['Русский', 'Русский'], ['Français', 'Français'], ['Deutsch', 'Deutsch'], ['Italiano', 'Italiano'], ['Português', 'Português'], ['Nederlands', 'Nederlands'], ['Polski', 'Polski'], ['Українська', 'Українська'], ['Türkçe', 'Türkçe'], ['العربية', 'العربية'], ['中文', '中文'], ['日本語', '日本語'], ['한국어', '한국어']];
 function tabGeneral() {
-  const up = updateInfo?.update;
   $('#set-body').innerHTML = `
     <h1>General</h1>
     <div class="card simple">
-      <div class="card-row"><div class="grow"><div class="nm">Account</div><div class="ds">Signed in as <b style="color:var(--text)">${esc((S.account && S.account.email) || '')}</b></div></div><button class="btn" id="acct-out">Sign out</button></div>
       <div class="card-row"><div class="grow"><div class="nm">Your name</div><div class="ds">What your bots call you.</div></div><input id="st-name" class="mid" value="${esc(S.settings.userName)}" placeholder="Your name" /></div>
       <div class="card-row"><div class="grow"><div class="nm">Default AI</div><div class="ds">For bots without their own AI picked.</div></div><select id="st-default" class="mid">${modelOptions(S.settings.defaultModel)}</select></div>
       <div class="card-row"><div class="grow"><div class="nm">Language</div><div class="ds">What language your bots answer in. (Wayzerr's own menus are in English.)</div></div><select id="st-lang" class="mid">${LANGS.map(([v, l]) => `<option value="${v}" ${(S.settings.replyLanguage || 'auto') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
-      <div class="card-row"><div class="grow"><div class="nm">Wayzerr ${esc(S.version)}</div><div class="ds" id="up-status">${up ? `Version ${esc(up.version)} is ready.` : 'Updates install by themselves when you restart.'}</div></div>
-        ${up ? '<button class="btn primary" id="up-install">Restart to update</button>' : '<button class="btn" id="up-check">Check for updates</button>'}</div>
-      <div class="card-row"><div class="grow"><div class="nm">Preview the update alert <span class="tmp-tag">Temporary</span></div><div class="ds">Plays how the update alert looks. Nothing is installed.</div></div><button class="btn" id="up-preview">Play</button></div>
     </div>
+    <div class="section-title">Usage</div>
     <div class="card simple">
       <div class="card-row"><div class="grow"><div class="nm">AI usage</div><div class="ds" id="usage-ds">${USAGE_DS[S.settings.usageMode || 'balanced']}</div></div>
         <div class="seg" id="gen-usage">${[['low', 'Low'], ['balanced', 'Balanced'], ['max', 'Max']].map(([v, l]) => `<button data-v="${v}" class="${(S.settings.usageMode || 'balanced') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
@@ -2892,62 +2904,60 @@ function tabGeneral() {
       <div class="card-row"><div class="grow"><div class="nm">Your apps</div><div class="ds">How bots use Gmail, Classroom, Slides, Drive and your other apps. You can always tell a bot otherwise in a chat (“use your browser”).</div></div>
         <div class="seg" id="gen-apps-via">${[['connector', 'Connections'], ['browser', 'Browser']].map(([v, l]) => `<button data-v="${v}" class="${(S.settings.appsVia || 'connector') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
     </div>
-    <div class="card simple">
-      <div class="card-row"><div class="grow"><div class="nm">Text size</div><div class="ds">${MOD} and + / − do the same.</div></div>
-        <div class="seg" id="st-textsize">${TEXT_SIZES.map(([name], i) => `<button data-i="${i}" title="${name}" class="${textSizeIndex() === i ? 'on' : ''}">${['XS', 'S', 'M', 'L', 'XL'][i]}</button>`).join('')}</div></div>
-      <div class="card-row"><div class="grow"><div class="nm">Appearance</div><div class="ds">Light, dark, or the same as your computer.</div></div>
-        <div class="seg" id="st-theme">${[['system', 'Auto'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => `<button data-theme="${v}" class="${(S.settings.theme || 'system') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
-    </div>
-    <div class="section-title sm">Privacy</div>
-    <div class="card simple" id="privacy-card">
-      <div class="card-row"><div class="grow"><div class="nm">Where your information goes</div>
-        <div class="ds">Chats, memories and logins stay on this computer (logins are encrypted). Your Wayzerr account is only your email address, and there are no usage statistics. Messages go to the AI you picked; connected apps go through Composio; web search uses DuckDuckGo.</div></div></div>
-      <div class="card-row"><div class="grow"><div class="nm">Free picture service</div><div class="ds">With no picture AI connected, bots use a free online service. It receives your picture description.</div></div>
-        <label class="switch"><input type="checkbox" id="pv-free" ${S.settings.freeImages !== false ? 'checked' : ''}><span></span></label></div>
-      <div class="card-row"><div class="grow"><div class="nm">Download logos online</div><div class="ds">Logos come from Google’s icon service, which sees the site names. Off shows letters.</div></div>
-        <label class="switch"><input type="checkbox" id="pv-icons" ${S.settings.onlineIcons !== false ? 'checked' : ''}><span></span></label></div>
-    </div>
-    <div class="card simple" id="legal-card">
-      <div class="card-row"><div class="grow"><div class="nm">Terms of Service</div><div class="ds">The rules for using Wayzerr.</div></div><button class="btn sm" type="button" data-legal-read="terms">Read here</button><button class="btn sm primary" type="button" data-legal-open="terms">Open in browser</button></div>
-      <div class="card-row"><div class="grow"><div class="nm">Privacy Policy</div><div class="ds">What Wayzerr collects, where it goes and your choices.</div></div><button class="btn sm" type="button" data-legal-read="privacy">Read here</button><button class="btn sm primary" type="button" data-legal-open="privacy">Open in browser</button></div>
-    </div>
-    <div class="section-title sm">Account</div>
+    <div class="section-title">Account</div>
     <div class="card simple" id="account-card">
+      <div class="card-row"><div class="grow"><div class="nm">Signed in</div><div class="ds">${esc((S.account && S.account.email) || '')}</div></div><button class="btn" id="acct-out">Sign out</button></div>
       <div class="card-row"><div class="grow"><div class="nm">Delete account</div><div class="ds">Erases all your bots, chats, saved logins and keys from this computer.</div></div><button class="btn danger" id="st-delete" type="button">Delete…</button></div>
     </div>
-    <div class="card simple set-links">
-      ${Object.entries(renderSettings.SUB || {}).map(([k, [ic, l, d]]) => `<button class="card-row set-link" data-sub="${k}"><span class="sl-ic">${icon(ic)}</span><div class="grow"><div class="nm">${l}</div><div class="ds">${d}</div></div><span class="sl-go">›</span></button>`).join('')}
-    </div>
-    <details class="adv"><summary>Advanced</summary>
-      <div class="card">
-        <div class="card-row"><div class="grow"><div class="nm">Install an update from a file</div><div class="ds">Pick a Wayzerr ${INSTALLER_EXT} you downloaded.</div></div><button class="btn" id="up-file">${icon('download')}Choose file…</button></div>
-        ${updateInfo?.downloadsBlocked ? `<div class="hint">Your computer isn’t letting Wayzerr look in Downloads, so use Choose file… and pick the ${INSTALLER_EXT}.</div>` : ''}
-        <div id="pub-box"></div>
-        <label class="f">Update server</label>
-        <input id="up-feed" placeholder="https://…/latest.json" value="${esc(S.updateFeed)}" />
-        <div class="kbd-list" style="margin-top:14px"><span><kbd>${MOD}</kbd><kbd>K</kbd> Search bots and messages</span><span><kbd>${MOD}</kbd><kbd>N</kbd> New chat</span><span><kbd>${MOD}</kbd><kbd>1</kbd>–<kbd>9</kbd> Jump to a bot</span><span><kbd>${MOD}</kbd><kbd>,</kbd> Settings</span><span><kbd>${MOD}</kbd><kbd>F</kbd> Search settings</span><span><kbd>⇧</kbd><kbd>↵</kbd> New line</span><span><kbd>↑</kbd> Bring back your last message</span></div>
-      </div>
-    </details>`;
-  $$('.set-link').forEach((b) => (b.onclick = () => { settingsTab = b.dataset.sub; renderSettings(); }));
+    <div class="section-title">Keyboard shortcuts</div>
+    <div class="card simple" id="kbd-card">
+      ${[['Search bots and messages', [MOD, 'K']], ['New chat', [MOD, 'N']], ['Jump to a bot', [MOD, '1–9']], ['Settings', [MOD, ',']], ['Search settings', [MOD, 'F']], ['New line', ['⇧', '↵']], ['Bring back your last message', ['↑']]].map(([n, keys]) => `<div class="card-row"><div class="grow"><div class="nm">${n}</div></div><span class="kbd-keys">${keys.map((k) => `<kbd>${k}</kbd>`).join('')}</span></div>`).join('')}
+    </div>`;
   $('#st-showtokens').onchange = async (e) => { S = await api.saveProfile({ showTokens: e.target.checked }); render(); toast(e.target.checked ? 'Token numbers are shown on new replies' : 'Token numbers are hidden in every chat'); };
   const so = $('#acct-out'); if (so) so.onclick = async () => { if (!confirm('Sign out of Wayzerr? Your bots and chats stay on this computer.')) return; try { S = await api.accountLogout(); render(); } catch (e) { toast(e.message, true); } };
   $$('#gen-usage button').forEach((b) => (b.onclick = async () => { S = await api.setUsageMode(b.dataset.v); $$('#gen-usage button').forEach((x) => x.classList.toggle('on', x === b)); $('#usage-ds').textContent = USAGE_DS[b.dataset.v]; toast({ low: 'Bots will use as little of your AI plan as they can', balanced: 'Bots will save usage without cutting quality', max: 'Bots will always send everything (uses the most)' }[b.dataset.v]); }));
   $$('#gen-apps-via button').forEach((b) => (b.onclick = async () => { S = await api.setAppsVia(b.dataset.v); $$('#gen-apps-via button').forEach((x) => x.classList.toggle('on', x === b)); toast(b.dataset.v === 'browser' ? 'Bots will use your apps in their browser' : 'Bots will always use your app connections'); }));
-  $$('#st-theme button').forEach((b) => (b.onclick = async () => { S = await api.setTheme(b.dataset.theme); applyTheme(); $$('#st-theme button').forEach((x) => x.classList.toggle('on', x === b)); }));
   const saveName = async () => { const v = $('#st-name').value.trim(); if (v === (S.settings.userName || '')) return; await run(() => api.saveProfile({ userName: v })); updateMe(); toast('Saved'); };
+  $('#st-delete').onclick = () => openDeleteAccount();
+  $('#st-name').onblur = saveName;
+  $('#st-name').onkeydown = (e) => { if (e.key === 'Enter') e.target.blur(); };
+  $('#st-lang').onchange = async (e) => { S = await api.saveProfile({ replyLanguage: e.target.value }); toast(e.target.value === 'auto' ? 'Bots answer in the language you write in' : `Bots will answer in ${e.target.value}`); };
+  $('#st-default').onchange = (e) => { const [providerId, ...m] = e.target.value.split('|'); run(() => api.setDefaultModel({ providerId, model: m.join('|') })); toast('Default AI updated'); };
+}
+
+function tabAppearance() {
+  $('#set-body').innerHTML = `
+    <h1>Appearance</h1>
+    <div class="card simple">
+      <div class="card-row"><div class="grow"><div class="nm">Theme</div><div class="ds">Light, dark, or the same as your computer.</div></div>
+        <div class="seg" id="st-theme">${[['system', 'Auto'], ['light', 'Light'], ['dark', 'Dark']].map(([v, l]) => `<button data-theme="${v}" class="${(S.settings.theme || 'system') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+      <div class="card-row"><div class="grow"><div class="nm">Text size</div><div class="ds">${MOD} and + / − do the same.</div></div>
+        <div class="seg" id="st-textsize">${TEXT_SIZES.map(([name], i) => `<button data-i="${i}" title="${name}" class="${textSizeIndex() === i ? 'on' : ''}">${['XS', 'S', 'M', 'L', 'XL'][i]}</button>`).join('')}</div></div>
+    </div>`;
+  $$('#st-theme button').forEach((b) => (b.onclick = async () => { S = await api.setTheme(b.dataset.theme); applyTheme(); $$('#st-theme button').forEach((x) => x.classList.toggle('on', x === b)); }));
   wireTextSize($('#set-body'));
   $$('#st-textsize button').forEach((b) => (b.onclick = () => {
     const f = TEXT_SIZES[+b.dataset.i][1];
     savePref('textSize2', f); api.setZoom?.(f * TEXT_BASE);
     $$('#st-textsize button').forEach((x) => x.classList.toggle('on', x === b));
   }));
-  $('#pv-free').onchange = async (e) => { S = await api.saveProfile({ freeImages: e.target.checked }); toast(e.target.checked ? 'Free picture service is on' : 'Picture descriptions now stay on your connected AI only'); };
-  $('#st-delete').onclick = () => openDeleteAccount();
-  $$('[data-legal-read]').forEach((b) => b.addEventListener('click', () => showLegal(b.dataset.legalRead)));
-  $$('[data-legal-open]').forEach((b) => b.addEventListener('click', () => openLegalInBrowser(b.dataset.legalOpen)));
-  $('#pv-icons').onchange = async (e) => { S = await api.saveProfile({ onlineIcons: e.target.checked }); toast(e.target.checked ? 'Logos will be downloaded online' : 'No more logo downloads. New logos show as letters.'); };
-  $('#st-name').onblur = saveName;
-  $('#st-name').onkeydown = (e) => { if (e.key === 'Enter') e.target.blur(); };
+}
+
+function tabUpdates() {
+  const up = updateInfo?.update;
+  $('#set-body').innerHTML = `
+    <h1>Updates</h1>
+    <div class="card simple">
+      <div class="card-row"><div class="grow"><div class="nm">Wayzerr ${esc(S.version)}</div><div class="ds" id="up-status">${up ? `Version ${esc(up.version)} is ready.` : 'Updates install by themselves when you restart.'}</div></div>
+        ${up ? '<button class="btn primary" id="up-install">Restart to update</button>' : '<button class="btn" id="up-check">Check for updates</button>'}</div>
+      <div class="card-row"><div class="grow"><div class="nm">Preview the update alert <span class="tmp-tag">Temporary</span></div><div class="ds">Plays how the update alert looks. Nothing is installed.</div></div><button class="btn" id="up-preview">Play</button></div>
+    </div>
+    <div class="section-title">Advanced</div>
+    <div class="card simple">
+      <div class="card-row"><div class="grow"><div class="nm">Install an update from a file</div><div class="ds">Pick a Wayzerr ${INSTALLER_EXT} you downloaded.${updateInfo?.downloadsBlocked ? ` Your computer isn’t letting Wayzerr look in Downloads, so use Choose file… and pick the ${INSTALLER_EXT}.` : ''}</div></div><button class="btn" id="up-file">${icon('download')}Choose file…</button></div>
+      <div class="card-row"><div class="grow"><div class="nm">Update server</div><div class="ds">Where Wayzerr looks for new versions.</div></div><input id="up-feed" class="mid wide" placeholder="https://…/latest.json" value="${esc(S.updateFeed)}" /></div>
+    </div>
+    <div id="pub-box"></div>`;
   $('#up-install')?.addEventListener('click', installUpdate);
   drawPublish();
   $('#up-file').onclick = async () => { try { const r = await api.updateFromFile(); if (r) toast('Updating — Wayzerr will restart…'); } catch (e) { toast(e.message, true); } };
@@ -2962,8 +2972,28 @@ function tabGeneral() {
     } catch (err) { toast(err.message, true); e.target.disabled = false; e.target.textContent = 'Check for updates'; }
   });
   $('#up-feed').onchange = async (e) => { await run(() => api.updateFeed(e.target.value)); toast('Saved'); };
-  $('#st-lang').onchange = async (e) => { S = await api.saveProfile({ replyLanguage: e.target.value }); toast(e.target.value === 'auto' ? 'Bots answer in the language you write in' : `Bots will answer in ${e.target.value}`); };
-  $('#st-default').onchange = (e) => { const [providerId, ...m] = e.target.value.split('|'); run(() => api.setDefaultModel({ providerId, model: m.join('|') })); toast('Default AI updated'); };
+}
+
+function tabPrivacy() {
+  $('#set-body').innerHTML = `
+    <h1>Privacy</h1>
+    <div class="card simple" id="privacy-card">
+      <div class="card-row"><div class="grow"><div class="nm">Where your information goes</div>
+        <div class="ds">Chats, memories and logins stay on this computer (logins are encrypted). Your Wayzerr account is only your email address, and there are no usage statistics. Messages go to the AI you picked; connected apps go through Composio; web search uses DuckDuckGo.</div></div></div>
+      <div class="card-row"><div class="grow"><div class="nm">Free picture service</div><div class="ds">With no picture AI connected, bots use a free online service. It receives your picture description.</div></div>
+        <label class="switch"><input type="checkbox" id="pv-free" aria-label="Free picture service" ${S.settings.freeImages !== false ? 'checked' : ''}><span></span></label></div>
+      <div class="card-row"><div class="grow"><div class="nm">Download logos online</div><div class="ds">Logos come from Google’s icon service, which sees the site names. Off shows letters.</div></div>
+        <label class="switch"><input type="checkbox" id="pv-icons" aria-label="Download logos online" ${S.settings.onlineIcons !== false ? 'checked' : ''}><span></span></label></div>
+    </div>
+    <div class="section-title">Legal</div>
+    <div class="card simple" id="legal-card">
+      <div class="card-row"><div class="grow"><div class="nm">Terms of Service</div><div class="ds">The rules for using Wayzerr.</div></div><button class="btn sm" type="button" data-legal-read="terms">Read here</button><button class="btn sm primary" type="button" data-legal-open="terms">Open in browser</button></div>
+      <div class="card-row"><div class="grow"><div class="nm">Privacy Policy</div><div class="ds">What Wayzerr collects, where it goes and your choices.</div></div><button class="btn sm" type="button" data-legal-read="privacy">Read here</button><button class="btn sm primary" type="button" data-legal-open="privacy">Open in browser</button></div>
+    </div>`;
+  $('#pv-free').onchange = async (e) => { S = await api.saveProfile({ freeImages: e.target.checked }); toast(e.target.checked ? 'Free picture service is on' : 'Picture descriptions now stay on your connected AI only'); };
+  $('#pv-icons').onchange = async (e) => { S = await api.saveProfile({ onlineIcons: e.target.checked }); toast(e.target.checked ? 'Logos will be downloaded online' : 'No more logo downloads. New logos show as letters.'); };
+  $$('[data-legal-read]').forEach((b) => b.addEventListener('click', () => showLegal(b.dataset.legalRead)));
+  $$('[data-legal-open]').forEach((b) => b.addEventListener('click', () => openLegalInBrowser(b.dataset.legalOpen)));
 }
 
 const POPULAR_NAME = { gmail: 'Gmail', googleclassroom: 'Google Classroom', googlecalendar: 'Google Calendar', googledrive: 'Google Drive', googlesheets: 'Google Sheets', googledocs: 'Google Docs', slack: 'Slack', notion: 'Notion', whatsapp: 'WhatsApp', instagram: 'Instagram', linkedin: 'LinkedIn', outlook: 'Outlook', github: 'GitHub', teams: 'Microsoft Teams', microsoftteams: 'Microsoft Teams' };
@@ -3073,6 +3103,7 @@ function tabConnectors() {
         </div>
         ${m.enabled || k === 'files' ? `<div class="prow-extra">
           ${k === 'files' ? `<span>One folder shared by all your bots: <strong style="color:var(--text)">Wayzerr Files</strong> (in your home folder)</span><button class="btn sm" id="choose-folder">Open</button>` : ''}
+          ${k === 'files' ? `<div class="files-access" style="flex-basis:100%;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:6px"><span style="color:var(--muted)">Also allow your:</span>${['downloads', 'documents', 'desktop'].map((f) => { const on = (m.allowed || []).includes(f); return `<button class="btn sm${on ? ' primary' : ''}" data-fa="${f}" data-on="${on ? 1 : 0}">${f[0].toUpperCase() + f.slice(1)}${on ? ' ✓' : ''}</button>`; }).join('')}<span class="ds" style="flex-basis:100%">If a bot needs one of these, Wayzerr asks “Can Wayzerr access your Downloads?” once. A yes stays until you turn it off here.</span></div>` : ''}
           <span style="flex:1"></span>${m.enabled ? permSelect(k, m.permission) : ''}
         </div>` : ''}
       </div>`).join('')}
@@ -3102,7 +3133,7 @@ function tabConnectors() {
         ${bodies.more}
       </details>`;
   } else $('#set-body').innerHTML = `
-    <h1>Connections</h1>
+    <h1>AI & apps</h1>
     <div class="conn-sum">
       <span class="${S.providers.some((p) => !p.account) ? 'on' : ''}"><span class="tag-api">API</span>${S.providers.filter((p) => !p.account).length ? S.providers.filter((p) => !p.account).length + ' connected' : 'Not connected'}</span>
       <span class="${S.providers.some((p) => p.account) ? 'on' : ''}"><span class="tag-acct">CLOUD</span>${S.providers.some((p) => p.account) ? esc(S.providers.filter((p) => p.account).map((p) => p.name).join(', ')) : 'Not connected'}</span>
@@ -3151,6 +3182,12 @@ function tabConnectors() {
   $$('[data-toggle]').forEach((t) => (t.onchange = () => {
     const key = t.dataset.toggle;
     run(() => api.updateConnector({ key, patch: { enabled: t.checked } }));
+  }));
+  $$('[data-fa]').forEach((b) => (b.onclick = async () => {
+    const on = b.dataset.on === '1';
+    const name = b.dataset.fa[0].toUpperCase() + b.dataset.fa.slice(1);
+    if (on) { S = await api.filesFolderAccess({ folder: b.dataset.fa, allow: false }); toast(`Bots can no longer use your ${name} folder`); return tabConnectors(); }
+    confirmBox(`Can Wayzerr access your ${name} folder?`, `Your bots will be able to read and change files in ${name}. You can turn this off here any time.`, 'Allow', async () => { S = await api.filesFolderAccess({ folder: b.dataset.fa, allow: true }); toast(`Bots can use your ${name} folder`); tabConnectors(); });
   }));
   const cf = $('#choose-folder');
   if (cf) cf.onclick = () => run(() => api.openFilesFolder());
@@ -3668,13 +3705,13 @@ function tabComputer() {
 
 function tabBrowser() {
   $('#set-body').innerHTML = `
-    <h1>Browser & apps</h1>
+    <h1>Browser</h1>
     <p class="lead">Your bots' browser has its own profile, separate from Safari and Chrome.</p>
-    <div class="card"><div class="card-row"><div class="ic">${icon('puzzle')}</div><div class="grow"><div class="nm">Using your apps</div><div class="ds">For Gmail, Classroom, Slides, Drive and your other apps. You can still say “use your browser” in a message.</div></div>
-      <div class="seg" id="apps-via">${[['connector', 'Connections'], ['browser', 'Browser']].map(([v, l]) => `<button data-v="${v}" class="${(S.settings.appsVia || 'connector') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div></div>
-    <div class="card"><div class="card-row"><div class="ic">${icon('external')}</div><div class="grow"><div class="nm">Opening links in chats</div><div class="ds">Where links from your bots open.</div></div><select class="mini" id="link-open"><option value="ask" ${(S.settings.linkOpen || 'ask') === 'ask' ? 'selected' : ''}>Ask me</option><option value="app" ${S.settings.linkOpen === 'app' ? 'selected' : ''}>In Wayzerr</option><option value="browser" ${S.settings.linkOpen === 'browser' ? 'selected' : ''}>In my browser</option></select></div></div>
-    <div class="card"><div class="card-row"><div class="ic">${icon('cookie')}</div><div class="grow"><div class="nm">Sign out of all sites</div><div class="ds">Clears cookies, logins and site data in the bots' browser.</div></div><button class="btn sm danger" id="clr-browser">Clear</button></div></div>
-    <div class="card"><div class="card-row"><div class="ic">${icon('compass')}</div><div class="grow"><div class="nm">Browser connector</div><div class="ds">Turn the bots' browser on or off in Tools & skills.</div></div><button class="btn sm" id="to-conn">Open</button></div></div>`;
+    <div class="card simple"><div class="card-row"><div class="grow"><div class="nm">Using your apps</div><div class="ds">For Gmail, Classroom, Slides, Drive and your other apps. You can still say “use your browser” in a message.</div></div>
+      <div class="seg" id="apps-via">${[['connector', 'Connections'], ['browser', 'Browser']].map(([v, l]) => `<button data-v="${v}" class="${(S.settings.appsVia || 'connector') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+    <div class="card-row"><div class="grow"><div class="nm">Opening links in chats</div><div class="ds">Where links from your bots open.</div></div><select class="mini" id="link-open"><option value="ask" ${(S.settings.linkOpen || 'ask') === 'ask' ? 'selected' : ''}>Ask me</option><option value="app" ${S.settings.linkOpen === 'app' ? 'selected' : ''}>In Wayzerr</option><option value="browser" ${S.settings.linkOpen === 'browser' ? 'selected' : ''}>In my browser</option></select></div>
+    <div class="card-row"><div class="grow"><div class="nm">Sign out of all sites</div><div class="ds">Clears cookies, logins and site data in the bots' browser.</div></div><button class="btn sm danger" id="clr-browser">Clear</button></div>
+    <div class="card-row"><div class="grow"><div class="nm">Browser connector</div><div class="ds">Turn the bots' browser on or off in Skills.</div></div><button class="btn sm" id="to-conn">Open</button></div></div>`;
   $('#link-open').onchange = async (e) => { S = await api.setLinkOpen(e.target.value); toast('Saved'); };
   $$('#apps-via button').forEach((b) => (b.onclick = async () => { S = await api.setAppsVia(b.dataset.v); $$('#apps-via button').forEach((x) => x.classList.toggle('on', x === b)); toast(b.dataset.v === 'browser' ? 'Bots will use your apps in their browser' : 'Bots will always use your app connections'); }));
   $('#clr-browser').onclick = () => confirmBox('Sign out of all sites?', 'Your bots will need you to log in again where needed.', 'Clear', async () => { await api.clearBrowserData(); toast('Browser data cleared'); });
@@ -3722,7 +3759,7 @@ function tabPasswords() {
   $('#set-body').innerHTML = `
     <h1>Passwords & cards</h1>
     <p class="lead">Accounts and cards every bot can use, on any website. They're encrypted on this computer, and the AI never sees them.</p>
-    <div class="card"><div class="card-row"><div class="ic">${icon('key')}</div><div class="grow"><div class="nm">Let bots sign in with saved accounts</div><div class="ds">They'll ask once before using it the first time.</div></div><label class="toggle"><input type="checkbox" id="pw-toggle" ${on ? 'checked' : ''}><span></span></label></div></div>
+    <div class="card simple"><div class="card-row"><div class="ic">${icon('key')}</div><div class="grow"><div class="nm">Let bots sign in with saved accounts</div><div class="ds">They'll ask once before using it the first time.</div></div><label class="toggle"><input type="checkbox" id="pw-toggle" ${on ? 'checked' : ''}><span></span></label></div></div>
     <div class="section-title">Saved accounts · ${items.length}</div>
     ${items.length ? items.map((v) => `
       <div class="card pw-card">
@@ -4338,7 +4375,7 @@ api.onScheduleFired?.((m) => {
   $('.sa-open', el).onclick = () => { close(); view = 'chat'; try { openChat(m.botId); } catch (_) { render(); } };
   setTimeout(close, 20000);
 });
-api.onUpdateAvailable((r) => { updateInfo = r; showUpdatePill(); if (view === 'settings' && settingsTab === 'general') renderSettings(); });
+api.onUpdateAvailable((r) => { updateInfo = r; showUpdatePill(); if (view === 'settings') { if (settingsTab === 'updates') renderSettings(); else syncUpdateDot(); } });
 api.onUpdateProgress((m) => { const sub = $('#uc-sub'); if (sub) sub.textContent = m; else toast(m); });
 // Look again whenever you come back to Wayzerr (e.g. after a new Wayzerr.dmg lands in Downloads).
 let lastUpdateCheck = 0;

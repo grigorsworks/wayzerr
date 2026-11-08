@@ -135,6 +135,7 @@ contextBridge.exposeInMainWorld('wayzerr', {
   scheduleLogClear: () => invoke('schedule-log-clear'),
   accountLogout: () => invoke('account-logout'),
   openFilesFolder: () => invoke('open-files-folder'),
+  filesFolderAccess: (d) => invoke('files-folder-access', d),
   onScheduleFired: (cb) => ipcRenderer.on('schedule-fired', (_e, x) => cb(x)),
   onComputerPointer: (cb) => ipcRenderer.on('computer-pointer', (_e, x) => cb(x)),
   onComputerThumb: (cb) => ipcRenderer.on('computer-thumb', (_e, x) => cb(x)),

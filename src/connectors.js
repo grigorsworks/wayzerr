@@ -4,7 +4,8 @@
 const fs = require('fs');
 const path = require('path');
 const { execFile } = require('child_process');
-const { clipboard, Notification, shell } = require('electron');
+const os = require('os');
+const { clipboard, Notification, shell, dialog, BrowserWindow } = require('electron');
 const { BROWSER_TOOLS } = require('./browser');
 const { VAULT_TOOLS } = require('./vault');
 const { TEAM_TOOLS } = require('./team');
@@ -41,15 +42,15 @@ const BUILTIN = {
   files: {
     name: 'Files',
     icon: '📁',
-    description: 'Read, write and search files inside one folder you choose.',
+    description: 'Read, write and search files in the shared Wayzerr Files folder, and in your Downloads, Documents or Desktop once you allow it.',
     tools: [
-      tool('files_list', 'List files and folders inside the allowed folder (or a subfolder).', {
+      tool('files_list', 'List files and folders inside the shared folder (or a subfolder). To look in the user\'s Downloads, Documents or Desktop give subpath like "~/Downloads" (the user is asked to allow it the first time).', {
         subpath: { type: 'string', description: 'Relative subfolder, empty for the root' },
       }),
-      tool('files_read', 'Read a text file inside the allowed folder.', {
+      tool('files_read', 'Read a text file inside the shared folder, or in Downloads/Documents/Desktop with subpath like "~/Downloads/notes.txt".', {
         subpath: { type: 'string', description: 'Relative path of the file' },
       }, ['subpath']),
-      tool('files_write', 'Create or overwrite a text file inside the allowed folder.', {
+      tool('files_write', 'Create or overwrite a text file inside the shared folder, or in Downloads/Documents/Desktop with subpath like "~/Downloads/notes.txt".', {
         subpath: { type: 'string', description: 'Relative path of the file' },
         content: { type: 'string', description: 'Full text content' },
       }, ['subpath', 'content']),
@@ -148,6 +149,40 @@ function safeJoin(root, sub = '') {
   return full;
 }
 
+// The folders macOS protects. Wayzerr asks "Can Wayzerr access your Downloads?" the first time a bot needs one; a "yes"
+// is remembered for good (Settings → Connectors → Files lets you take it back).
+const PROTECTED_FOLDERS = { downloads: 'Downloads', documents: 'Documents', desktop: 'Desktop' };
+const homePath = (sub) => { const t = String(sub || ''); if (t === '~') return os.homedir(); if (t.startsWith('~/')) return path.join(os.homedir(), t.slice(2)); return t; };
+const isInside = (root, p) => { const rel = path.relative(root, p); return !rel.startsWith('..') && !path.isAbsolute(rel); };
+async function askFolder(name) {
+  const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0] || null;
+  const r = await dialog.showMessageBox(win, {
+    type: 'question', buttons: ['Allow', "Don't allow"], defaultId: 0, cancelId: 1, noLink: true,
+    message: `Can Wayzerr access your ${name} folder?`,
+    detail: `Your bots will be able to read and change files in ${name}. You are only asked once. You can take this back any time in Settings → Connectors → Files.`,
+  });
+  return r.response === 0;
+}
+// A path a files tool asked for → the real path, after the folder it is in has been allowed.
+async function resolveFile(store, sub) {
+  const f = store.data.connectors.files;
+  const raw = homePath(sub);
+  if (path.isAbsolute(raw)) {
+    let real; try { real = realish(path.resolve(raw)); } catch (_) { real = path.resolve(raw); }
+    for (const [key, name] of Object.entries(PROTECTED_FOLDERS)) {
+      let root = path.join(os.homedir(), name); try { root = fs.realpathSync(root); } catch (_) {}
+      if (!isInside(root, real)) continue;
+      if (!(f.allowed || []).includes(key)) {
+        if (!(await askFolder(name))) throw new Error(`The user did not allow access to their ${name} folder. Do not ask again; tell them they can allow it in Settings → Connectors → Files.`);
+        (f.allowed ||= []).push(key); store.save();
+      }
+      return safeJoin(root, path.relative(root, real));
+    }
+    return safeJoin(f.folder, path.relative(fs.existsSync(f.folder) ? fs.realpathSync(f.folder) : f.folder, real)); // inside the shared folder, or refused
+  }
+  return safeJoin(f.folder, sub);
+}
+
 async function runBuiltin(store, toolName, args, ctx) {
   const c = store.data.connectors;
   if (toolName.startsWith('browser_')) return ctx.browser.run(toolName, args);
@@ -157,7 +192,7 @@ async function runBuiltin(store, toolName, args, ctx) {
   if (toolName.startsWith('schedule_')) return runScheduleTool(toolName, args, ctx);
   switch (toolName) {
     case 'files_list': {
-      const dir = safeJoin(c.files.folder, args.subpath);
+      const dir = await resolveFile(store, args.subpath);
       const items = fs.readdirSync(dir, { withFileTypes: true })
         .filter((d) => !d.name.startsWith('.'))
         .slice(0, 300)
@@ -165,12 +200,12 @@ async function runBuiltin(store, toolName, args, ctx) {
       return items.length ? items.join('\n') : '(empty folder)';
     }
     case 'files_read': {
-      const f = safeJoin(c.files.folder, args.subpath);
+      const f = await resolveFile(store, args.subpath);
       const text = fs.readFileSync(f, 'utf8');
       return text.length > MAX_READ ? text.slice(0, MAX_READ) + '\n…(truncated)' : text;
     }
     case 'files_write': {
-      const f = safeJoin(c.files.folder, args.subpath);
+      const f = await resolveFile(store, args.subpath);
       fs.mkdirSync(path.dirname(f), { recursive: true });
       fs.writeFileSync(f, args.content ?? '');
       return `Saved ${args.subpath}`;

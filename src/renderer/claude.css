@@ -170,3 +170,123 @@ html.fs #sidebar.collapsed .side-find { padding-top: 8px; }
 .vb-bars { display: flex; align-items: center; gap: 2px; height: 30px; flex: 1; min-width: 0; overflow: hidden; }
 .vb-bars i { flex: 1 1 0; max-width: 5px; min-width: 2px; height: 3px; border-radius: 2px; background: var(--accent); opacity: .85; transition: height .06s linear; }
 .vb-hint { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+/* ---------- Settings (Claude-style): grouped left menu with search, a big page title, and plain rows ----------
+   Each row: name + grey description on the left, the control on the right, a hairline between rows.
+   Colours come from the tokens at the top of this file, so dark and light both follow the Wayzerr palette. */
+.settings { flex: 1; min-width: 0; min-height: 0; display: flex; container: settings / inline-size; background: var(--bg); }
+.set-shell { flex: 1; min-width: 0; min-height: 0; display: flex; }
+
+/* left menu */
+.settings .set-nav { width: 252px; flex: none; padding: 76px 14px 16px 18px; display: flex; flex-direction: column; gap: 0; overflow-y: auto; border-right: 1px solid var(--line); }
+.settings .set-search { flex: none; height: 38px; margin: 0 0 16px; padding: 0 12px; gap: 9px; border-radius: var(--r-ctl); background: var(--raised); border: 1px solid var(--line-2); color: var(--muted); transition: border-color .15s; }
+.settings .set-search:focus-within { border-color: color-mix(in srgb, var(--accent) 70%, var(--line-2)); }
+.settings .set-search svg.i { width: 16px; height: 16px; flex: none; }
+.settings .set-search input { font-size: 14px; color: var(--text); }
+.sn-group { position: relative; display: flex; flex-direction: column; gap: 2px; }
+.sn-group + .sn-group { margin-top: 21px; }
+.sn-group + .sn-group::before { content: ''; position: absolute; left: 12px; right: 12px; top: -11px; height: 1px; background: var(--line); }
+.sn-item { display: flex; align-items: center; gap: 12px; width: 100%; height: 38px; padding: 0 12px; border-radius: var(--r-ctl); color: var(--text-2); font-size: 14px; text-align: left; transition: background .15s, color .15s; }
+.sn-item svg.i { width: 18px; height: 18px; flex: none; color: var(--muted); transition: color .15s; }
+.sn-item span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sn-item:hover { background: var(--hover); color: var(--text); }
+.sn-item.on { background: var(--row-on); color: var(--text); }
+.sn-item:hover svg.i, .sn-item.on svg.i { color: var(--accent); }
+.sn-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.sn-foot { margin-top: auto; padding: 22px 12px 0; font-size: 12px; color: var(--muted); }
+
+/* page */
+.settings .page { flex: 1; min-width: 0; min-height: 0; padding: 76px 44px 64px; }
+.settings .page-inner { max-width: 760px; margin: 0 auto; }
+#set-body { --s-off: #403f3b; --s-on: var(--bubble-user); }
+html.light #set-body { --s-off: #cdc9ba; --s-on: #ffffff; }
+#set-body h1 { font-size: 26px; font-weight: 600; letter-spacing: -.015em; line-height: 38px; margin: 0 0 12px; color: var(--text); }
+#set-body > .lead { font-size: 14px; line-height: 1.55; color: var(--muted); margin: 0 0 8px; max-width: 64ch; }
+#set-body .section-title, #set-body .section-title.sm { font-size: 17px; font-weight: 600; letter-spacing: -.005em; text-transform: none; color: var(--text); margin: 44px 0 2px; }
+#set-body .hint { font-size: 13px; line-height: 1.55; color: var(--muted); margin: 10px 0 0; }
+#set-body .sec-hint { margin: 6px 0 16px; }
+
+/* rows */
+#set-body .card.simple { background: none; border: 0; border-radius: 0; padding: 0; margin: 0 -12px 6px; }
+#set-body .card.simple .card-row { position: relative; padding: 18px 12px; margin: 0; gap: 12px; align-items: center; border-radius: var(--r-ctl); }
+#set-body .card.simple .card-row + .card-row { border-top: 0; }
+#set-body .card.simple .card-row + .card-row::before { content: ''; position: absolute; top: 0; left: 12px; right: 12px; height: 1px; background: var(--line); }
+#set-body .card.simple .card-row > .grow { margin-right: 12px; }
+#set-body .card.simple > .card-row > .ic { display: none; }
+#set-body .card-row .nm { font-size: 15px; font-weight: 500; line-height: 1.35; color: var(--text); }
+#set-body .card-row .ds { font-size: 13.5px; line-height: 1.5; margin-top: 4px; color: var(--muted); }
+#set-body .card-row .ds b { color: var(--text-2); font-weight: 500; }
+#set-body .card-row .tmp-tag { font-size: 11.5px; }
+#set-body .set-links { margin-top: 12px; }
+#set-body .set-link:hover { background: var(--hover); }
+#set-body .set-link.sel { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+#set-body .set-link .sl-ic { background: var(--raised); border-radius: var(--r-ctl); }
+#set-body .set-link.sel .sl-go { color: var(--accent); }
+#set-body .kbd-keys { display: inline-flex; gap: 4px; flex: none; }
+#set-body kbd { margin: 0; background: var(--raised); border-color: var(--line-2); color: var(--text-2); min-width: 24px; text-align: center; border-radius: 4px; }
+@keyframes foundFlash { 0%, 40% { box-shadow: 0 0 0 2px var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); } 100% { box-shadow: 0 0 0 2px transparent; } }
+
+/* controls */
+#set-body .switch, #set-body .toggle { position: relative; display: inline-block; flex: none; width: 38px; height: 22px; cursor: pointer; }
+#set-body .switch input, #set-body .toggle input { display: block; position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; opacity: 0; cursor: pointer; z-index: 1; }
+#set-body .switch span, #set-body .toggle span { position: absolute; inset: 0; border-radius: 999px; background: var(--s-off); transition: background .18s; }
+#set-body .switch span::after, #set-body .toggle span::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .3); transition: transform .18s cubic-bezier(.2, .8, .2, 1); }
+#set-body .switch input:checked + span, #set-body .toggle input:checked + span { background: var(--accent); }
+#set-body .switch input:checked + span::after, #set-body .toggle input:checked + span::after { transform: translateX(16px); background: #fff; }
+#set-body .switch input:focus-visible + span, #set-body .toggle input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+#set-body .seg { padding: 3px; gap: 2px; background: var(--raised); border: 1px solid var(--line-2); border-radius: var(--r-ctl); }
+#set-body .seg button { height: 28px; padding: 0 14px; border-radius: 3px; font-size: 13.5px; font-weight: 500; color: var(--text-2); }
+#set-body .seg button:hover { color: var(--text); }
+#set-body .seg button.on { background: var(--s-on); color: var(--text); box-shadow: 0 0 0 1px var(--line-2); }
+html.light #set-body .seg button.on { box-shadow: 0 0 0 1px var(--line-2), 0 1px 2px rgba(20, 20, 19, .08); }
+#set-body select, #set-body input.mid { height: 36px; padding: 0 12px; border-radius: var(--r-ctl); background-color: var(--raised); border: 1px solid var(--line-2); color: var(--text); font-size: 14px; }
+#set-body select { appearance: none; -webkit-appearance: none; padding-right: 34px; cursor: pointer; background-repeat: no-repeat; background-position: right 11px center; background-size: 14px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23918f85' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E"); }
+#set-body select:hover, #set-body input.mid:hover { border-color: color-mix(in srgb, var(--text) 28%, var(--line-2)); }
+#set-body input.mid, #set-body select.mid { width: 240px; max-width: 46%; }
+#set-body input.mid.wide { width: 320px; max-width: 52%; }
+#set-body select.mini { width: auto; max-width: 46%; }
+#set-body .btn:not(.primary) { background: var(--raised); border-color: var(--line-2); font-weight: 500; }
+#set-body .btn:not(.primary):hover { background: var(--row-on); }
+#set-body .card-row > .btn:not(.sm) { height: 36px; padding: 0 16px; font-size: 13.5px; }
+#set-body .btn.danger { color: var(--danger); }
+#set-body .nt-opt input[type=radio] { accent-color: var(--accent); }
+#set-body .seg-tabs { display: inline-flex; width: auto; gap: 2px; padding: 3px; margin: 16px 0 24px; top: 8px; background: var(--raised); border: 1px solid var(--line-2); border-radius: var(--r-ctl); }
+#set-body .seg-tabs button { flex: none; height: 32px; padding: 0 16px; border-radius: 3px; font-size: 13.5px; font-weight: 500; color: var(--text-2); }
+#set-body .seg-tabs button:hover { color: var(--text); }
+#set-body .seg-tabs button.on { background: var(--s-on); color: var(--text); box-shadow: 0 0 0 1px var(--line-2); }
+html.light #set-body .seg-tabs button.on { box-shadow: 0 0 0 1px var(--line-2), 0 1px 2px rgba(20, 20, 19, .08); }
+
+/* cards that are real boxes (accounts, phone code, app tiles …) follow the palette in both themes */
+#set-body .card:not(.simple) { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-card); }
+#set-body details.adv { margin-top: 18px; border-top: 1px solid var(--line); }
+#set-body details.adv > summary { padding: 16px 0; font-size: 15px; font-weight: 500; color: var(--text); }
+#set-body .help-adv > summary { font-size: 14px; color: var(--text-2); }
+
+/* narrow window: the menu becomes a strip above the page */
+@container settings (max-width: 720px) {
+  .set-shell { flex-direction: column; }
+  .settings .set-nav { width: auto; flex: none; flex-direction: row; align-items: center; gap: 6px; padding: 72px 16px 12px; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; border-right: 0; border-bottom: 1px solid var(--line); }
+  .settings .set-search { width: 210px; margin: 0; }
+  .sn-group { flex-direction: row; flex: none; }
+  .sn-group + .sn-group { margin: 0 0 0 10px; }
+  .sn-group + .sn-group::before { left: -6px; right: auto; top: 6px; bottom: 6px; width: 1px; height: auto; }
+  .sn-item { width: auto; height: 34px; padding: 0 10px; gap: 8px; white-space: nowrap; }
+  .sn-foot { display: none; }
+  .settings .page { padding: 24px 20px 48px; }
+}
+
+/* Settings: loose text inside a list lines up with the rows, the FAQ is plain rows, and actions use the one accent colour */
+#set-body .card.simple > .hint, #set-body .card.simple > .lead { padding: 0 12px; }
+#set-body .section-title + .card.simple { margin-top: 4px; }
+#set-body .section-title + .card:not(.simple) { margin-top: 12px; }
+#set-body .card.faq { background: none; border: 0; border-radius: 0; padding: 0; margin: 6px 0 0; }
+#set-body .faq-q { width: calc(100% + 24px); margin: 0 -12px; padding: 18px 12px; font-size: 15px; font-weight: 500; border-radius: var(--r-ctl); }
+#set-body .faq-a p { padding: 0 0 18px; color: var(--muted); }
+#set-body .at-go, #set-body .as-item .at-nm em { color: var(--accent); }
+#set-body .si-btn { background: var(--accent); color: var(--accent-ink); }
+#set-body .si-btn:hover { background: var(--accent); filter: brightness(1.1); }
+#set-body .cl-check input { accent-color: var(--accent); }
+#set-body .app-search input:focus { border-color: color-mix(in srgb, var(--accent) 70%, var(--line-2)); box-shadow: none; }
+
+/* light.css has a stray `html.light.light { --accent: #e8e8e8 }` that made every accent (the + button, the avatar, toggles, active icons, primary buttons) pale in light mode. Same specificity, later file: the accent from the top of this file wins. */
+html.light.light { --accent: #c6613f; }

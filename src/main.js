@@ -983,6 +983,16 @@ handle('delete-memory', ({ personaId, memoryId }) => {
   return publicState();
 });
 
+// Take back (or give) access to Downloads / Documents / Desktop for the Files connector.
+handle('files-folder-access', ({ folder, allow }) => {
+  const k = String(folder || '').toLowerCase();
+  if (!['downloads', 'documents', 'desktop'].includes(k)) throw new Error('Unknown folder.');
+  const f = store.data.connectors.files;
+  f.allowed = (f.allowed || []).filter((x) => x !== k);
+  if (allow) f.allowed.push(k);
+  store.save();
+  return publicState();
+});
 handle('update-connector', ({ key, patch }) => {
   Object.assign(store.data.connectors[key], patch);
   store.save();
