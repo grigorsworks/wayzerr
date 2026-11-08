@@ -1,6 +1,6 @@
 {
   "name": "wayzerr-app",
-  "version": "1.3.47",
+  "version": "1.3.48",
   "description": "Wayzerr — AI bots with their own personalities, memory, browser and tools",
   "main": "src/main.js",
   "author": "Wayzerr",
@@ -9,7 +9,8 @@
     "jsqr": "^1.4.0",
     "node-forge": "^1.3.1",
     "npm": "^12.1.0",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "undici": "^7.29.1"
   },
   "productName": "Wayzerr",
   "updateFeed": "https://github.com/grigorsworks/persona/releases/latest/download/latest.json",

@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog, safeStorage, shell, session, powerSaveBlocker, nativeTheme, systemPreferences, powerMonitor } = require('electron');
+require('./wzfetch').install(); // reaches wayzerr.com through other Cloudflare addresses when a provider blocks the usual one
 // The data folder is now "Wayzerr" (it used to be "Persona"): an old folder is moved over once, so bots, chats and passwords stay.
 if (!process.env.WAYZERR_DATA_DIR) {
   try {

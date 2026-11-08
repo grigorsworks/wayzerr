@@ -1,4 +1,8 @@
 {
+  "1.3.48": [
+    "Fixed: connectors (searching for apps like Buffer) and other online features work again when your internet provider blocks wayzerr.com. Wayzerr now reaches it through other addresses automatically.",
+    "Updates, account and connectors all use this, so they keep working on those connections too."
+  ],
   "1.3.47": [
     "The search bar and + button now sit below the window buttons (close, minimise, full screen) so the search bar has its full width.",
     "Talking to a bot now works like Claude: you see how loud your voice is while you talk, and your words appear in the message box as you speak (with the on-device voice engine).",
