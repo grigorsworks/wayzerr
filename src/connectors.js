@@ -53,6 +53,10 @@ const BUILTIN = {
         subpath: { type: 'string', description: 'Relative path of the file' },
         content: { type: 'string', description: 'Full text content' },
       }, ['subpath', 'content']),
+      tool('files_run', 'Run a shell command inside the allowed folder (npm install, node app.js, python, git, tests, builds…). The user approves every command. Use it to build and test apps you write there. Returns the output and exit code.', {
+        command: { type: 'string', description: 'The shell command' },
+        timeout_seconds: { type: 'number', description: 'Optional, up to 300 (default 120)' },
+      }, ['command']),
       tool('files_search', 'Find files whose name contains the query (searches subfolders).', {
         query: { type: 'string' },
       }, ['query']),
@@ -171,6 +175,16 @@ async function runBuiltin(store, toolName, args, ctx) {
       fs.writeFileSync(f, args.content ?? '');
       return `Saved ${args.subpath}`;
     }
+    case 'files_run': {
+      const cwd = safeJoin(c.files.folder, '');
+      const { connectorEnv } = require('./runtime');
+      const secs = Math.min(300, Math.max(5, Number(args.timeout_seconds) || 120));
+      return await new Promise((res) => execFile('/bin/sh', ['-c', String(args.command || '')], { cwd, env: connectorEnv({}), timeout: secs * 1000, maxBuffer: 4 << 20 }, (err, so, se) => {
+        const out = (String(so || '') + (se ? '\n[errors]\n' + se : '')).trim();
+        const cut = out.length > 12000 ? out.slice(0, 5000) + '\n…(cut)…\n' + out.slice(-6000) : out;
+        res(`${cut || '(no output)'}\n[exit ${err ? (err.killed ? 'timed out after ' + secs + 's' : err.code ?? 1) : 0}]`);
+      }));
+    }
     case 'files_search': {
       const root = safeJoin(c.files.folder, '');
       const q = String(args.query || '').toLowerCase();
@@ -266,7 +280,7 @@ class McpManager {
         const url = new URL(server.url);
         try {
           const { StreamableHTTPClientTransport } = require('@modelcontextprotocol/sdk/client/streamableHttp.js');
-          await client.connect(new StreamableHTTPClientTransport(url, { requestInit: { headers } }));
+          await client.connect(new StreamableHTTPClientTransport(url, { requestInit: { headers }, ...(server.oauth && this.providerFor ? { authProvider: this.providerFor(server) } : {}) }));
         } catch (e) {
           const { SSEClientTransport } = require('@modelcontextprotocol/sdk/client/sse.js');
           const c2 = new Client({ name: 'wayzerr-app', version: '1.0.0' });

@@ -45,6 +45,10 @@ let win;
 let store;
 let vault;
 const mcp = new McpManager();
+// Apps Composio can't sign in for, but that run their own online MCP server with OAuth (sign in like Claude does).
+const OAUTH_APPS = { buffer: { name: 'Buffer', url: 'https://mcp.buffer.com/mcp' } };
+const oauthDeps = () => ({ enc, dec, save: () => store.save() });
+mcp.providerFor = (s) => require('./mcp-oauth').makeProvider(s, oauthDeps(), 'http://127.0.0.1/callback', null);
 const pendingPermissions = new Map();
 const running = new Map(); // personaId -> AbortController
 // Every bot gets its own browser (same logins, separate pages) so they never get in each other's way.
@@ -1045,6 +1049,16 @@ handle('skills-list', () => skills.list());
 handle('skills-install', async (cmd) => { await skills.install(cmd); return skills.list(); });
 handle('skills-remove', (id) => { skills.remove(id); return skills.list(); });
 handle('composio-link', async (toolkit) => {
+  const oa = OAUTH_APPS[String(toolkit || '').toLowerCase()];
+  if (oa) {
+    const list = store.data.customServers;
+    let s = list.find((x) => x.oauthApp === String(toolkit).toLowerCase());
+    if (!s) { s = { id: crypto.randomBytes(3).toString('hex'), name: oa.name, logo: '', url: oa.url, oauthApp: String(toolkit).toLowerCase(), permission: 'ask', enabled: true }; list.push(s); store.save(); }
+    await require('./mcp-oauth').signIn(s, oauthDeps(), (u) => shell.openExternal(u));
+    await connectServer(s);
+    pushState();
+    return null;
+  }
   if (!store.data.composio || !store.data.customServers.some((x) => x.composio)) await composioEnsure('');
   const c = store.data.composio;
   const j = hostedOn() ? await hostedFetch('/link/' + encodeURIComponent(c.sessionId), { method: 'POST', body: { toolkit } }) : await composioFetch(`/api/v3/tool_router/session/${encodeURIComponent(c.sessionId)}/link`, { toolkit }, composioKey());
@@ -1061,22 +1075,24 @@ handle('composio-search', async (q) => {
   if (!s) return local.slice(0, 8);
   try {
     const j = hostedOn() ? await hostedFetch(`/toolkits?search=${encodeURIComponent(s)}&limit=12`) : await composioFetch(`/api/v3/toolkits?search=${encodeURIComponent(s)}&limit=12`, null, composioKey());
-    const remote = (j.items || []).map((t) => ({ slug: String(t.slug || '').toLowerCase(), name: t.name || t.slug, description: t.meta?.description || '', logo: t.meta?.logo || '' })).filter((t) => t.slug);
+    // Apps whose sign-in Composio doesn't run for us (no managed auth, e.g. Buffer) can't be connected here: leave them out, so there is no dead "Connect".
+    const remote = (j.items || []).filter((t) => !hostedOn() || OAUTH_APPS[String(t.slug).toLowerCase()] || t.no_auth || !Array.isArray(t.composio_managed_auth_schemes) || t.composio_managed_auth_schemes.length).map((t) => ({ slug: String(t.slug || '').toLowerCase(), name: t.name || t.slug, description: t.meta?.description || '', logo: t.meta?.logo || '' })).filter((t) => t.slug);
     const seen = new Set();
     return [...local, ...remote].filter((a) => !seen.has(a.slug) && seen.add(a.slug))
       .sort((a, b) => (b.name.toLowerCase().startsWith(s) ? 1 : 0) - (a.name.toLowerCase().startsWith(s) ? 1 : 0)).slice(0, 8);
   } catch (_) { return local.slice(0, 8); }
 });
 // Which apps are connected right now (asks Composio; remembers the answer).
+const oauthLinked = () => store.data.customServers.filter((x) => x.oauthApp && mcp.status(x.id).connected).map((x) => x.oauthApp);
 async function composioLinkedNow() {
   const c = store.data.composio;
-  if (!c) return [];
+  if (!c) return oauthLinked();
   try {
     const j = hostedOn() ? await hostedFetch('/connected') : await composioFetch(`/api/v3/connected_accounts?user_ids=${encodeURIComponent(c.userId)}&statuses=ACTIVE&limit=100`, null, composioKey());
     const list = [...new Set((j.items || []).map((a) => a.toolkit?.slug || a.toolkit_slug || a.appName).filter(Boolean).map((x) => String(x).toLowerCase()))];
     store.data.composioLinked = list; store.save();
-    return list;
-  } catch (_) { return store.data.composioLinked || []; }
+    return [...list, ...oauthLinked()];
+  } catch (_) { return [...(store.data.composioLinked || []), ...oauthLinked()]; }
 }
 handle('composio-apps', () => composioLinkedNow());
 
@@ -1084,7 +1100,7 @@ handle('composio-apps', () => composioLinkedNow());
 const MASK = '\u2022\u2022\u2022\u2022';
 const maskVal = (v) => (v ? MASK + String(v).slice(-4) : '');
 const maskMap = (o) => (o && typeof o === 'object' ? Object.fromEntries(Object.entries(o).map(([k, v]) => [k, maskVal(v)])) : o);
-function maskServer(s) { return { ...s, env: maskMap(s.env), headers: maskMap(s.headers), apiKey: s.apiKey ? maskVal(s.apiKey) : s.apiKey }; }
+function maskServer(s) { return { ...s, oauth: s.oauth ? true : undefined, env: maskMap(s.env), headers: maskMap(s.headers), apiKey: s.apiKey ? maskVal(s.apiKey) : s.apiKey }; }
 function unmaskServer(s, old) {
   const keep = (v, prev) => (typeof v === 'string' && v.startsWith(MASK) ? prev : v);
   if (s.env && typeof s.env === 'object') s.env = Object.fromEntries(Object.entries(s.env).map(([k, v]) => [k, keep(v, old?.env?.[k])]).filter(([, v]) => v != null));
@@ -1410,6 +1426,15 @@ function runBotTurn(persona, text, { attachments, from, depth = 0, chatKey, grou
               pendingCards.set(req.cardId, { resolve, personaId: persona.id });
               ctl.signal.addEventListener('abort', () => { if (pendingCards.delete(req.cardId)) resolve({ cancel: true }); }, { once: true });
             })),
+          addServers: async (list) => {
+            const done = [];
+            for (const x of list) {
+              if (store.data.customServers.some((s) => (x.url && s.url === x.url) || (x.command && s.command === x.command && JSON.stringify(s.args || []) === JSON.stringify(x.args)))) continue;
+              const s = { id: crypto.randomBytes(3).toString('hex'), name: x.name, logo: '', permission: 'ask', enabled: true, ...(x.url ? { url: x.url, oauth: enc('{}') } : { command: x.command, args: x.args }) };
+              store.data.customServers.push(s); store.save(); connectServer(s).then(pushState).catch(() => {}); done.push(x.name);
+            }
+            return done;
+          },
           askPermission: (req) =>
             waitFor(new Promise((resolve) => {
               const requestId = crypto.randomBytes(6).toString('hex');

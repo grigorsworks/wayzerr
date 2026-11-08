@@ -124,6 +124,7 @@ function buildSystemPrompt(store, persona, group, userText = '', boosted = false
     !lite && !group && 'If a search or page fetch fails or finds nothing, or the task is to open a website, download, install, run or test something, do NOT give up and do NOT guess: load your computer or browser with tools_load and do it there. If one way fails, try the other. Never say you are using your computer or browser unless you really called its tools in this reply; if you did not, say plainly what you did instead.',
     !lite && 'Finish the whole task in one go: do every step yourself, then reply with what you did. Don\'t stop halfway to report, ask "shall I continue?" or ask for things you can do. Stop early only if you truly need the user (a login, a payment, a real choice).',
     !lite && 'Research fast: your built-in web search if you have one, otherwise web_search with several queries in ONE call, then web_read the best links (up to 20 at once). Never use the browser just to read.',
+    want('files') && 'Building things: when asked to make an app, site, script or tool, work in the Files folder like a developer. Write the files with files_write, run them with files_run (npm install, node, python, tests), read the errors, fix them and run again until it works. Then tell the user what you built, where it is and how to run it. Never say it works unless you ran it.',
     want('browser') && 'Browser: pages come back as text (what\'s on screen + buttons/fields with [id]); a screenshot only in drawn editors (Google Slides/Docs, canvases). Call browser_screenshot only when you must see the layout or a picture. Plan the steps, do them in ONE browser_do call, check the result, fix only what\'s wrong, then report (Google saves by itself). Click by the words ({"click":"Insert"}); click_at only for things without words. Edit text with browser_replace_text (or select, then type); set_box_text replaces a whole box; never press Backspace/Delete many times or type text twice. Long pages: browser_read with find, or part 2, 3…; browser_scroll works inside docs and PDFs. Google Slides/Docs: change words only with browser_replace_text (words that appear only there); type only into an empty placeholder you just double-clicked; new slide = Cmd+M, then double-click its placeholders; pictures via Insert → Image. Never delete slides unless asked. If something changes by mistake, press Cmd+Z and say so.',
     !lite && 'ask_options (tappable choices) only when you truly can\'t continue without the user picking between a few real alternatives (e.g. which of 3 files, classes or accounts — list the real names). Never for yes/no, confirmations, small talk or offers; at most one per reply; no "Other" option.',
     want('apps') && 'If a task needs an app (Gmail, Calendar, Drive, Docs, Sheets, Slack, Notion, WhatsApp, Instagram, Outlook…) that isn\'t connected, call apps_connect (it shows a Connect card). Never paste sign-in links or send the user to settings.',
@@ -343,6 +344,7 @@ function describeTool(name, args) {
     case 'ask_options': return { activity: 'waiting', text: 'Waiting for your answer', summary: 'Asked you a question' };
     case 'apps_connect': return { activity: 'working', text: `Asking you to connect ${args.app || 'an app'}`, summary: 'Asked you to connect an app' };
     case 'tools_load': return { activity: 'thinking', text: 'Getting the right tools', summary: '' };
+    case 'skill_install': return { activity: 'working', text: 'Installing a skill', summary: 'Installed a skill' };
     case 'skill_read': return { activity: 'reading', text: `Reading the ${args.name || ''} skill`, summary: 'Used a skill' };
     case 'image_create': return { activity: 'working', text: 'Making the picture', summary: 'Made a picture' };
     case 'memory_save': return { activity: 'remembering', text: 'Remembering', summary: 'Saved a memory' };
@@ -421,6 +423,7 @@ function neededGroups({ store, persona, ctx, group, text, srcNote, from }) {
   if (!viaBrowser(store) && appWords) need.add('apps');
   if (RE_TEAM.test(t) || (!group && isLeader(persona)) || (from && from.bot !== false)) need.add('team');
   if (RE_IMAGES.test(t)) need.add('images');
+  if (store.data.connectors.files?.enabled && /\b(app|apps|website|web ?site|webpage|script|program|code|coding|build|game|api|html|python|node|npm|react|software)\b/i.test(t)) need.add('files');
   if (RE_DESKTOP.test(t)) need.add('desktop');
   if (RE_COMPUTER.test(t) && !group && ctx?.desktop) need.add('computer');
   // What this chat used in the last half hour stays loaded (follow-ups like "now fix slide 3").
@@ -555,7 +558,7 @@ async function runTurn({ store, mcp, ctx, llm, persona, userText, attachments, f
   // In a group, your reply IS the group message: no browser, logins or team tools (no posting to the group you're already in).
   const toolEntries = collectTools(store, mcp, ctx).filter((t) => !group || (!['browser', 'logins'].includes(t.connectorKey) && !['groups_send', 'groups_list', 'bots_message'].includes(t.def.function.name)));
   const hasFiles = chat.some((m) => (m.attachments || []).some((a) => a.type === 'file'));
-  const allDefs = [...MEMORY_TOOLS, ...IMAGE_TOOLS, ...WEB_TOOLS, ...CHOICE_TOOLS, ...(hasFiles ? FILE_TOOLS : []), ...(skillList().length ? skills.SKILL_TOOLS : []), ...APPS_TOOLS, ...toolEntries.map((t) => t.def)];
+  const allDefs = [...MEMORY_TOOLS, ...IMAGE_TOOLS, ...WEB_TOOLS, ...CHOICE_TOOLS, ...(hasFiles ? FILE_TOOLS : []), ...(skillList().length ? skills.SKILL_TOOLS : []), ...skills.SKILL_INSTALL_TOOL, ...APPS_TOOLS, ...toolEntries.map((t) => t.def)];
   const byName = new Map(toolEntries.map((t) => [t.def.function.name, t]));
   const summaries = new Set();
   { const add = summaries.add.bind(summaries); summaries.add = (x) => (x ? add(x) : summaries); }
@@ -886,6 +889,20 @@ async function executeToolInner({ store, persona, name, args, byName, hooks, ctx
     const u = Array.isArray(args.urls) ? args.urls : [args.urls || args.url];
     return await web.read(u, args.find);
   }
+  if (name === 'skill_install') {
+    const src = String(args.source || '');
+    hooks.onEvent({ type: 'status', activity: 'waiting', text: 'Waiting for your OK to install' });
+    const answer = await hooks.askPermission({ connectorName: 'Skills and plugins', toolName: `install ${args.skill ? `"${args.skill}" from ` : ''}${src}`, args: { source: src, skill: args.skill || '' } });
+    if (answer === 'deny') return 'The user said no. Do not install it.';
+    try {
+      const r = await skills.installRepo(src, args.skill ? String(args.skill) : '');
+      let added = [];
+      if (r.servers.length && hooks.addServers) added = await hooks.addServers(r.servers);
+      return `Installed ${r.skills.length ? 'skills: ' + r.skills.join(', ') : 'no skills'}${added.length ? `; added connections (they ask before use): ${added.join(', ')}` : ''}. Load a skill with skill_read when a task needs it.`;
+    } catch (e) {
+      try { const names = await skills.install(`${src}${args.skill ? ' --skill ' + args.skill : ''}`); return `Installed: ${names.join(', ')}.`; } catch (e2) { return 'Error: ' + e.message; }
+    }
+  }
   if (name === 'skill_read') {
     const text = skills.read(String(args.name || ''), args.file);
     // A skill the user taught in the browser is done in the browser.
@@ -963,6 +980,11 @@ async function executeToolInner({ store, persona, name, args, byName, hooks, ctx
       ctx.mineOk = true;
     }
   } else
+  if (name === 'files_run') { // a command on the user's computer: asked EVERY time, never "always"
+    hooks.onEvent({ type: 'status', activity: 'waiting', text: 'Waiting for your OK to run a command' });
+    const answer = await hooks.askPermission({ connectorName: entry.connectorName, toolName: 'run: ' + String(args.command || '').slice(0, 300), args });
+    if (answer === 'deny') return 'The user did not allow that command. Do not retry it; say what you wanted to do and ask.';
+  } else
   if (getPermission(store, entry.connectorKey) !== 'always') {
     hooks.onEvent({ type: 'status', activity: 'waiting', text: `Waiting for your OK to use ${entry.connectorName}` });
     const answer = await hooks.askPermission({ connectorName: entry.connectorName, toolName: name, args });
@@ -990,7 +1012,7 @@ async function runAccountTurn({ store, ctx, llm, persona, chat, toolEntries, byN
     if (!t || t === lastSaid) return;
     if (say(t).length) { lastSaid = t; narrated = true; store.save(); hooks.onEvent({ type: 'message' }); }
   };
-  const allDefs = [...MEMORY_TOOLS, ...IMAGE_TOOLS, ...WEB_TOOLS, ...CHOICE_TOOLS, ...(chat.some((m) => (m.attachments || []).some((a) => a.type === 'file')) ? FILE_TOOLS : []), ...(skillList().length ? skills.SKILL_TOOLS : []), ...APPS_TOOLS, ...toolEntries.map((t) => t.def)];
+  const allDefs = [...MEMORY_TOOLS, ...IMAGE_TOOLS, ...WEB_TOOLS, ...CHOICE_TOOLS, ...(chat.some((m) => (m.attachments || []).some((a) => a.type === 'file')) ? FILE_TOOLS : []), ...(skillList().length ? skills.SKILL_TOOLS : []), ...skills.SKILL_INSTALL_TOOL, ...APPS_TOOLS, ...toolEntries.map((t) => t.def)];
   // Only the tools this cloud chat needs (+ tools_load / tool_run to reach the rest in this reply).
   const sent = tools ? (picked && !picked.all ? [...tools, RUN_TOOL] : tools) : allDefs;
   const defs = sent.map((d) => ({ name: d.function.name, description: d.function.description || '', inputSchema: d.function.parameters || { type: 'object', properties: {} } }));

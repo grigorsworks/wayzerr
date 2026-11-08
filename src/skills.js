@@ -103,6 +103,49 @@ function install(cmd) {
   });
 }
 
+// Install a whole Claude-style repo: every folder with a SKILL.md becomes a skill, and a plugin's .mcp.json servers are returned
+// (the caller adds them after the user approves). Works for skills, plugins and marketplaces alike. source: owner/repo[/subfolder] or a GitHub link.
+async function installRepo(source, only) {
+  let s = String(source || '').trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/, '').replace(/\/$/, '');
+  const m = s.match(/^([\w.-]+)\/([\w.-]+)(?:\/tree\/[^/]+)?(?:\/(.+))?$/);
+  if (!m) throw new Error('Give a GitHub repo like owner/repo.');
+  const [, owner, repo, sub] = m;
+  const work = fs.mkdtempSync(path.join(os.tmpdir(), 'wayzerr-plugin-'));
+  try {
+    const r = await fetch(`https://codeload.github.com/${owner}/${repo}/tar.gz/HEAD`, { signal: AbortSignal.timeout(60000) });
+    if (!r.ok) throw new Error(`Couldn't download ${owner}/${repo} (${r.status}).`);
+    const buf = Buffer.from(await r.arrayBuffer());
+    if (buf.length > 60 * 1024 * 1024) throw new Error('That repo is too big to install.');
+    const tgz = path.join(work, 'r.tgz'); fs.writeFileSync(tgz, buf);
+    await new Promise((res, rej) => execFile('tar', ['-xzf', tgz, '-C', work], (e) => (e ? rej(new Error("Couldn't unpack it.")) : res())));
+    const root = fs.readdirSync(work).map((n) => path.join(work, n)).find((x) => fs.statSync(x).isDirectory());
+    const base = sub ? path.join(root, sub) : root;
+    if (!path.resolve(base).startsWith(root) || !fs.existsSync(base)) throw new Error('That folder is not in the repo.');
+    const found = [], servers = [];
+    const walk = (d, depth) => {
+      if (depth > 6) return;
+      for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+        if (e.name === 'node_modules' || e.name === '.git') continue;
+        const f = path.join(d, e.name);
+        if (e.isDirectory()) { if (fs.existsSync(path.join(f, 'SKILL.md'))) found.push(f); else walk(f, depth + 1); }
+        else if (e.name === '.mcp.json') {
+          try { const j = JSON.parse(fs.readFileSync(f, 'utf8')); for (const [name, c] of Object.entries(j.mcpServers || j)) if (c && typeof c === 'object' && (c.url || c.command)) servers.push({ name, url: c.url || '', command: c.command || '', args: Array.isArray(c.args) ? c.args : [] }); } catch (_) {}
+        }
+      }
+    };
+    if (fs.existsSync(path.join(base, 'SKILL.md'))) found.push(base); else walk(base, 0);
+    const names = [];
+    for (const f of found) {
+      const n = path.basename(f).replace(/[^\w.-]/g, '-');
+      if (only && n !== only) continue;
+      if (!SAFE.test(n)) continue;
+      fs.rmSync(path.join(dir(), n), { recursive: true, force: true }); copyDir(f, path.join(dir(), n)); names.push(n);
+    }
+    if (!names.length && !servers.length) throw new Error('No skills or plugin connections found in that repo.');
+    return { skills: names, servers: only ? [] : servers.slice(0, 10) };
+  } finally { fs.rmSync(work, { recursive: true, force: true }); }
+}
+
 function remove(name) {
   if (!SAFE.test(name)) return;
   fs.rmSync(path.join(dir(), name), { recursive: true, force: true });
@@ -148,4 +191,13 @@ const SKILL_TOOLS = [{
   },
 }];
 
-module.exports = { seed, list, read, install, remove, parse, saveTaught, SKILL_TOOLS };
+const SKILL_INSTALL_TOOL = [{
+  type: 'function',
+  function: {
+    name: 'skill_install',
+    description: 'Install a skill OR a plugin (Claude-style: skills with SKILL.md, plus a plugin\'s connections) from GitHub when the user asks to install or add it. The user is asked to approve first. source is "owner/repo" or a GitHub link; skill is the skill\'s name inside that repo, if it has several.',
+    parameters: { type: 'object', properties: { source: { type: 'string', description: 'owner/repo or https GitHub URL' }, skill: { type: 'string', description: 'optional skill name inside the repo' } }, required: ['source'] },
+  },
+}];
+
+module.exports = { installRepo, SKILL_INSTALL_TOOL, seed, list, read, install, remove, parse, saveTaught, SKILL_TOOLS };

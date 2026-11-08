@@ -79,7 +79,7 @@ const I = {
   connectors: '<circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="4" r="1.8"/><circle cx="19.5" cy="16.5" r="1.8"/><circle cx="4.5" cy="16.5" r="1.8"/><path d="M12 5.8v3.6M13.9 13.6l3.9 2.1M10.1 13.6l-3.9 2.1"/>',
   phone: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
-  puzzle: '<path d="M6 5h4a2.2 2.2 0 1 1 4 0h4a1 1 0 0 1 1 1v4a2.2 2.2 0 1 1 0 4v4a1 1 0 0 1-1 1h-4a2.2 2.2 0 1 0-4 0H6a1 1 0 0 1-1-1v-4a2.2 2.2 0 1 0 0-4V6a1 1 0 0 1 1-1z"/>',
+  puzzle: '<path d="M6 9h3.5a2.5 2.5 0 1 1 5 0H18a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1z"/>',
   download: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
   cookie: '<path d="M12 3a9 9 0 1 0 9 9 3 3 0 0 1-3-3 3 3 0 0 1-3-3 3 3 0 0 1-3-3z"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="15" r="1"/><circle cx="9" cy="15" r="1"/>',
   key: '<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3M15 8l2 2"/>',

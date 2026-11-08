@@ -75,13 +75,13 @@
         socket = `<circle cx="${x}" cy="${y}" r="9.4" fill="#fff"/>`;
         pupil = `<circle cx="${x + 0.6}" cy="${y + 0.6}" r="5" fill="#16161c"/><circle cx="${x + 2}" cy="${y - 1.4}" r="1.6" fill="#fff"/>`;
       } else if (style === 'ovals') {
-        pupil = `<ellipse cx="${x}" cy="${y}" rx="5.2" ry="8.4" fill="${ink}"/><circle cx="${x + 1.7}" cy="${y - 3.2}" r="2" fill="#fff"/>`;
+        pupil = `<ellipse cx="${x}" cy="${y}" rx="5.2" ry="8.4" fill="${ink}"/><circle cx="${x + 1.9}" cy="${y - 3.6}" r="2.3" fill="#fff"/><circle cx="${x - 1.6}" cy="${y + 4}" r="1" fill="#fff" opacity=".8"/>`;
       } else if (style === 'happy') {
         pupil = `<path d="M${x - 7} ${y + 4}Q${x} ${y - 7} ${x + 7} ${y + 4}" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
       } else if (style === 'sleepy') {
         pupil = `<path d="M${x - 7} ${y - 1}Q${x} ${y + 7} ${x + 7} ${y - 1}" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
       } else {
-        pupil = `<circle cx="${x}" cy="${y}" r="7" fill="${ink}"/><circle cx="${x + 2}" cy="${y - 2.4}" r="2.2" fill="#fff"/>`;
+        pupil = `<circle cx="${x}" cy="${y}" r="7" fill="${ink}"/><circle cx="${x + 2.1}" cy="${y - 2.6}" r="2.5" fill="#fff"/><circle cx="${x - 1.6}" cy="${y + 2.8}" r="1" fill="#fff" opacity=".8"/>`;
       }
       return `<g class="c-eye c-eye-${side}">${socket}<g class="c-pupil">${pupil}</g></g>`;
     };
@@ -287,18 +287,24 @@
       <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
       <span class="c-3d"><span class="c-slab"></span>
       <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true">
-        <defs><clipPath id="${id}k">${bodyPath(ch.shape, '#000')}</clipPath></defs>
+        <defs><clipPath id="${id}k">${bodyPath(ch.shape, '#000')}</clipPath>
+          <radialGradient id="${id}l" cx=".3" cy=".22" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".42"/><stop offset=".55" stop-color="#fff" stop-opacity=".06"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+          <radialGradient id="${id}d" cx=".72" cy=".9" r=".7"><stop offset="0" stop-color="${shade(base, -0.45)}" stop-opacity=".55"/><stop offset="1" stop-color="${shade(base, -0.45)}" stop-opacity="0"/></radialGradient></defs>
         <ellipse class="c-ground" cx="50" cy="95" rx="32" ry="4.5" fill="#000" opacity=".28"/>
         <g class="c-body"><g class="c-turn">
           ${opts.point != null ? armSvg(opts.point, base, id) : ''}
           ${bodyPath(ch.shape, base)}
           <g clip-path="url(#${id}k)">
-            <ellipse cx="78" cy="80" rx="40" ry="34" fill="${shade(base, -0.2)}" opacity=".55"/>
+            <rect width="100" height="100" fill="url(#${id}d)"/>
+            <rect width="100" height="100" fill="url(#${id}l)"/>
+            <ellipse cx="78" cy="80" rx="40" ry="34" fill="${shade(base, -0.2)}" opacity=".28"/>
+            <g class="c-edge">${bodyPath(ch.shape, 'none').replace(/fill="none"\/>/g, `fill="none" stroke="${shade(base, -0.35)}" stroke-opacity=".5" stroke-width="3"/>`)}</g>
             <path class="c-shine" d="${hl(ch.shape)}" stroke="#fff" stroke-opacity=".55" stroke-width="4" fill="none" stroke-linecap="round"/>
             <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
           </g>
           <g class="c-face"${opts.look ? ` transform="translate(${(opts.look[0] * 3).toFixed(2)} ${(opts.look[1] * 2).toFixed(2)})"` : ''}>
             <g class="c-eyes"${opts.look ? ` data-look="1"` : ''}>${opts.look ? eyesSvg(ch.eyes, g.eyeY, ink).replace(/<g class="c-pupil">/g, `<g class="c-pupil" transform="translate(${(opts.look[0] * 2.4).toFixed(2)} ${(opts.look[1] * 2.4).toFixed(2)})">`) : eyesSvg(ch.eyes, g.eyeY, ink)}</g>
+            <ellipse cx="25" cy="${g.eyeY + 12}" rx="6.5" ry="4" fill="#ff5d7d" opacity="${lum < 95 ? .28 : .34}"/><ellipse cx="75" cy="${g.eyeY + 12}" rx="6.5" ry="4" fill="#ff5d7d" opacity="${lum < 95 ? .28 : .34}"/>
             ${mouthSvg(ch.mouth, g.eyeY, ink)}
             ${FACEWEAR.has(ch.acc) ? accSvg(ch.acc, roundShape(ch.shape), g.eyeY, id) : ''}
           </g>

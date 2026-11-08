@@ -1,4 +1,11 @@
 {
+  "1.3.42": [
+    "Bots can now build and run apps in your Files folder. Every command a bot wants to run asks for your OK first, every time.",
+    "Install skills and plugins by asking a bot (it asks before installing).",
+    "Connect Buffer with its own sign-in.",
+    "Better-looking bots and a new logo on the light sign-in screen.",
+    "Profile button now sits next to Settings and the Apps icon is cleaner."
+  ],
   "1.3.41": [
     "A tidier sidebar: the search box and + button now sit at the very top next to the window buttons, the collapsed sidebar keeps the + button, the close button and your bots in one steady column, each bot has a bigger square box so it can jump without leaving it, and the word Bots is centered."
   ],
