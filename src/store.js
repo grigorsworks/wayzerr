@@ -43,29 +43,90 @@ class Store {
     } catch (_) {}
     this.data = structuredClone(DEFAULTS);
     this.timer = null;
-    let text = null;
-    try { text = fs.readFileSync(this.file, 'utf8'); } catch (_) { /* first run */ }
+    this.dir = dir;
+    const bak = this.file.replace(/\.json$/, '.backup.json');
+    const bdir = path.join(dir, 'backups');
+    // Only a file that does not exist is a "first run". Anything else (cannot be read, empty, damaged) must never end with
+    // an empty start that the next save writes over your real bots and chats.
+    let text = null, missing = false, problem = null;
+    try { text = fs.readFileSync(this.file, 'utf8'); } catch (e) { if (e && e.code === 'ENOENT') missing = true; else problem = e; }
+    let parsed = null;
     if (text != null) {
+      if (!text.trim()) problem = new Error('empty file');
+      else { try { parsed = JSON.parse(text); } catch (e) { problem = e; } }
+    }
+    // The copies we can fall back to, best first: the last good file, the newest "before an update" copy, then the daily copies.
+    const copies = () => {
+      const out = [bak];
       try {
-        this.data = deepMerge(structuredClone(DEFAULTS), JSON.parse(text));
-        // Keep a copy of the last file that loaded fine, in case something ever goes wrong.
-        try { fs.copyFileSync(this.file, this.file.replace(/\.json$/, '.backup.json')); } catch (_) {}
-        // One copy per day, kept for two weeks, so a bad moment never costs more than a day of chats.
-        try {
-          const bdir = path.join(dir, 'backups'); fs.mkdirSync(bdir, { recursive: true });
-          const today = path.join(bdir, `wayzerr-data-${new Date().toISOString().slice(0, 10)}.json`);
-          if (!fs.existsSync(today)) fs.copyFileSync(this.file, today);
-          const all = fs.readdirSync(bdir).filter((n) => /^wayzerr-data-\d{4}-\d{2}-\d{2}\.json$/.test(n)).sort();
-          while (all.length > 14) fs.rmSync(path.join(bdir, all.shift()), { force: true });
-        } catch (_) {}
-      } catch (_) {
-        // A damaged file must never be overwritten with an empty one: set it aside and use the last good copy.
-        try { fs.copyFileSync(this.file, this.file.replace(/\.json$/, `.damaged-${Date.now()}.json`)); } catch (_) {}
-        try { this.data = deepMerge(structuredClone(DEFAULTS), JSON.parse(fs.readFileSync(this.file.replace(/\.json$/, '.backup.json'), 'utf8'))); this.restored = true; } catch (_) {}
+        const names = fs.readdirSync(bdir);
+        const newest = (re) => names.filter((n) => re.test(n)).sort().reverse().map((n) => path.join(bdir, n));
+        out.push(...newest(/^pre-update-.*\.json$/), ...newest(/^wayzerr-data-\d{4}-\d{2}-\d{2}\.json$/));
+      } catch (_) {}
+      return out;
+    };
+    const fromCopies = () => {
+      for (const f of copies()) {
+        try { const j = JSON.parse(fs.readFileSync(f, 'utf8')); if (j && typeof j === 'object' && !Array.isArray(j)) return { j, f }; } catch (_) {}
       }
+      return null;
+    };
+    const hasCopies = () => copies().some((f) => { try { return fs.statSync(f).size > 2; } catch (_) { return false; } });
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      this.data = deepMerge(structuredClone(DEFAULTS), parsed);
+      const count = (d) => (d && Array.isArray(d.personas) ? d.personas.length : 0);
+      // Keep a copy of the last file that loaded fine, but never replace it with one that lost all the bots.
+      try {
+        let keep = true;
+        try { if (count(parsed) === 0 && count(JSON.parse(fs.readFileSync(bak, 'utf8'))) > 0) keep = false; } catch (_) {}
+        if (keep) fs.copyFileSync(this.file, bak);
+        else { const old = JSON.parse(fs.readFileSync(bak, 'utf8')); this.offer = { file: bak, bots: count(old) }; } // an empty file next to a copy that has bots: offer to bring them back
+      } catch (_) {}
+      // One copy per day, kept for two weeks, so a bad moment never costs more than a day of chats.
+      try {
+        fs.mkdirSync(bdir, { recursive: true });
+        const today = path.join(bdir, `wayzerr-data-${new Date().toISOString().slice(0, 10)}.json`);
+        if (!fs.existsSync(today) && count(parsed) > 0) fs.copyFileSync(this.file, today);
+        const all = fs.readdirSync(bdir).filter((n) => /^wayzerr-data-\d{4}-\d{2}-\d{2}\.json$/.test(n)).sort();
+        while (all.length > 14) fs.rmSync(path.join(bdir, all.shift()), { force: true });
+      } catch (_) {}
+    } else if (problem || (missing && hasCopies())) {
+      // Set the real file aside (if we can), use the best copy, and say so. If the original cannot even be copied, do not
+      // write over it at all: your data is kept as it is on disk, and this session just does not save.
+      let aside = !problem; // a missing file has nothing to set aside
+      if (problem) { try { fs.copyFileSync(this.file, this.file.replace(/\.json$/, `.damaged-${Date.now()}.json`)); aside = true; } catch (_) {} }
+      const got = fromCopies();
+      if (got) { this.data = deepMerge(structuredClone(DEFAULTS), got.j); this.restored = true; this.restoredFrom = path.basename(got.f); }
+      if (!aside) { this.locked = true; this.unreadable = true; }
+      else if (!got && problem) this.locked = true; // damaged and no copy to use: leave the file alone rather than start empty over it
+      if (this.locked && !this.unreadable) this.unreadable = true;
     }
     // Write everything still waiting when the app quits.
     process.on('exit', () => this.flush());
+  }
+  // Bring the bots and chats back from a copy (the current file is kept next to it first).
+  restoreFrom(file) {
+    try {
+      const j = JSON.parse(fs.readFileSync(file, 'utf8'));
+      try { fs.copyFileSync(this.file, this.file.replace(/\.json$/, `.before-restore-${Date.now()}.json`)); } catch (_) {}
+      this.data = deepMerge(structuredClone(DEFAULTS), j);
+      this.offer = null; this.locked = false;
+      clearTimeout(this.timer); this.timer = null; this.write(true);
+      return true;
+    } catch (_) { return false; }
+  }
+  // A copy for "just before something risky" (installing an update). Kept: the newest five.
+  snapshot(label = 'pre-update') {
+    try {
+      if (this.locked) return false;
+      this.flush();
+      if (!fs.existsSync(this.file)) return false;
+      const bdir = path.join(this.dir || path.dirname(this.file), 'backups'); fs.mkdirSync(bdir, { recursive: true });
+      fs.copyFileSync(this.file, path.join(bdir, `${label}-${new Date().toISOString().replace(/[:.]/g, '-')}.json`));
+      const all = fs.readdirSync(bdir).filter((n) => n.startsWith(label + '-')).sort();
+      while (all.length > 5) fs.rmSync(path.join(bdir, all.shift()), { force: true });
+      return true;
+    } catch (_) { return false; }
   }
   // Delete account: forget everything, remove every copy on disk, and never write again (the app restarts right after).
   wipe() {
@@ -81,19 +142,22 @@ class Store {
   // Saves are grouped: many changes in a short moment become one write (keeps the app smooth with big chats).
   save() {
     if (this.locked || this.timer) return;
-    this.timer = setTimeout(() => { this.timer = null; this.write(); }, 250);
+    this.timer = setTimeout(() => { this.timer = null; this.write(); }, 150);
   }
   flush() {
     if (!this.timer) return;
     clearTimeout(this.timer); this.timer = null;
-    this.write();
+    this.write(true);
   }
-  write() {
+  // The new file is written next to the old one and swapped in, so a crash or a power cut can never leave half a file.
+  // When the app quits (durable) the data is also forced onto the disk before the swap.
+  write(durable = false) {
     if (this.locked) return;
     try {
       const tmp = this.file + '.tmp';
       fs.mkdirSync(path.dirname(this.file), { recursive: true });
-      fs.writeFileSync(tmp, JSON.stringify(this.data));
+      const fd = fs.openSync(tmp, 'w', 0o600);
+      try { fs.writeSync(fd, JSON.stringify(this.data)); if (durable) fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
       fs.renameSync(tmp, this.file);
     } catch (e) { console.error('Could not save Wayzerr data:', e.message); }
   }

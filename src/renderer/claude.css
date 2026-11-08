@@ -1,0 +1,159 @@
+/* Claude-style look: warm paper tones, one terracotta accent, quiet grey work log.
+   Loaded last, so it wins over styles.css and light.css. */
+:root {
+  --bg: #1c1b1a;
+  --side: #141312;
+  --panel: #232220;
+  --raised: #272624;
+  --bubble: #272624;
+  --bubble-user: #323130;
+  --line: #2a2927;
+  --line-2: #3a3935;
+  --text: #faf9f5;
+  --text-2: #c9c7bd;
+  --muted: #9b998f;
+  --accent: #d97757;
+  --accent-ink: #ffffff;
+  --composer: #252422;
+  --composer-line: #3a3935;
+  --pill: #272624;
+  --pill-line: #33322f;
+  --row-on: #2a2927;
+  --hover: rgba(255, 255, 255, .055);
+  --side-w: 322px;
+  --r-ctl: 4px;
+  --r-card: 6px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Inter, Roboto, sans-serif;
+}
+html.light {
+  --bg: #faf9f5;
+  --side: #f1efe7;
+  --panel: #f5f3ec;
+  --raised: #eeece3;
+  --bubble: #f0eee6;
+  --bubble-user: #e9e5d9;
+  --line: #e6e3d8;
+  --line-2: #d8d4c6;
+  --text: #141413;
+  --text-2: #4b4a45;
+  --muted: #76746c;
+  --accent: #c6613f;
+  --composer: #ffffff;
+  --composer-line: #ddd9cb;
+  --pill: #efede4;
+  --pill-line: #e0dccf;
+  --row-on: #e6e3d8;
+  --hover: rgba(20, 20, 19, .055);
+}
+html.light body, html.light .app, html.light main, html.light #main { background: var(--bg); }
+html.light #sidebar { background: var(--side); border-right-color: var(--line); }
+html.light .row:hover { background: var(--hover); }
+html.light .row.active { background: var(--row-on); }
+html.light .bot-pill, html.light .pill-btn { background: transparent; }
+html.light .bot-pill:hover, html.light .pill-btn:hover, html.light .icon-btn:hover { background: var(--hover); }
+html.light .chip { background: var(--raised); }
+html.light .me { background: var(--raised); }
+html.light a { color: #a64a2c; }
+a { color: #e8a48a; }
+::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+input:focus, textarea:focus, select:focus { border-color: color-mix(in srgb, var(--accent) 70%, var(--line-2)); }
+
+/* ---------- Sidebar ---------- */
+#sidebar { width: var(--side-w); background: var(--side); border-right: 1px solid var(--line); }
+.side-find { padding: 4px 14px 2px; gap: 8px; }
+.side-find .side-search { height: 38px; border-radius: 5px; background: var(--raised); border: 1px solid transparent; color: var(--muted); padding: 0 12px; font-size: 13px; }
+.side-find .side-search:hover { background: var(--row-on); border-color: transparent; color: var(--text-2); }
+.side-find .side-new { width: 38px; height: 38px; border: none; border-radius: 5px; background: var(--accent); color: var(--accent-ink); box-shadow: 0 1px 2px rgba(0, 0, 0, .25); transition: filter .15s, transform .15s var(--ease); }
+.side-find .side-new:hover { background: var(--accent); filter: brightness(1.08); transform: translateY(-1px); }
+.side-find .side-new svg.i { width: 18px; height: 18px; stroke-width: 2.1; }
+.side-label { padding: 16px 16px 6px 30px; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+#bot-list { padding: 2px 12px 10px; gap: 2px; overflow-y: auto; }
+.row { height: 60px; padding: 0 12px 0 12px; gap: 12px; border-radius: 5px; border: 1px solid transparent; transition: background .15s, border-color .15s; }
+.row:hover { background: var(--hover); }
+.row.active { background: var(--row-on); border-color: var(--line-2); }
+.row .nm { font-size: 14px; font-weight: 600; }
+.row .pv { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+.row.active .pv { color: var(--text-2); }
+.row .when { font-size: 11.5px; }
+.row.unread::after { background: var(--accent); top: 38px; }
+.row .chip { background: var(--raised); color: var(--text-2); border-radius: 999px; }
+.row.active .chip { background: var(--bg); }
+.side-nav { padding: 10px 14px 14px; gap: 2px; border-top: 1px solid var(--line); margin-top: 4px; }
+.nav-item { height: 38px; border-radius: 4px; font-size: 13.5px; gap: 12px; padding: 0 12px; color: var(--text-2); }
+.nav-item:hover { background: var(--hover); color: var(--text); }
+.nav-item.on { background: var(--row-on); color: var(--text); }
+.nav-item svg.i { color: var(--muted); }
+.nav-item:hover svg.i, .nav-item.on svg.i { color: var(--accent); }
+.me { background: var(--accent); color: var(--accent-ink); border: none; width: 32px; height: 32px; font-size: 11.5px; }
+.update-card { background: var(--panel); border: 1px solid var(--line-2); border-radius: 6px; margin: 0 14px 8px; }
+#sidebar.collapsed { width: 84px; }
+#sidebar.collapsed .side-find .side-new { width: 38px; }
+
+/* ---------- Chat ---------- */
+.chat-head { background: var(--bg); border-bottom: 1px solid var(--line); }
+.bubble { line-height: 1.6; }
+.msg.user .bubble, .bubble.user { background: var(--bubble-user); }
+.composer, #composer { border-color: var(--composer-line); }
+.c-send { background: var(--accent); color: var(--accent-ink); }
+.c-send:hover { filter: brightness(1.08); }
+.c-send:disabled { background: var(--raised); color: var(--muted); filter: none; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn.primary:hover { filter: brightness(1.08); }
+
+/* ---------- Work log (Claude style): the bot's words stay normal, what it does is quiet grey ---------- */
+.live { color: var(--muted); }
+.live .shimmer, #live-text { color: var(--muted); font-size: 14px; }
+.live[role=button]:hover { background: var(--hover); }
+.live-time { background: transparent; border: none; padding: 0 0 0 4px; color: var(--muted); }
+.think-panel { margin: 0 0 10px 36px; padding: 2px 0 2px 16px; background: transparent; border: none; border-left: 2px solid var(--line-2); border-radius: 0; max-width: 760px; color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+.wl-r { white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow-y: auto; color: var(--muted); font-style: italic; margin-bottom: 8px; }
+.wl-empty { color: var(--muted); }
+.wl-steps { display: flex; flex-direction: column; gap: 3px; }
+.wl-line, .wl-step > summary { display: flex; align-items: center; gap: 9px; color: var(--muted); min-width: 0; }
+.wl-line span, .wl-step > summary span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wl-step > summary { list-style: none; cursor: pointer; padding: 2px 6px 2px 0; border-radius: 4px; width: fit-content; max-width: 100%; }
+.wl-step > summary::-webkit-details-marker { display: none; }
+.wl-step > summary:hover { color: var(--text-2); }
+.wl-step > summary .chev { margin-left: 2px; opacity: .7; }
+.wl-step[open] > summary .chev { transform: rotate(225deg) translateY(-2px); }
+.wl-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--line-2); flex: none; }
+.wl-step:last-child .wl-dot { background: var(--accent); }
+.wl-code { margin: 4px 0 8px 15px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; color: var(--text-2); font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; max-height: 260px; overflow: auto; }
+/* what it did, after the reply: same quiet grey, left-aligned like the answer */
+.activity { justify-content: flex-start; color: var(--muted); font-size: 13px; margin: 4px 0 4px 2px; }
+details.thought { margin: 2px 0; }
+details.thought > summary { color: var(--muted); }
+details.thought .thought-body { background: transparent; border: none; border-left: 2px solid var(--line-2); border-radius: 0; padding: 2px 0 2px 16px; margin-left: 18px; color: var(--muted); font-size: 13.5px; font-style: italic; }
+
+/* ---------- Sidebar toggle: same size as the + button ---------- */
+.side-label .icon-btn, .side-label #btn-collapse { width: 38px; height: 38px; border-radius: 5px; background: var(--raised); color: var(--text-2); }
+.side-label .icon-btn:hover { background: var(--row-on); color: var(--text); }
+.side-label .icon-btn svg.i { width: 18px; height: 18px; }
+.side-label { padding: 12px 14px 6px 14px; }
+
+/* ---------- Collapsed: + , sidebar toggle, the bots, and your profile at the bottom ---------- */
+#sidebar.collapsed .side-find { flex-direction: column; align-items: center; padding: 4px 0 0; }
+#sidebar.collapsed .side-find .side-search { display: none; }
+#sidebar.collapsed .side-label { justify-content: center; padding: 8px 0 6px; }
+#sidebar.collapsed #btn-collapse { margin: 0; }
+#sidebar.collapsed #bot-list { flex: 1; }
+#sidebar.collapsed .side-nav { border-top: none; align-items: center; padding: 8px 0 16px; margin-top: 0; }
+#sidebar.collapsed #btn-schedule, #sidebar.collapsed #btn-apps, #sidebar.collapsed #btn-connectors { display: none; }
+#sidebar.collapsed .nav-row { flex-direction: column; justify-content: center; }
+
+/* ---------- Sidebar layout (1.3.41): search + plus touch the top, a steady collapsed column, a square box for each bot ---------- */
+.side-top { height: 0; }
+.side-find { -webkit-app-region: drag; height: 42px; padding: 4px 14px 0 84px; align-items: center; } /* 84px: room for the window buttons on the left */
+.side-find > * { -webkit-app-region: no-drag; }
+html.fs .side-find { padding-left: 14px; } /* full screen has no window buttons */
+.side-label { position: relative; justify-content: center; padding: 12px 14px 6px; min-height: 56px; }
+.side-label span { line-height: 38px; text-align: center; }
+.side-label #btn-collapse { position: absolute; left: 14px; top: 12px; margin: 0; }
+
+#sidebar.collapsed .side-find { flex-direction: column; justify-content: flex-start; height: auto; padding: 40px 0 0; gap: 8px; } /* under the window buttons */
+html.fs #sidebar.collapsed .side-find { padding-top: 8px; }
+#sidebar.collapsed .side-label { justify-content: center; min-height: 0; padding: 8px 0 8px; }
+#sidebar.collapsed .side-label #btn-collapse { position: static; }
+#sidebar.collapsed #bot-list { align-items: center; gap: 8px; padding: 4px 0 10px; overflow-x: visible; }
+#sidebar.collapsed .row { width: 64px; height: 64px; flex: none; padding: 0; justify-content: center; align-items: center; border-radius: 6px; overflow: visible; }
+#sidebar.collapsed .row.unread::after { right: 7px; top: 7px; }

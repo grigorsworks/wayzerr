@@ -82,6 +82,7 @@ contextBridge.exposeInMainWorld('wayzerr', {
   publishNow: () => invoke('publish-now'),
   onPublishProgress: (cb) => ipcRenderer.on('publish-progress', (_e, m) => cb(m)),
   openExternal: (u) => invoke('open-external', u),
+  legalDoc: (name) => invoke('legal-doc', name),
   truncateChat: (x) => invoke('truncate-chat', x),
   cardUpdate: (x) => invoke('card-update', x),
   skillsList: () => invoke('skills-list'),

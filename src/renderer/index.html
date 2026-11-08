@@ -6,20 +6,26 @@
   <title>Wayzerr</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="light.css" />
+  <link rel="stylesheet" href="claude.css" />
 </head>
 <body>
   <div class="app">
     <aside id="sidebar" aria-label="Bots and settings">
-      <div class="side-top">
-        <button class="new-bot-btn small" id="btn-new" title="New bot (⌘N)"></button>
-        <button class="round-btn" id="btn-search" title="Search (⌘K)"></button>
+      <div class="side-top"></div>
+      <div class="side-find">
+        <button class="side-search" id="btn-search" title="Search (⌘K)"></button>
+        <button class="icon-btn side-new" id="btn-new" title="New bot (⌘N)"></button>
       </div>
+      <div class="side-label"><button class="icon-btn" id="btn-collapse" title="Collapse the bot list"></button><span>Bots</span></div>
       <nav id="bot-list" aria-label="Your bots"></nav>
       <div class="update-card hidden" id="update-card"></div>
-      <div class="side-bottom">
-        <button class="me" id="btn-me" title="Account"></button>
-        <button class="pill-btn" id="btn-connectors">Settings</button>
-        <button class="round-btn" id="btn-collapse" title="Collapse the bot list"></button>
+      <div class="side-nav">
+        <button class="nav-item" id="btn-schedule" title="Things your bots do on a schedule"></button>
+        <button class="nav-item" id="btn-apps" title="Your connected apps"></button>
+        <div class="nav-row">
+          <button class="nav-item" id="btn-connectors">Settings</button>
+          <button class="me" id="btn-me" title="Account"></button>
+        </div>
       </div>
     </aside>
 

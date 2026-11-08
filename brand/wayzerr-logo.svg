@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Wayzerr logo: the Wayzerr bot (a dome on two feet, so its base spells a W) with the small "w" smile. Flat colours, no gradients. -->
+  <defs>
+    <clipPath id="b"><path id="body" d="M50 12C80 12 90 38 90 51V74C90 83 84 90 75 90C66 90 62 84 58 80Q50 74 42 80C38 84 34 90 25 90C16 90 10 83 10 74V51C10 38 20 12 50 12Z"/></clipPath>
+  </defs>
+  <rect width="1024" height="1024" rx="228" fill="#101012"/>
+  <g transform="translate(112 118) scale(8)">
+    <ellipse cx="50" cy="94" rx="30" ry="3.6" fill="#000" opacity=".4"/>
+    <use href="#body" fill="#FF9440"/>
+    <g clip-path="url(#b)"><ellipse cx="78" cy="80" rx="40" ry="34" fill="#C25A0E" opacity=".55"/></g>
+    <path d="M24 34Q30 24 42 19" stroke="#fff" stroke-opacity=".6" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="36" cy="50" rx="5.4" ry="8.6" fill="#16161c"/><ellipse cx="64" cy="50" rx="5.4" ry="8.6" fill="#16161c"/>
+    <circle cx="37.8" cy="46.6" r="2.1" fill="#fff"/><circle cx="65.8" cy="46.6" r="2.1" fill="#fff"/>
+    <path d="M42 62Q46 70 50 62Q54 70 58 62" stroke="#16161c" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

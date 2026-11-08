@@ -6,25 +6,25 @@
   const SHAPES = ['orb', 'pebble', 'blob', 'bun', 'capsule', 'bean'];
   const ROUND = { drop: 'blob', star: 'orb', cat: 'bun', octo: 'pebble', ghost: 'capsule', mushroom: 'bean' };
   const roundShape = (s) => ROUND[s] || (SHAPES.includes(s) ? s : 'orb');
-  const COLORS = ['#FF6B5B', '#4F8BFF', '#FFB020', '#2FCB7A', '#A77BFF', '#FF7AB6', '#F2F2F2', '#2DD4BF'];
+  const COLORS = ['#FF9440', '#6DA4FF', '#4AD991', '#FF7AA8', '#FFCF4A', '#3FD0D4', '#F1F1F4', '#4A4A54'];
   const EYES = ['dots', 'ovals', 'wide', 'dots', 'ovals'];
   const EXTRAS = ['none', 'antenna', 'sprout', 'spark', 'none', 'none', 'hat'];
   const MOUTHS = ['none', 'smile', 'none', 'o'];
 
   // Top of each body (for antenna/sprout), and eye line.
   const GEO = {
-    orb: { top: 16, eyeY: 54 },
-    pebble: { top: 18, eyeY: 52 },
+    orb: { top: 12, eyeY: 50 },
+    pebble: { top: 18, eyeY: 54 },
     drop: { top: 12, eyeY: 60, noExtra: true },
     ghost: { top: 17, eyeY: 48 },
-    bun: { top: 26, eyeY: 58, noExtra: true },
-    capsule: { top: 12, eyeY: 44 },
+    bun: { top: 20, eyeY: 52, noExtra: true },
+    capsule: { top: 8, eyeY: 44 },
     cat: { top: 26, eyeY: 58, noExtra: true },
     mushroom: { top: 16, eyeY: 66, noExtra: true },
     octo: { top: 12, eyeY: 46 },
     star: { top: 10, eyeY: 56, noExtra: true },
-    blob: { top: 14, eyeY: 55 },
-    bean: { top: 24, eyeY: 57 },
+    blob: { top: 8, eyeY: 48 },
+    bean: { top: 26, eyeY: 58 },
   };
 
   function hash(str) {
@@ -53,54 +53,50 @@
     return '#' + [c(n >> 16), c((n >> 8) & 255), c(n & 255)].map((v) => v.toString(16).padStart(2, '0')).join('');
   }
 
-  function bodyPath(shape, fill) {
-    switch (shape) {
-      case 'orb': return `<circle cx="50" cy="55" r="39" fill="${fill}"/>`;
-      case 'blob': return `<path d="M50 14 C74 14 90 30 90 54 C90 78 74 93 50 93 C26 93 10 78 10 54 C10 30 26 14 50 14Z" fill="${fill}"/>`;
-      case 'bean': return `<ellipse cx="50" cy="58" rx="42" ry="34" fill="${fill}"/>`;
-      case 'pebble': return `<rect x="12" y="18" width="76" height="72" rx="27" fill="${fill}"/>`;
-      case 'drop': return `<path d="M50 12 C60 26 88 42 88 63 C88 81 71 92 50 92 C29 92 12 81 12 63 C12 42 40 26 50 12Z" fill="${fill}"/>`;
-      case 'ghost': return `<path d="M16 52 C16 32 31 17 50 17 C69 17 84 32 84 52 V86 C84 90 80 91 77 88 L70 82 L62 89 C60 91 57 91 55 89 L50 84 L45 89 C43 91 40 91 38 89 L30 82 L23 88 C20 91 16 90 16 86Z" fill="${fill}"/>`;
-      case 'bun': return `<circle cx="27" cy="33" r="11" fill="${fill}"/><circle cx="73" cy="33" r="11" fill="${fill}"/><ellipse cx="50" cy="60" rx="40" ry="31" fill="${fill}"/>`;
-      case 'capsule': return `<rect x="20" y="12" width="60" height="80" rx="30" fill="${fill}"/>`;
-      case 'cat': return `<path d="M17 44 L20 14 C21 10 25 10 27 12 L42 28 Z" fill="${fill}" stroke="${fill}" stroke-width="6" stroke-linejoin="round"/><path d="M83 44 L80 14 C79 10 75 10 73 12 L58 28 Z" fill="${fill}" stroke="${fill}" stroke-width="6" stroke-linejoin="round"/><path d="M25 18 L28 32 L36 28Z M75 18 L72 32 L64 28Z" fill="#ff9fb8" opacity=".55"/><ellipse cx="50" cy="60" rx="39" ry="32" fill="${fill}"/>`;
-      case 'mushroom': return `<rect x="27" y="46" width="46" height="46" rx="18" fill="#F4EADC"/><path d="M8 50 C8 26 27 12 50 12 C73 12 92 26 92 50 C92 55 88 57 83 57 L17 57 C12 57 8 55 8 50Z" fill="${fill}"/><circle cx="30" cy="32" r="6" fill="#fff" opacity=".85"/><circle cx="58" cy="24" r="4.5" fill="#fff" opacity=".85"/><circle cx="74" cy="40" r="5" fill="#fff" opacity=".85"/>`;
-      case 'octo': return `<path d="M16 48 C16 28 31 12 50 12 C69 12 84 28 84 48 V70 C84 76 80 78 76 74 C74 84 68 90 63 82 C60 92 54 94 50 84 C46 94 40 92 37 82 C32 90 26 84 24 74 C20 78 16 76 16 70Z" fill="${fill}"/>`;
-      case 'star': return `<path d="M50 14 L60.5 37 L85 39.5 L66.5 56 L72 81 L50 68 L28 81 L33.5 56 L15 39.5 L39.5 37Z" fill="${fill}" stroke="${fill}" stroke-width="12" stroke-linejoin="round"/>`;
-    }
-    return '';
+  // The Wayzerr body: a dome standing on two feet, so the bottom edge spells a W. The six "shapes" are proportions of it.
+  const WB = { orb: [10, 90, 12, 90], blob: [14, 86, 8, 92], pebble: [8, 92, 18, 90], bean: [6, 94, 26, 90], capsule: [20, 80, 8, 92], bun: [12, 88, 20, 90] };
+  function wPath(shape) {
+    const [l, r, t, b] = WB[shape] || WB.orb, k = (r - 50) * 0.62, m = t + (b - t) * 0.52, u = t + (b - t) * 0.3;
+    return `M50 ${t}C${50 + k} ${t} ${r} ${u} ${r} ${m}V${b - 16}C${r} ${b - 7} ${r - 6} ${b} ${r - 15} ${b}C${r - 24} ${b} ${r - 28} ${b - 6} ${r - 32} ${b - 10}Q50 ${b - 16} ${l + 32} ${b - 10}C${l + 28} ${b - 6} ${l + 24} ${b} ${l + 15} ${b}C${l + 6} ${b} ${l} ${b - 7} ${l} ${b - 16}V${m}C${l} ${u} ${50 - k} ${t} 50 ${t}Z`;
   }
+  const earD = (cx, cy, r) => `M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z`;
+  const shapeDs = (shape) => (shape === 'bun' ? [earD(29, 26, 11), earD(71, 26, 11), wPath('bun')] : [wPath(shape)]);
+  function bodyPath(shape, fill) {
+    shape = WB[shape] ? shape : 'orb';
+    return shapeDs(shape).map((d) => `<path d="${d}" fill="${fill}"/>`).join('');
+  }
+  const hl = (shape) => { const [l, , t] = WB[shape] || WB.orb, y = shape === 'bun' ? t + 4 : t; return `M${l + 14} ${y + 22}Q${l + 20} ${y + 12} ${l + 32} ${y + 7}`; };
 
   // Each eye = socket (optional) + pupil group, so pupils can move independently.
   function eyesSvg(style, y, ink) {
     const eye = (x, side) => {
       let socket = '', pupil = '';
       if (style === 'wide') {
-        socket = `<circle cx="${x}" cy="${y}" r="9.2" fill="#fff"/>`;
-        pupil = `<circle cx="${x}" cy="${y + 0.6}" r="4.8" fill="${ink}"/><circle cx="${x + 1.6}" cy="${y - 1.2}" r="1.6" fill="#fff"/><circle cx="${x - 1.7}" cy="${y + 2.4}" r=".75" fill="#fff" opacity=".7"/>`;
+        socket = `<circle cx="${x}" cy="${y}" r="9.4" fill="#fff"/>`;
+        pupil = `<circle cx="${x + 0.6}" cy="${y + 0.6}" r="5" fill="#16161c"/><circle cx="${x + 2}" cy="${y - 1.4}" r="1.6" fill="#fff"/>`;
       } else if (style === 'ovals') {
-        pupil = `<ellipse cx="${x}" cy="${y}" rx="4.8" ry="7.8" fill="${ink}"/><ellipse cx="${x + 1.5}" cy="${y - 3}" rx="1.5" ry="2.2" fill="#fff" opacity=".92"/><circle cx="${x - 1.6}" cy="${y + 3.6}" r=".8" fill="#fff" opacity=".6"/>`;
+        pupil = `<ellipse cx="${x}" cy="${y}" rx="5.2" ry="8.4" fill="${ink}"/><circle cx="${x + 1.7}" cy="${y - 3.2}" r="2" fill="#fff"/>`;
+      } else if (style === 'happy') {
+        pupil = `<path d="M${x - 7} ${y + 4}Q${x} ${y - 7} ${x + 7} ${y + 4}" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+      } else if (style === 'sleepy') {
+        pupil = `<path d="M${x - 7} ${y - 1}Q${x} ${y + 7} ${x + 7} ${y - 1}" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
       } else {
-        pupil = `<circle cx="${x}" cy="${y}" r="6.4" fill="${ink}"/><circle cx="${x + 1.9}" cy="${y - 2.1}" r="2.1" fill="#fff" opacity=".95"/><circle cx="${x - 2.2}" cy="${y + 2.6}" r=".9" fill="#fff" opacity=".6"/>`;
+        pupil = `<circle cx="${x}" cy="${y}" r="7" fill="${ink}"/><circle cx="${x + 2}" cy="${y - 2.4}" r="2.2" fill="#fff"/>`;
       }
       return `<g class="c-eye c-eye-${side}">${socket}<g class="c-pupil">${pupil}</g></g>`;
     };
-    return eye(38, 'l') + eye(62, 'r');
+    return eye(36, 'l') + eye(64, 'r');
   }
 
   // ---------- Accessories: separate items you can put on any bot ----------
   // Where they sit on each shape: hat line (y), hat scale (s), side of the head (w), chest (b).
   // The real outline of each body (same numbers as bodyPath), so accessories sit ON the head.
   const rr = (x, y, x0, y0, w, h, r) => { const cx = Math.min(Math.max(x, x0 + r), x0 + w - r), cy = Math.min(Math.max(y, y0 + r), y0 + h - r); return (x - cx) ** 2 + (y - cy) ** 2 <= r * r; };
-  const INSIDE = {
-    orb: (x, y) => (x - 50) ** 2 + (y - 55) ** 2 <= 39 * 39,
-    pebble: (x, y) => rr(x, y, 12, 18, 76, 72, 27),
-    blob: (x, y) => Math.abs((x - 50) / 40) ** 2.3 + Math.abs((y - 53.5) / 39.5) ** 2.3 <= 1,
-    bun: (x, y) => ((x - 50) / 40) ** 2 + ((y - 60) / 31) ** 2 <= 1,
-    capsule: (x, y) => rr(x, y, 20, 12, 60, 80, 30),
-    bean: (x, y) => ((x - 50) / 42) ** 2 + ((y - 58) / 34) ** 2 <= 1,
-  };
-  const CENTER = { orb: [50, 55], pebble: [50, 54], blob: [50, 53.5], bun: [50, 60], capsule: [50, 52], bean: [50, 58] };
+  const _ctx = document.createElement('canvas').getContext('2d');
+  const _paths = {};
+  const INSIDE = {};
+  Object.keys(WB).forEach((k) => { _paths[k] = shapeDs(k).map((d) => new Path2D(d)); INSIDE[k] = (x, y) => _paths[k].some((p) => _ctx.isPointInPath(p, x, y)); });
+  const CENTER = { orb: [50, 52], pebble: [50, 56], blob: [50, 50], bun: [50, 56], capsule: [50, 50], bean: [50, 58] };
   const geoCache = {};
   function geo(shape) {
     if (geoCache[shape]) return geoCache[shape];
@@ -253,9 +249,9 @@
   }
 
   function mouthSvg(m, y, ink) {
-    if (m === 'smile') return `<path d="M45 ${y + 12} q5 4.5 10 0" stroke="${ink}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
-    if (m === 'o') return `<ellipse cx="50" cy="${y + 13}" rx="2.6" ry="2.2" fill="${ink}"/>`;
-    return '';
+    if (m === 'o') return `<ellipse cx="50" cy="${y + 15}" rx="3.2" ry="3.6" fill="${ink}"/>`;
+    // the Wayzerr "w" smile
+    return `<path d="M42 ${y + 12}Q46 ${y + 20} 50 ${y + 12}Q54 ${y + 20} 58 ${y + 12}" stroke="${ink}" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
   }
 
 
@@ -277,7 +273,8 @@
     ch = { ...ch, shape: roundShape(ch.shape), extra: ch.extra === 'bow' ? 'none' : ch.extra };
     const size = opts.size || 36;
     const g = GEO[ch.shape] || GEO.orb;
-    const ink = '#161616';
+    const lum = (() => { const n = parseInt(ch.color.slice(1), 16); return 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255); })();
+    const ink = lum < 95 ? '#ffffff' : '#16161c';
     const id = 'c' + ++uid;
     const delay = -((hash(ch.color + ch.shape + ch.eyes) % 5000) / 1000).toFixed(2);
     const state = opts.state ? ' is-' + opts.state : '';
@@ -290,39 +287,19 @@
       <span class="c-trail c-trail-a"></span><span class="c-trail c-trail-b"></span>
       <span class="c-3d"><span class="c-slab"></span>
       <svg class="c-front" style="overflow:visible" viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true">
-        <defs>
-          <radialGradient id="${id}" cx="34%" cy="26%" r="88%">
-            <stop offset="0" stop-color="${shade(base, 0.38)}"/>
-            <stop offset=".2" stop-color="${shade(base, 0.18)}"/>
-            <stop offset=".48" stop-color="${shade(base, 0.0)}"/>
-            <stop offset=".78" stop-color="${shade(base, -0.19)}"/>
-            <stop offset="1" stop-color="${shade(base, -0.36)}"/>
-          </radialGradient>
-          <radialGradient id="${id}r" cx="78%" cy="86%" r="45%"><stop offset="0" stop-color="${shade(base, 0.34)}" stop-opacity=".7"/><stop offset="1" stop-color="${shade(base, 0.34)}" stop-opacity="0"/></radialGradient>
-          <radialGradient id="${id}b" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff5a7a" stop-opacity=".55"/><stop offset="1" stop-color="#ff5a7a" stop-opacity="0"/></radialGradient>
-          <radialGradient id="${id}h" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-          <radialGradient id="${id}o" cx="50%" cy="100%" r="70%"><stop offset="0" stop-color="#000" stop-opacity=".35"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
-          <linearGradient id="${id}v" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".6"/><stop offset=".42" stop-color="#fff" stop-opacity="0"/><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></linearGradient>
-          <radialGradient id="${id}s" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".5"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
-          <clipPath id="${id}k">${bodyPath(ch.shape, '#000')}</clipPath>
-        </defs>
-        <ellipse class="c-ground" cx="50" cy="95" rx="34" ry="6" fill="url(#${id}s)"/>
+        <defs><clipPath id="${id}k">${bodyPath(ch.shape, '#000')}</clipPath></defs>
+        <ellipse class="c-ground" cx="50" cy="95" rx="32" ry="4.5" fill="#000" opacity=".28"/>
         <g class="c-body"><g class="c-turn">
           ${opts.point != null ? armSvg(opts.point, base, id) : ''}
-          ${bodyPath(ch.shape, `url(#${id})`)}
+          ${bodyPath(ch.shape, base)}
           <g clip-path="url(#${id}k)">
-            <ellipse cx="50" cy="96" rx="46" ry="26" fill="url(#${id}o)"/>
-            ${opts.flat ? '' : `<ellipse cx="74" cy="84" rx="26" ry="16" fill="url(#${id}r)"/>
-            <ellipse class="c-shine" cx="35" cy="29" rx="15" ry="9.5" fill="url(#${id}h)" transform="rotate(-24 35 29)"/>
-            <circle cx="29" cy="25" r="3" fill="#fff" opacity=".75"/>
-            <ellipse cx="70" cy="30" rx="4" ry="2.2" fill="#fff" opacity=".22" transform="rotate(20 70 30)"/>`}
-            ${bodyPath(ch.shape, 'none').replace('fill="none"', `fill="none" stroke="url(#${id}v)" stroke-width="6"`)}
+            <ellipse cx="78" cy="80" rx="40" ry="34" fill="${shade(base, -0.2)}" opacity=".55"/>
+            <path class="c-shine" d="${hl(ch.shape)}" stroke="#fff" stroke-opacity=".55" stroke-width="4" fill="none" stroke-linecap="round"/>
             <ellipse class="c-shade" cx="50" cy="55" rx="46" ry="46" fill="#000" opacity="0"/>
           </g>
           <g class="c-face"${opts.look ? ` transform="translate(${(opts.look[0] * 3).toFixed(2)} ${(opts.look[1] * 2).toFixed(2)})"` : ''}>
             <g class="c-eyes"${opts.look ? ` data-look="1"` : ''}>${opts.look ? eyesSvg(ch.eyes, g.eyeY, ink).replace(/<g class="c-pupil">/g, `<g class="c-pupil" transform="translate(${(opts.look[0] * 2.4).toFixed(2)} ${(opts.look[1] * 2.4).toFixed(2)})">`) : eyesSvg(ch.eyes, g.eyeY, ink)}</g>
             ${mouthSvg(ch.mouth, g.eyeY, ink)}
-            <ellipse cx="29" cy="${g.eyeY + 10}" rx="6.5" ry="4" fill="url(#${id}b)" opacity="${ch.mouth !== 'none' ? '.9' : '.6'}"/><ellipse cx="71" cy="${g.eyeY + 10}" rx="6.5" ry="4" fill="url(#${id}b)" opacity="${ch.mouth !== 'none' ? '.9' : '.6'}"/>
             ${FACEWEAR.has(ch.acc) ? accSvg(ch.acc, roundShape(ch.shape), g.eyeY, id) : ''}
           </g>
           ${ch.acc && !FACEWEAR.has(ch.acc) ? accSvg(ch.acc, roundShape(ch.shape), g.eyeY, id) : ''}

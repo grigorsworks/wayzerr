@@ -696,7 +696,7 @@ async function runTurn({ store, mcp, ctx, llm, persona, userText, attachments, f
       for (const { call, name, args } of parsed) {
         if (hooks.signal?.aborted) throw new StopError();
         const d = describeTool(name, args);
-        if (!early.has(call)) hooks.onEvent({ type: 'status', activity: d.activity, text: d.text, browser: /^(browser|computer)_/.test(name) });
+        if (!early.has(call)) hooks.onEvent({ type: 'status', activity: d.activity, text: d.text, detail: callDetail(name, args), browser: /^(browser|computer)_/.test(name) });
         let result;
         if (name === 'tools_load') {
           // Add the asked-for tools right away (from the next step on) and hand over their instructions.
@@ -1107,6 +1107,18 @@ async function runAccountTurn({ store, ctx, llm, persona, chat, toolEntries, byN
   } finally {
     turn.dispose();
   }
+}
+
+// The exact call a step makes (tool name + code or inputs), for the grey work log. Never anything that looks like a secret.
+function callDetail(name, args) {
+  try {
+    if (/^logins_|vault|card/i.test(name)) return '';
+    const a = args && typeof args === 'object' ? args : {};
+    const code = a.code || a.command || a.script || a.cmd;
+    const body = typeof code === 'string' ? code : JSON.stringify(a, null, 2);
+    if (/pass(word)?|secret|token|cvc|cvv|api[_-]?key/i.test(body)) return '';
+    return `${name}\n${body}`.slice(0, 1600);
+  } catch (_) { return ''; }
 }
 
 // One-line "what I'm doing" messages, used when the bot starts a step without saying so.

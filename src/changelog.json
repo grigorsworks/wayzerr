@@ -1,4 +1,48 @@
 {
+  "1.3.41": [
+    "A tidier sidebar: the search box and + button now sit at the very top next to the window buttons, the collapsed sidebar keeps the + button, the close button and your bots in one steady column, each bot has a bigger square box so it can jump without leaving it, and the word Bots is centered."
+  ],
+  "1.3.40": [
+    "Fix: your bots and chats no longer disappear. If Wayzerr cannot read its saved data for any reason, it now keeps the original file, opens the last good copy and tells you, instead of starting empty and saving over your bots.",
+    "A safety copy of your bots and chats is now made just before every update, and a copy that still has your bots can no longer be replaced by an empty one. If your bots list is empty but a copy still has them, Wayzerr offers to bring them back.",
+    "Sharper corners again: buttons, cards, fields and chat bubbles have small rounded corners like before."
+  ],
+  "1.3.39": [
+    "New Wayzerr logo and a new look for your bots.",
+    "A calmer, Claude-style look: warmer colours, a darker theme, and a sidebar that collapses to just the + button, your bots and your profile.",
+    "While a bot works, click “Working…” to see what it is doing in quiet grey text, with the exact code or tool call for each step.",
+    "Fix: the Stop button now always stops a bot, and the “thinking” spinner no longer gets stuck.",
+    "Gmail, Google Classroom, Calendar, Drive, Docs, Sheets and Slides now show their own logos instead of the plain Google “G”."
+  ],
+  "1.3.38": [
+    "If something goes wrong while deleting your account, the message now shows the right contact address, info@wayzerr.com.",
+    "Small behind-the-scenes updates."
+  ],
+  "1.3.37": [
+    "A roomier sidebar: it is a little wider, and Search now sits on the same line as the + button.",
+    "“Automations” is now “Schedule” with a calendar icon, and Apps has a proper puzzle-piece icon.",
+    "The button that collapses the bot list now stays in exactly the same place, open or collapsed.",
+    "The model picker moved into the message box. The chat also got a few touches of its own: the bot’s tag under its name, a small corner on each bubble and a little time chip.",
+    "There is now a Privacy Policy, in English and German. Read it inside the app or in your browser from Settings → General, and from the sign-up and sign-in screens.",
+    "Safer saving: your bots, chats and settings are saved a moment after every change, and written to disk straight away when you quit, restart or shut down the computer."
+  ],
+  "1.3.36": [
+    "The original round bots are back.",
+    "The chat uses the full width of the window again.",
+    "A tidier sidebar: the collapse button moved next to the Bots heading, away from the window buttons.",
+    "Settings has a new \"Open in browser\" button for the Terms of Service."
+  ],
+  "1.3.35": [
+    "A new, cleaner look: flat dark grey (and a matching light theme), rounded chat bubbles, a pill-shaped message box and a simpler sidebar with Search, Automations, Apps and Settings.",
+    "Your bots are now little arrow characters with a face.",
+    "Signing up only asks for your age, and the Terms of Service open inside the app, so the link always works.",
+    "Fixes: the message box in a new chat no longer stacks its buttons, and menus open on whichever side has room."
+  ],
+  "1.3.34": [
+    "A cleaner, flatter look: the dark theme is now plain grey instead of purple-tinted, and panels no longer use gradients.",
+    "Sharper corners: buttons, cards, chips, inputs and message bubbles now have small rounded corners instead of big round ones.",
+    "The Settings button in the sidebar is wider and has room for its text, next to the account button."
+  ],
   "1.3.32": [
     "Safer updates: Wayzerr now checks that a downloaded update is the exact file that was published, and that it is validly signed, before installing it.",
     "Sites that a bot visits in its browser can no longer ask for your camera, microphone, location or notifications.",

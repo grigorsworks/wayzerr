@@ -79,11 +79,13 @@ const I = {
   connectors: '<circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="4" r="1.8"/><circle cx="19.5" cy="16.5" r="1.8"/><circle cx="4.5" cy="16.5" r="1.8"/><path d="M12 5.8v3.6M13.9 13.6l3.9 2.1M10.1 13.6l-3.9 2.1"/>',
   phone: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
-  puzzle: '<path d="M9 4a2 2 0 0 1 4 0v2h4v4h-2a2 2 0 0 0 0 4h2v4h-4v-2a2 2 0 0 0-4 0v2H5v-4h2a2 2 0 0 0 0-4H5V6h4z"/>',
+  puzzle: '<path d="M6 5h4a2.2 2.2 0 1 1 4 0h4a1 1 0 0 1 1 1v4a2.2 2.2 0 1 1 0 4v4a1 1 0 0 1-1 1h-4a2.2 2.2 0 1 0-4 0H6a1 1 0 0 1-1-1v-4a2.2 2.2 0 1 0 0-4V6a1 1 0 0 1 1-1z"/>',
   download: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
   cookie: '<path d="M12 3a9 9 0 1 0 9 9 3 3 0 0 1-3-3 3 3 0 0 1-3-3 3 3 0 0 1-3-3z"/><circle cx="9" cy="10" r="1"/><circle cx="14" cy="15" r="1"/><circle cx="9" cy="15" r="1"/>',
   key: '<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l3 3M15 8l2 2"/>',
   finger: '<path d="M6.5 6.5A8 8 0 0 1 20 12v1M4 10a8 8 0 0 1 .8-2.4M4 14v-2M8 20a12 12 0 0 1-1.6-4M12 12v2a8 8 0 0 0 1.5 5M8.4 9.5A4 4 0 0 1 16 12v2.5M17.5 19a12 12 0 0 0 .5-2.5"/>',
+  bolt: '<path d="M13 3 5.5 13.5H11L10 21l7.5-10.5H12z"/>',
+  paperclip: '<path d="m21.4 11.05-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/>',
   group: '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 11a3 3 0 1 0 0-6M21 20a6 6 0 0 0-4-5.6"/>',
 };
 const icon = (n) => `<svg class="i" viewBox="0 0 24 24">${I[n]}</svg>`;
@@ -98,8 +100,8 @@ function siteLogo(key, cls = '', letter = '?') {
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const bots = () => S.personas;
-const active = () => S.personas.find((p) => p.id === S.activePersonaId) || null;
+const bots = () => (S ? S.personas : []); // S is empty for a moment at start-up (the first state is still on its way)
+const active = () => (S ? S.personas.find((p) => p.id === S.activePersonaId) || null : null);
 const tagOf = (p) => p.tag ?? p.tagline ?? '';
 const descOf = (p) => p.description ?? p.personality ?? '';
 const charOf = (p) => p.character || makeCharacter(p.id + p.name);
@@ -185,6 +187,9 @@ function fmtTime(ts) {
 // ---------- light / dark ----------
 const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
 function isLight() { const t = S?.settings?.theme || 'system'; return t === 'light' || (t === 'system' && !darkMQ.matches); }
+// In full screen there are no window buttons, so the top row can use the whole width.
+function syncFull() { document.documentElement.classList.toggle('fs', innerHeight >= screen.height - 2 && innerWidth >= screen.width - 2); }
+addEventListener('resize', syncFull); syncFull();
 function applyTheme() { document.documentElement.classList.toggle('light', isLight()); }
 darkMQ.addEventListener?.('change', () => { applyTheme(); if (typeof render === 'function' && S) render(); });
 
@@ -215,6 +220,7 @@ function render() {
   if (needsSetup) { mounted = null; return renderSetup(); }
   maybeTour();
   renderSidebar();
+  syncNav();
   updateConnBadge();
   renderBrowserState();
   // Group chats are just bots talking — no browser screen there.
@@ -249,6 +255,16 @@ function sortedBots() {
   });
 }
 // Keyed update: rows (and their characters) are reused, so animations never jump.
+// "now", "5m", "2h", "Mon", "Nov 3": a short time for the bot list
+function relTime(ts) {
+  if (!ts) return '';
+  const d = Date.now() - ts;
+  if (d < 60e3) return 'now';
+  if (d < 3600e3) return Math.floor(d / 60e3) + 'm';
+  if (d < 86400e3) return Math.floor(d / 3600e3) + 'h';
+  if (d < 7 * 86400e3) return new Date(ts).toLocaleDateString(undefined, { weekday: 'short' });
+  return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
 function renderSidebar() {
   const list = $('#bot-list');
   const sorted = sortedBots();
@@ -270,7 +286,7 @@ function renderSidebar() {
       fresh.dataset.id = p.id;
       fresh.dataset.look = look;
       fresh.title = p.name;
-      fresh.innerHTML = `${charEl(p, 40, b?.activity || 'none')}<div class="meta"><div class="top"><span class="nm">${esc(p.name)}</span>${isPinned(p.id) ? `<span class="pin-ic" title="Pinned">${icon('pin')}</span>` : ''}${tagOf(p) ? `<span class="chip">${esc(tagOf(p))}</span>` : ''}</div><div class="pv"></div></div><span class="row-more" role="button" tabindex="0" title="Edit or delete" aria-label="Options for ${esc(p.name)}">${icon('more')}</span>`;
+      fresh.innerHTML = `${charEl(p, 38, b?.activity || 'none')}<div class="meta"><div class="top"><span class="nm">${esc(p.name)}</span>${isPinned(p.id) ? `<span class="pin-ic" title="Pinned">${icon('pin')}</span>` : ''}${tagOf(p) ? `<span class="chip">${esc(tagOf(p))}</span>` : ''}<span class="when"></span></div><div class="pv"></div></div><span class="row-more" role="button" tabindex="0" title="Edit or delete" aria-label="Options for ${esc(p.name)}">${icon('more')}</span>`;
       fresh.onclick = () => openChat(p.id);
       const dots = fresh.querySelector('.row-more');
       const menu = (e) => { e.preventDefault(); e.stopPropagation(); rowMenu(p, dots); };
@@ -290,6 +306,7 @@ function renderSidebar() {
     const text = b ? liveLabel(p, b) + '…' : last ? (last.from ? last.from.name + ': ' : last.role === 'user' ? 'You: ' : '') + (last.image ? '🖼️ Picture' : plain(last.content) || (last.attachments?.length ? '📎 Attachment' : '')) : descOf(p) || 'New bot';
     const dr = !b && !(p.id === S.activePersonaId && view === 'chat') ? getDraft(p.id) : '';
     const shown = dr ? 'Draft: ' + dr.replace(/\s+/g, ' ').trim() : text;
+    const wh = row.querySelector('.when'); if (wh) { const t = b ? '' : last ? relTime(last.ts) : ''; if (wh.textContent !== t) wh.textContent = t; }
     pv.classList.toggle('draft', !!dr);
     if (pv.textContent !== shown) pv.textContent = shown;
     pv.classList.toggle('live', !!b);
@@ -320,13 +337,34 @@ function openChat(id) {
 }
 
 // ---------- terms (before first use, and again when the Terms change) ----------
-const LEGAL_URL = 'https://wayzerr.com/';
 const MIN_AGE = 16;
-const legalLinks = () => `<a href="#" data-legal="terms">Terms of Service</a>`; // add the Privacy Policy link here when that page is published
+const LEGAL = { terms: { title: 'Terms of Service', url: 'https://wayzerr.com/terms' }, privacy: { title: 'Privacy Policy', url: 'https://wayzerr.com/privacy' } };
+const openLegalInBrowser = (name = 'terms') => api.openExternal((LEGAL[name] || LEGAL.terms).url).catch(() => toast('Couldn’t open your browser.', true));
+const legalLinks = () => `<a href="#" data-legal="terms">Terms of Service</a> · <a href="#" data-legal="privacy">Privacy Policy</a>`;
 document.addEventListener('click', (e) => {
   const a = e.target.closest && e.target.closest('[data-legal]');
-  if (a) { e.preventDefault(); api.openExternal(LEGAL_URL + a.dataset.legal).catch(() => {}); }
+  if (a) { e.preventDefault(); showLegal(a.dataset.legal); }
 });
+// The Terms ship inside the app, so the link always works (offline too) and never depends on the website being up.
+async function showLegal(name = 'terms') {
+  if (!LEGAL[name]) name = 'terms';
+  const o = modal(`<h3>${LEGAL[name].title}</h3><div class="lg-doc" id="lg-doc" tabindex="0"><p class="hint">Loading…</p></div><div class="modal-actions"><button class="btn" id="lg-open" type="button">Open in browser</button><button class="btn primary" data-close>Close</button></div>`, 'lg-modal');
+  o.querySelector('#lg-open').onclick = () => openLegalInBrowser(name);
+  const box = o.querySelector('#lg-doc');
+  try {
+    const doc = new DOMParser().parseFromString(await api.legalDoc(name), 'text/html');
+    const main = doc.querySelector('main') || doc.body;
+    main.querySelectorAll('nav, h1, script, style, link, iframe, object, embed, form').forEach((n) => n.remove());
+    main.querySelectorAll('*').forEach((el) => {
+      [...el.attributes].forEach((at) => { if (/^on/i.test(at.name) || at.name === 'style') el.removeAttribute(at.name); });
+      if (el.tagName === 'A') { const h = el.getAttribute('href') || ''; el.setAttribute('href', /^https?:|^mailto:/i.test(h) ? h : h.startsWith('/') ? 'https://wayzerr.com' + h : '#'); }
+    });
+    box.innerHTML = main.innerHTML;
+    box.querySelectorAll('a').forEach((a) => (a.onclick = (e) => { e.preventDefault(); const h = a.getAttribute('href'); if (/^https?:/i.test(h)) api.openExternal(h).catch(() => {}); }));
+  } catch (e) {
+    box.innerHTML = `<p class="hint">Couldn’t open this document on this computer. ${esc(e.message || '')}</p>`;
+  }
+}
 function renderTerms() {
   if ($('#main .tm-card')) return;
   $('#main').dataset.lg = '';
@@ -334,33 +372,33 @@ function renderTerms() {
     <div class="setup"><div class="setup-card lg-card tm-card">
       <div class="lg-brand"><img class="lg-dark" src="../icon.png" alt="" width="26" height="26"><img class="lg-light" src="../icon-light.png" alt="" width="26" height="26"><span>Wayzerr</span></div>
       <h1>Before you start</h1>
-      <p class="lead">Please read and agree to how Wayzerr works.</p>
+      <p class="lead">Here is how Wayzerr works.</p>
       <ul class="tm-list">
         <li><b>Bots act for you.</b> They can browse, use your connected apps and, if you allow it, send, buy, post or delete things. You are responsible for what they do, so check what they ask to do before you approve it.</li>
         <li><b>AI can be wrong.</b> Don’t rely on answers for medical, legal, financial or safety decisions without checking.</li>
         <li><b>Your data goes where you send it.</b> Chats and logins stay on this computer. Messages go to the AI you pick, and your account is only your email address.</li>
       </ul>
-      <label class="f" for="tm-age">1. How old are you?</label>
+      <label class="f" for="tm-age">How old are you?</label>
       <input id="tm-age" type="number" inputmode="numeric" min="1" max="120" autocomplete="off" />
       <div class="lg-err tm-agerr" role="alert"></div>
-      <label class="tm-agree"><input type="checkbox" id="tm-ok" disabled><span>2. I agree to the ${legalLinks()}.</span></label>
-      <div class="lg-row"><button class="btn ghost" id="tm-quit" type="button">Quit</button><button class="btn primary" id="tm-go" type="button" disabled>Agree and continue</button></div>
+      <p class="lg-fine tm-fine">By continuing you accept the <a href="#" data-legal="terms">Terms of Service</a> and acknowledge the <a href="#" data-legal="privacy">Privacy Policy</a>.</p>
+      <div class="lg-row"><button class="btn ghost" id="tm-quit" type="button">Quit</button><button class="btn primary" id="tm-go" type="button" disabled>Continue</button></div>
       <div class="lg-err" role="alert"></div>
     </div></div>`;
-  const ok = $('#tm-ok'), go = $('#tm-go'), age = $('#tm-age');
+  const go = $('#tm-go'), age = $('#tm-age');
   const ageOk = () => { const n = parseInt(age.value, 10); return n >= MIN_AGE && n <= 120; };
   const update = () => {
     const n = parseInt(age.value, 10);
     $('.tm-agerr').textContent = age.value !== '' && n < MIN_AGE ? `Sorry, Wayzerr is for people aged ${MIN_AGE} and over.` : '';
-    ok.disabled = !ageOk(); if (ok.disabled) ok.checked = false;
-    go.disabled = !(ageOk() && ok.checked);
+    go.disabled = !ageOk();
   };
-  age.oninput = update; ok.onchange = update;
+  age.oninput = update;
+  age.onkeydown = (e) => { if (e.key === 'Enter' && ageOk()) { e.preventDefault(); go.click(); } };
   $('#tm-quit').onclick = () => api.quitApp().catch(() => {});
   go.onclick = async () => {
-    if (!ok.checked || !ageOk()) return; // only the yes/no is kept, never the exact age
+    if (!ageOk()) return; // only the yes/no is kept, never the exact age
     go.disabled = true;
-    try { S = await api.acceptTerms(); render(); } catch (e) { go.disabled = false; $('.tm-card .lg-err').textContent = e.message || 'Something went wrong. Try again.'; }
+    try { S = await api.acceptTerms(); render(); } catch (e) { go.disabled = false; $('.tm-card .lg-err:last-child').textContent = e.message || 'Something went wrong. Try again.'; }
   };
   age.focus();
 }
@@ -680,7 +718,7 @@ function renderNew() {
     <div class="to-bar view-fade"><span class="lbl">To:</span><input id="to-q" placeholder="Search or create Bots" autocomplete="off" /><button class="icon-btn" id="to-close" title="Close">${icon('x')}</button></div>
     <div id="to-list-wrap"></div>
     <div style="flex:1"></div>
-    <div class="composer"><div class="composer-inner"><button class="c-btn c-plus" disabled aria-label="Add photos and files">${icon('plus')}</button><textarea rows="1" placeholder="Message Bot" disabled></textarea></div></div>`;
+    <div class="composer"><div class="composer-inner"><div class="c-row"><button class="c-btn c-plus" disabled aria-label="Add photos and files">${icon('paperclip')}</button><textarea rows="1" placeholder="Message Bot" disabled></textarea></div></div></div>`;
   let sel = 0;
   const draw = () => {
     const q = $('#to-q').value.trim().toLowerCase();
@@ -743,13 +781,13 @@ function mountChat(p) {
   $('#main').innerHTML = `
     <div class="chat-head"><div class="head-fade"></div>
       <button class="bot-pill" id="bot-pill"></button>
-      <div class="head-right">${guideBtnHtml()}${p.group ? '' : `<button class="icon-btn ${screenOpen ? 'on' : ''}" id="btn-screen" title="Show screen">${icon('monitor')}</button>`}</div>
+      <div class="head-right">${guideBtnHtml()}${p.group ? '' : `<button class="icon-btn ${screenOpen ? 'on' : ''}" id="btn-screen" title="Show screen">${icon('monitor')}</button>`}<button class="icon-btn" id="btn-more" title="More: edit, pin, compact or delete this bot">${icon('more')}</button></div>
     </div>
     <div class="messages" id="messages" role="region" aria-label="Conversation" tabindex="0"><div class="msg-col" id="msg-col"></div></div>
     <div class="composer" id="composer"><div class="composer-inner">
       <div class="tray hidden" id="tray"></div>
       <div class="c-row">
-        <button class="c-btn c-plus" id="btn-plus" title="Add photos, files and more">${icon('plus')}</button>
+        <button class="c-btn c-plus" id="btn-plus" title="Add photos, files and more">${icon('paperclip')}</button>
         <textarea id="composer-input" rows="1" placeholder="${p.group ? `Message ${esc(p.name)} — @name to ask one bot` : `Message ${esc(p.name)}`}"></textarea>
         <button class="model-chip" id="model-chip" title="Switch model"></button>
         <button class="c-btn c-mic" id="mic" title="Talk instead of typing" aria-label="Speech to text">${icon('mic')}</button>
@@ -793,7 +831,7 @@ function mountChat(p) {
   comp.ondragleave = (e) => { if (!comp.contains(e.relatedTarget)) comp.classList.remove('dragging'); };
   comp.ondrop = (e) => { e.preventDefault(); comp.classList.remove('dragging'); addFiles(p, [...e.dataTransfer.files]); };
   $('#file-input').onchange = (e) => { addFiles(p, [...e.target.files]); e.target.value = ''; };
-  $('#send').onclick = () => (busy.has(p.id) ? api.stopTurn(p.id) : send(p));
+  $('#send').onclick = () => (busy.has(p.id) ? stopBot(p) : send(p));
   $('#bot-pill').onclick = (e) => openProfile(p, e.currentTarget);
   if ($('#btn-screen')) $('#btn-screen').onclick = () => setScreen(!screenOpen);
   $('#btn-plus').onclick = (e) => openMenu(e.currentTarget, [
@@ -806,6 +844,7 @@ function mountChat(p) {
     ...(!p.group && Object.keys(p.cliSessions || {}).some((k) => !k.includes('@') && !k.includes('#')) ? [['external', 'Open cloud chat', async () => { try { await api.openCloudChat(p.id); toast('Opened in Terminal — this is the same chat, in the AI’s own app'); } catch (e) { toast(e.message, true); } }]] : []),
   ], 'up');
   $('#model-chip').onclick = (e) => openModelPicker(p, e.currentTarget);
+  $('#btn-more').onclick = (e) => rowMenu(p, e.currentTarget);
   $('#mic').onclick = () => toggleVoice(p);
   if ($('#talk-btn')) $('#talk-btn').onclick = () => startTalk(p);
   updateModelChip(p);
@@ -971,7 +1010,7 @@ function talkMain(t) {
   if (talk !== t) return;
   if (t.state === 'hearing') t.mic.flush();
   else if (t.state === 'speaking') WzTalk.stopSpeaking();
-  else if (t.state === 'thinking') api.stopTurn(t.p.id);
+  else if (t.state === 'thinking') stopBot(t.p);
 }
 async function talkPhrase(t, ph) {
   if (talk !== t || t.working) return;
@@ -1348,9 +1387,10 @@ function updateHead(p) {
   if (!pill) return;
   const state = busy.get(p.id)?.activity || null;
   const rec = compactAdvised(p);
-  const look = p.id + JSON.stringify([p.name, charOf(p), rec]);
+  const sub = (tagOf(p) || descOf(p) || '').replace(/\s+/g, ' ').trim().slice(0, 90);
+  const look = p.id + JSON.stringify([p.name, charOf(p), rec, sub]);
   if (pill.dataset.look !== look) {
-    pill.innerHTML = `${charEl(p, 28, state || 'none')}${esc(p.name)}${rec ? '<i class="advise-dot" title="Compacting this chat is recommended — click the name, then Compact chat"></i>' : ''}`;
+    pill.innerHTML = `${charEl(p, 30, state || 'none')}<span class="bp-text"><span class="bp-name">${esc(p.name)}</span>${sub ? `<span class="bp-sub">${esc(sub)}</span>` : ''}</span>${rec ? '<i class="advise-dot" title="Compacting this chat is recommended — click the name, then Compact chat"></i>' : ''}`;
     pill.dataset.look = look;
   } else window.Characters.setState(pill.querySelector('.char'), state);
 }
@@ -1852,7 +1892,7 @@ document.addEventListener('change', (e) => {
   const cb = e.target.closest('.cl-check input');
   if (cb) cb.closest('.cl-save').querySelector('select').style.visibility = cb.checked ? 'visible' : 'hidden';
 });
-addEventListener('focus', () => { const p = active(); if (p && view === 'chat') checkAppCards(p); });
+addEventListener('focus', () => { if (!S) return; const p = active(); if (p && view === 'chat') checkAppCards(p); });
 
 function updateLive(p) {
   const col = $('#msg-col');
@@ -1873,7 +1913,7 @@ function updateLive(p) {
   else window.Characters.setState(live.querySelector('.char'), state);
   $('#live-text').textContent = liveLabel(p, b) + '…';
   if (!live.dataset.think) {
-    live.dataset.think = '1'; live.setAttribute('role', 'button'); live.tabIndex = 0; live.title = 'Click to see what it is thinking';
+    live.dataset.think = '1'; live.setAttribute('role', 'button'); live.tabIndex = 0; live.title = 'Show what it is doing';
     live.insertAdjacentHTML('beforeend', '<i class="chev" aria-hidden="true"></i>');
     const tog = () => { thinkOpen = !thinkOpen; drawThink(active()); };
     live.onclick = tog; live.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tog(); } };
@@ -1894,19 +1934,30 @@ let thinkOpen = false;
 function noteThink(id, patch) {
   const t = thinks.get(id) || { done: [], cur: '', steps: [] };
   if (patch.thinking !== undefined) { if (patch.thinking.length < t.cur.length && t.cur) t.done.push(t.cur); if (patch.thinking) t.cur = patch.thinking; }
-  if (patch.step && t.steps[t.steps.length - 1] !== patch.step) t.steps.push(patch.step);
+  if (patch.step && t.steps[t.steps.length - 1]?.text !== patch.step) t.steps.push({ text: patch.step, detail: patch.detail || '', at: Date.now() });
   if (t.steps.length > 40) t.steps.splice(0, t.steps.length - 40);
   thinks.set(id, t);
 }
+const wlOpen = new Set(); // which "show the code" rows are open, so they stay open while the log updates
 function drawThink(p) {
   const col = $('#msg-col'); if (!col || !p) return;
   let el = $('#live-think');
   if (!thinkOpen || !busy.get(p.id)) { el?.remove(); return; }
   const t = thinks.get(p.id) || { done: [], cur: '', steps: [] };
   const reasoning = [...t.done, t.cur].filter(Boolean).join('\n\n');
-  const html = `<div class="think-h">What ${esc(p.name)} is thinking</div>${reasoning ? `<div class="think-t">${esc(reasoning)}</div>` : `<div class="think-n">This AI doesn’t share its thoughts word for word. Here is what ${esc(p.name)} has done so far:</div>`}${t.steps.length ? `<ul class="think-s">${t.steps.slice(-8).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`;
-  if (!el) { el = document.createElement('div'); el.id = 'live-think'; el.className = 'think-panel'; const live = $('#live'); live ? live.after(el) : col.appendChild(el); }
-  if (el._html !== html) { const box = $('#messages'); const stick = box && box.scrollHeight - box.scrollTop - box.clientHeight < 80; el.innerHTML = html; el._html = html; const tt = el.querySelector('.think-t'); if (tt) tt.scrollTop = tt.scrollHeight; if (stick && box) box.scrollTop = box.scrollHeight; }
+  const steps = t.steps.slice(-30).map((x) => {
+    const k = x.at + ':' + x.text;
+    return x.detail
+      ? `<details class="wl-step" data-k="${esc(k)}"${wlOpen.has(k) ? ' open' : ''}><summary><i class="wl-dot"></i><span>${esc(x.text)}</span><i class="chev" aria-hidden="true"></i></summary><pre class="wl-code">${esc(x.detail)}</pre></details>`
+      : `<div class="wl-step"><div class="wl-line"><i class="wl-dot"></i><span>${esc(x.text)}</span></div></div>`;
+  }).join('');
+  const html = `${reasoning ? `<div class="wl-r">${esc(reasoning)}</div>` : ''}${steps ? `<div class="wl-steps">${steps}</div>` : ''}${!reasoning && !steps ? `<div class="wl-empty">${esc(p.name)} is getting started…</div>` : ''}`;
+  if (!el) {
+    el = document.createElement('div'); el.id = 'live-think'; el.className = 'think-panel';
+    el.addEventListener('toggle', (ev) => { const d = ev.target; if (d?.dataset?.k) { if (d.open) wlOpen.add(d.dataset.k); else wlOpen.delete(d.dataset.k); } }, true);
+    const live = $('#live'); live ? live.after(el) : col.appendChild(el);
+  }
+  if (el._html !== html) { const box = $('#messages'); const stick = box && box.scrollHeight - box.scrollTop - box.clientHeight < 80; el.innerHTML = html; el._html = html; const tt = el.querySelector('.wl-r'); if (tt) tt.scrollTop = tt.scrollHeight; if (stick && box) box.scrollTop = box.scrollHeight; }
 }
 
 // While a picture or video is being made: a placeholder with a little Pong game against the computer (no AI needed).
@@ -1991,7 +2042,16 @@ function syncSend(p) {
   }
 }
 
+// Stop: ask the app to cancel, and clear the spinner right away (and again after a moment if the app never answers).
+const stoppedAt = new Map();
+function stopBot(p) {
+  stoppedAt.set(p.id, Date.now());
+  api.stopTurn(p.id).catch(() => {});
+  const clear = async () => { if (!busy.has(p.id)) return; busy.delete(p.id); drafts.delete(p.id); thinks.delete(p.id); $('#live-draft')?.remove(); $('#live-think')?.remove(); try { S = await api.getState(); } catch (_) {} if (!$('#modal') && !$('#palette')) render(); else renderSidebar(); };
+  setTimeout(clear, 1500);
+}
 async function send(p, preset) {
+  stoppedAt.delete(p.id);
   const input = $('#composer-input');
   const text = preset ? preset.text : input.value.trim();
   const attachments = preset ? preset.attachments || [] : pending[p.id] || [];
@@ -2035,8 +2095,12 @@ function openPopover(html, anchor, place = 'down', cls = '') {
   if (place === 'up') left = Math.max(12, r.left);
   if (place === 'up-right') left = Math.max(12, r.right - w);
   pop.style.left = left + 'px';
-  pop.style.top = (place.startsWith('up') ? r.top - h - 10 : r.bottom + 10) + 'px';
-  pop.style.transformOrigin = place === 'up-right' ? 'bottom right' : place.startsWith('up') ? 'bottom left' : 'top center';
+  // Open upward or downward, whichever has room (the model picker and the ⋯ menu now live at the top of the window).
+  let up = place.startsWith('up');
+  if (up && r.top - h - 10 < 8 && r.bottom + 10 + h <= innerHeight - 8) up = false;
+  else if (!up && r.bottom + 10 + h > innerHeight - 8 && r.top - h - 10 >= 8) up = true;
+  pop.style.top = (up ? r.top - h - 10 : r.bottom + 10) + 'px';
+  pop.style.transformOrigin = (up ? 'bottom ' : 'top ') + (place === 'up-right' ? 'right' : place.startsWith('up') ? 'left' : 'center');
   bd.onclick = closePopover;
   overlay(+1);
   return pop;
@@ -2571,6 +2635,20 @@ function initScreen() {
 // ---------- settings hub (General · Connectors & API keys · Browser & data) ----------
 let settingsTab = 'general';
 function go(v, tab) { view = v; if (tab) settingsTab = tab; closePopover(); render(); }
+// "Schedule" in the sidebar: the Schedule tab of the side panel, next to the current chat.
+function openSchedule() {
+  if (view !== 'chat') go('chat');
+  setScrTab('schedule');
+  setScreen(true);
+  syncNav();
+}
+// Marks which sidebar shortcut is open (Settings, Apps or Schedule).
+function syncNav() {
+  const set = (id, on) => { const b = $(id); if (b) b.classList.toggle('on', !!on); };
+  set('#btn-connectors', view === 'settings' && settingsTab !== 'connectors');
+  set('#btn-apps', view === 'settings' && settingsTab === 'connectors');
+  set('#btn-schedule', view === 'chat' && screenOpen && scrTab === 'schedule');
+}
 function permSelect(id, value) {
   return `<select class="mini" data-perm="${id}"><option value="ask" ${value !== 'always' ? 'selected' : ''}>Ask first time</option><option value="always" ${value === 'always' ? 'selected' : ''}>Always allowed</option></select>`;
 }
@@ -2620,6 +2698,8 @@ function renderSettings() {
 // ----- search in settings -----
 const SETTINGS_INDEX = [
   ['Which computer bots use', 'computer mac my computer bot computer own linux control screen click type name rename use', 'computer', 'Which computer do bots use?'],
+  ['Terms of Service', 'terms of service tos legal agreement rules conditions law', 'general', 'Terms of Service'],
+  ['Privacy Policy', 'privacy policy data protection gdpr legal what is collected cookies', 'general', 'Privacy Policy'],
   ['Delete account', 'delete account erase remove everything data reset start over wipe', 'general', 'Delete account'],
   ['Help, tour and questions', 'help tour tutorial guide questions faq ask how to use replay show me around', 'help'],
   ['Your guide: change its look and name', 'guide tutorial bot look skin name customise customize accessory', 'help'],
@@ -2773,7 +2853,10 @@ function tabGeneral() {
       <div class="card-row"><div class="grow"><div class="nm">Download logos online</div><div class="ds">Logos come from Google’s icon service, which sees the site names. Off shows letters.</div></div>
         <label class="switch"><input type="checkbox" id="pv-icons" ${S.settings.onlineIcons !== false ? 'checked' : ''}><span></span></label></div>
     </div>
-    <div class="card simple"><div class="card-row"><div class="grow"><div class="nm">Legal</div><div class="ds">${legalLinks()}</div></div></div></div>
+    <div class="card simple" id="legal-card">
+      <div class="card-row"><div class="grow"><div class="nm">Terms of Service</div><div class="ds">The rules for using Wayzerr.</div></div><button class="btn sm" type="button" data-legal-read="terms">Read here</button><button class="btn sm primary" type="button" data-legal-open="terms">Open in browser</button></div>
+      <div class="card-row"><div class="grow"><div class="nm">Privacy Policy</div><div class="ds">What Wayzerr collects, where it goes and your choices.</div></div><button class="btn sm" type="button" data-legal-read="privacy">Read here</button><button class="btn sm primary" type="button" data-legal-open="privacy">Open in browser</button></div>
+    </div>
     <div class="section-title sm">Account</div>
     <div class="card simple" id="account-card">
       <div class="card-row"><div class="grow"><div class="nm">Delete account</div><div class="ds">Erases all your bots, chats, saved logins and keys from this computer.</div></div><button class="btn danger" id="st-delete" type="button">Delete…</button></div>
@@ -2806,6 +2889,8 @@ function tabGeneral() {
   }));
   $('#pv-free').onchange = async (e) => { S = await api.saveProfile({ freeImages: e.target.checked }); toast(e.target.checked ? 'Free picture service is on' : 'Picture descriptions now stay on your connected AI only'); };
   $('#st-delete').onclick = () => openDeleteAccount();
+  $$('[data-legal-read]').forEach((b) => b.addEventListener('click', () => showLegal(b.dataset.legalRead)));
+  $$('[data-legal-open]').forEach((b) => b.addEventListener('click', () => openLegalInBrowser(b.dataset.legalOpen)));
   $('#pv-icons').onchange = async (e) => { S = await api.saveProfile({ onlineIcons: e.target.checked }); toast(e.target.checked ? 'Logos will be downloaded online' : 'No more logo downloads. New logos show as letters.'); };
   $('#st-name').onblur = saveName;
   $('#st-name').onkeydown = (e) => { if (e.key === 'Enter') e.target.blur(); };
@@ -3178,7 +3263,7 @@ function wireComposio() {
   }
   if (composioLinked === null) { composioLinked = []; api.composioApps().then((l) => { composioLinked = l; if (view === 'settings' && connTab === 'conn') tabConnectors(); }); }
 }
-addEventListener('focus', () => { if (S.composio && view === 'settings' && connTab === 'conn') api.composioApps().then((l) => { if (JSON.stringify(l) !== JSON.stringify(composioLinked)) { composioLinked = l; tabConnectors(); } }).catch(() => {}); });
+addEventListener('focus', () => { if (S && S.composio && view === 'settings' && connTab === 'conn') api.composioApps().then((l) => { if (JSON.stringify(l) !== JSON.stringify(composioLinked)) { composioLinked = l; tabConnectors(); } }).catch(() => {}); });
 
 let appsCache = null;
 const mcpApps = () => (appsCache || []).filter((a) => a.connected);
@@ -3544,7 +3629,16 @@ function tabBrowser() {
 
 
 // ---------- logos (official site icons, cached) ----------
-const ICONS = {};
+// The Google apps (Gmail, Classroom, Calendar, Drive, Docs, Sheets, Slides) have their own logos (the site icon service only returns the plain Google "G" for them).
+const ICONS = {
+  'calendar.google.com': "data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22%3E%3Crect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 rx=%225%22 fill=%22%23fff%22 stroke=%22%234285F4%22 stroke-width=%223%22/%3E%3Cpath fill=%22%234285F4%22 d=%22M6 11a5 5 0 0 1 5-5h26a5 5 0 0 1 5 5v7H6z%22/%3E%3Cpath fill=%22%23EA4335%22 d=%22M42 30l-6 6v6h1a5 5 0 0 0 5-5z%22/%3E%3Cpath fill=%22%2334A853%22 d=%22M12 42h24v-6l6-6v7a5 5 0 0 1-5 5z%22 opacity=%22.0%22/%3E%3Ctext x=%2224%22 y=%2237%22 text-anchor=%22middle%22 font-family=%22Arial,Helvetica,sans-serif%22 font-weight=%22700%22 font-size=%2219%22 fill=%22%234285F4%22%3E31%3C/text%3E%3C/svg%3E",
+  'drive.google.com': "data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22%3E%3Cpath fill=%22%230F9D58%22 d=%22M17 6L5 27l6 11 12-21z%22/%3E%3Cpath fill=%22%23FBBC04%22 d=%22M17 6h14l12 21H29z%22/%3E%3Cpath fill=%22%234285F4%22 d=%22M11 38l6-11h26l-6 11z%22/%3E%3C/svg%3E",
+  'docs.google.com': "data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22%3E%3Cpath fill=%22%234285F4%22 d=%22M12 4h17l9 9v29a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z%22/%3E%3Cpath fill=%22%23A1C2FA%22 d=%22M29 4l9 9h-7a2 2 0 0 1-2-2z%22/%3E%3Crect x=%2216%22 y=%2224%22 width=%2216%22 height=%222.6%22 rx=%221.3%22 fill=%22%23fff%22/%3E%3Crect x=%2216%22 y=%2230%22 width=%2216%22 height=%222.6%22 rx=%221.3%22 fill=%22%23fff%22/%3E%3Crect x=%2216%22 y=%2236%22 width=%2210%22 height=%222.6%22 rx=%221.3%22 fill=%22%23fff%22/%3E%3C/svg%3E",
+  'sheets.google.com': "data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22%3E%3Cpath fill=%22%230F9D58%22 d=%22M12 4h17l9 9v29a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z%22/%3E%3Cpath fill=%22%2387CEAC%22 d=%22M29 4l9 9h-7a2 2 0 0 1-2-2z%22/%3E%3Crect x=%2216%22 y=%2223%22 width=%2216%22 height=%2214%22 rx=%221%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%222%22/%3E%3Cpath stroke=%22%23fff%22 stroke-width=%222%22 d=%22M16 30h16M24 23v14%22/%3E%3C/svg%3E",
+  'slides.google.com': "data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22%3E%3Cpath fill=%22%23F4B400%22 d=%22M12 4h17l9 9v29a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z%22/%3E%3Cpath fill=%22%23FADA80%22 d=%22M29 4l9 9h-7a2 2 0 0 1-2-2z%22/%3E%3Crect x=%2216%22 y=%2224%22 width=%2216%22 height=%2212%22 rx=%221.5%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%222.2%22/%3E%3C/svg%3E",
+  'mail.google.com': "data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22%3E%3Cpath fill=%22%23EA4335%22 d=%22M6 11.5A3.5 3.5 0 0 1 9.5 8H10l14 10.5L38 8h.5a3.5 3.5 0 0 1 3.5 3.5V14L24 27.5 6 14z%22/%3E%3Cpath fill=%22%234285F4%22 d=%22M6 14l8 6v18H9.5A3.5 3.5 0 0 1 6 34.5z%22/%3E%3Cpath fill=%22%2334A853%22 d=%22M42 14l-8 6v18h4.5a3.5 3.5 0 0 0 3.5-3.5z%22/%3E%3Cpath fill=%22%23FBBC04%22 d=%22M34 9.6V20l8-6v-2.5A3.5 3.5 0 0 0 38.5 8H38z%22/%3E%3C/svg%3E",
+  'classroom.google.com': "data:image/svg+xml;utf8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22%3E%3Crect x=%225%22 y=%228%22 width=%2238%22 height=%2232%22 rx=%225%22 fill=%22%230F9D58%22/%3E%3Cpath fill=%22%230B8043%22 d=%22M5 34h38v1a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z%22/%3E%3Crect x=%2211%22 y=%2213%22 width=%2226%22 height=%2218%22 rx=%222%22 fill=%22%23fff%22/%3E%3Ccircle cx=%2224%22 cy=%2220%22 r=%223.6%22 fill=%22%23F4B400%22/%3E%3Cpath fill=%22%23F4B400%22 d=%22M17 30c0-4 3-6.4 7-6.4s7 2.4 7 6.4z%22/%3E%3C/svg%3E",
+};
 const extraIconKeys = [];
 const siteDomain = (site) => hostOf(/^https?:\/\//.test(site || '') ? site : 'https://' + (site || ''));
 async function loadIcons() {
@@ -3877,10 +3971,16 @@ function showNextPermission() {
 
 // ---------- boot ----------
 function initChrome() {
+  document.documentElement.classList.toggle('mac', !!IS_MAC);
+  setInterval(() => { if (S && S.ready && !document.hidden) renderSidebar(); }, 60000);
   initA11y();
   initNet();
-  $('#btn-search').innerHTML = icon('search');
+  $('#btn-search').innerHTML = `${icon('search')}<span>Search</span><kbd>${MOD === '⌘' ? '⌘K' : 'Ctrl K'}</kbd>`;
   $('#btn-new').innerHTML = icon('plus');
+  $('#btn-schedule').innerHTML = `${icon('cal')}<span>Schedule</span>`;
+  $('#btn-schedule').onclick = openSchedule;
+  $('#btn-apps').innerHTML = `${icon('puzzle')}<span>Apps</span>`;
+  $('#btn-apps').onclick = () => go('settings', 'connectors');
   $('#btn-new').title = `New bot or group chat (${MOD === '⌘' ? '⌘N' : 'Ctrl+N'})`;
   $('#btn-search').onclick = openPalette;
   $('#btn-new').onclick = () => { view = 'new'; render(); };
@@ -4061,15 +4161,16 @@ api.onChatEvent(async (e) => {
   if (e.type === 'done') {
     drafts.delete(e.personaId); thinks.delete(e.personaId);
     if (active()?.id === e.personaId) { $('#live-draft')?.remove(); $('#live-think')?.remove(); }
-    celebrate(e.personaId);
     if (!busy.has(e.personaId)) return;
+    celebrate(e.personaId);
     busy.delete(e.personaId);
     S = await api.getState();
     if (!$('#modal') && !$('#palette')) render(); else renderSidebar();
     return;
   }
   if (e.type !== 'status') return;
-  if (e.text && !/^(Thinking|Typing|Writing)$/i.test(e.text)) noteThink(e.personaId, { step: e.text });
+  if (Date.now() - (stoppedAt.get(e.personaId) || 0) < 10000) return; // a late update after Stop must not bring the spinner back
+  if (e.text && !/^(Thinking|Typing|Writing)$/i.test(e.text)) noteThink(e.personaId, { step: e.text, detail: e.detail });
   busy.set(e.personaId, { activity: e.activity, text: e.text, botId: e.botId, botName: e.botId !== e.personaId ? e.botName : null, since: busy.get(e.personaId)?.since || Date.now() });
   if (e.browser && e.personaId === S.activePersonaId) { if (scrTab !== 'computer') setScrTab('computer'); if (!screenOpen && !fsOpen) setScreen(true); }
   renderBrowserState();

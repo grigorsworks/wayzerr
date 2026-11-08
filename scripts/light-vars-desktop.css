@@ -1,16 +1,89 @@
 html.light {
   --bg: #ffffff;
-  --side: #f7f7f8;
-  --panel: #f3f3f4;
-  --raised: #ececee;
-  --bubble: #f0f0f1;
-  --bubble-user: #e4e4e7;
-  --line: #e6e6e8;
-  --line-2: #dcdce0;
+  --side: #f7f7f7;
+  --panel: #f5f5f5;
+  --raised: #efefef;
+  --bubble: #f0f0f0;
+  --bubble-user: #dedede;
+  --line: #e8e8e8;
+  --line-2: #dcdcdc;
   --text: #111111;
-  --text-2: #4a4a4f;
-  --muted: #86868b;
+  --text-2: #4d4d4d;
+  --muted: #5f5f65;
   --danger: #e5484d;
   --ok: #1f9d55;
+  --accent: #1a1a1a;
+  --accent-soft: rgba(0, 0, 0, .07);
+  --focus: rgba(0, 0, 0, .35);
+  --ring: rgba(0, 0, 0, .55);
+  --composer: #f3f3f3;
+  --composer-line: #d9d9d9;
+  --pill: #f2f2f2;
+  --pill-line: #e2e2e2;
+  --row-on: #e8e8e8;
+  --hover: rgba(0, 0, 0, .05);
   color-scheme: light;
 }
+
+html.light .cl-sv { background: #fff; }
+html.light .cl-sv:hover { background: #eef4ff; }
+
+/* Light theme readability: pale accent text and grey hints that were hard to read on light backgrounds */
+html.light .tag-api { color: #1d4ed8; background: rgba(37,99,235,.12); }
+html.light .tag-mcp { color: #2a2a2a; background: rgba(0,0,0,.08); }
+html.light .tag-acct { color: #166534; background: rgba(22,163,74,.14); }
+html.light .tag-conn { color: #92400e; background: rgba(217,119,6,.16); }
+html.light #btn-connectors .cx i { color: #55555c; background: #e2e2e2; }
+html.light #btn-connectors .cx i.on { color: #1d4ed8; background: rgba(37,99,235,.14); }
+html.light #btn-connectors .cx i.cld.on { color: #166534; background: rgba(22,163,74,.16); }
+html.light .at-go { color: #1d4ed8; }
+html.light .status.ok { color: #166534; }
+html.light .btn.danger, html.light .btn.sm.danger { color: #b42318; }
+html.light .st-l small { color: var(--muted); }
+
+/* Light theme: the rest of the pale accent text, darkened so it can be read */
+html.light .mp-pill { color: #166534; background: rgba(22,163,74,.12); }
+html.light .mp-pill.warn { color: #92400e; background: rgba(217,119,6,.14); }
+html.light .mp-big-ic, html.light .sk-ic { color: #2a2a2a; }
+html.light .ptile em.si, html.light .at-ok, html.light .cm-done, html.light .pub-on { color: #166534; }
+html.light .comp-app em, html.light .as-item .at-nm em { color: #1d4ed8; }
+html.light .comp-app.linked svg.i { color: #16a34a; }
+
+html.light .tok-chip, html.light .tok-compact { color: #4a4a52; }
+html.light .tok-chip:hover, html.light .tok-compact:hover { background: #e4e4e4; color: #111; }
+
+html.light .cloud-card { background: #fafafa; }
+html.light .maker { background: #f4f4f4; border-color: #dcdce0; }
+html.light .maker-frame { background: #e2e2e2; }
+html.light .maker-frame i { background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,.7) 45%, transparent 70%); background-size: 220% 100%; }
+html.light .img-via.warn { color: #8a5a00; }
+
+/* pictures in light mode: a light card that wraps the picture, not a wide grey box */
+html.light .bubble.img-bubble { background: #f6f6f6; border: 1px solid #e4e4e4; }
+html.light .gen-img { background: #ececec; }
+
+html.light .guide-btn { background: #fff; }
+html.light .guide-btn .guide-q { box-shadow: 0 0 0 2px #fff; }
+html.light .tour-card, html.light .helpchat { background: #fff; }
+html.light .tour-card { box-shadow: 0 20px 60px rgba(0, 0, 0, .25); }
+html.light .helpchat { box-shadow: 0 18px 50px rgba(0, 0, 0, .22); }
+html.light .tour-spot { box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .5); }
+html.light .hc-msg.hc-bot { background: #f0f0f0; }
+html.light .ask-chip { background: #f4f4f4; }
+
+html.light .signin-bar { background: #fff; box-shadow: 0 12px 36px rgba(0, 0, 0, .22); }
+
+
+html.light #sched { background: rgba(255, 255, 255, .5) }
+html.light .cal-win { background: #f7f7f7; border-color: #dcdcdc; box-shadow: 0 40px 120px rgba(0, 0, 0, .25) }
+html.light .brw-info p, html.light .cmp-why { color: #555 }
+
+/* the redesign: surfaces that follow the colour variables */
+html.light .composer-inner { background: var(--composer); }
+html.light .bot-pill, html.light .guide-btn { background: transparent; }
+html.light .bot-pill:hover, html.light .guide-btn:hover { background: var(--hover); }
+html.light .row:hover { background: var(--hover); }
+html.light .row.active, html.light .nav-item.on, html.light .set-tab.on { background: var(--row-on); }
+html.light .update-card { background: var(--panel); border-color: var(--line); }
+html.light .model-chip { background: var(--pill); border-color: var(--pill-line); }
+html.light .guide-btn .guide-q { background: var(--text); color: var(--bg); box-shadow: 0 0 0 2px var(--bg); }

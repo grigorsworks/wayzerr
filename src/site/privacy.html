@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy Policy · Wayzerr</title>
+<meta name="description" content="What information Wayzerr collects, where it goes and your choices.">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-v5-32.png">
+<style>
+:root{color-scheme:dark;--bg:#0a0a0b;--ink:#f6f6f7;--mute:#a8a8b0;--line:#242428}
+@media (prefers-color-scheme:light){:root{color-scheme:light;--bg:#fff;--ink:#17171a;--mute:#55555e;--line:#e4e4e8}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto;padding:48px 20px 80px}
+h1{font-size:34px;margin:0 0 6px}h2{font-size:20px;margin:36px 0 8px}
+p,li{color:var(--ink)}.mute{color:var(--mute)}
+a{color:inherit;text-underline-offset:3px}
+nav{margin-bottom:28px}nav a{color:var(--mute);text-decoration:none}
+hr{border:0;border-top:1px solid var(--line);margin:36px 0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+</style>
+</head>
+<body>
+<main>
+<nav style="display:flex;justify-content:space-between"><a href="/">← Wayzerr</a><a href="/de/datenschutz" hreflang="de" lang="de">Deutsch</a></nav>
+<h1>Privacy Policy</h1>
+<p class="mute">Last updated: November 7, 2026</p>
+
+<p>This policy explains what information Wayzerr ("Wayzerr", "we", "us") handles when you use the Wayzerr app and the website at wayzerr.com, and the choices you have. "We" are the operator of Wayzerr, the same operator as in the Terms of Service. You can reach us at <a href="mailto:info@wayzerr.com">info@wayzerr.com</a>.</p>
+
+<h2>The short version</h2>
+<ul>
+<li>Your bots, chats, memories, schedules, saved logins and cards stay on <strong>your computer</strong>. We don't receive them, and they are not copied to your account or to your other computers.</li>
+<li>Your Wayzerr account is your <strong>email address</strong> and a sign-in token. You can sign in on several computers, but each computer keeps its own bots and data.</li>
+<li>Your messages go to the <strong>AI provider you choose</strong>, and to other services you switch on. Their policies apply to what they receive.</li>
+<li>We don't sell your data, show ads or run analytics in the app.</li>
+</ul>
+
+<h2>1. What we keep on our servers</h2>
+<div class="scroll"><table>
+<tr><th>Information</th><th>Why</th><th>Details</th></tr>
+<tr><td>Email address, and when your account was created and last used</td><td>Run your account and send you sign-in codes</td><td>Kept while your account exists</td></tr>
+<tr><td>Sign-in tokens and one-time sign-in codes</td><td>Keep you signed in and check it is you</td><td>Stored in hashed form. Codes expire after 10 minutes. On your computer the token is stored encrypted</td></tr>
+<tr><td>Device sign-in records (a hashed device code, a short code, a status and an expiry time)</td><td>Connect a computer to your account</td><td>Removed automatically after they expire</td></tr>
+<tr><td>Counters of recent attempts per IP address or email address</td><td>Stop abuse such as repeated sign-in attempts</td><td>Short-lived: they count about one hour</td></tr>
+<tr><td>A random name for your computer (like p-xxxx.wayzerr.com) and its tunnel, with when it was created and last used</td><td>Let your phone reach your computer</td><td>Only if you use the phone link</td></tr>
+<tr><td>IP address and technical request data when the app checks for updates, signs in or connects apps, and when you visit the website</td><td>Deliver the service, keep it secure, fix problems</td><td>Processed by Cloudflare, which hosts and delivers the service</td></tr>
+<tr><td>Messages you send us (email, GitHub issues)</td><td>Support and bug fixes</td><td>In our email, and on GitHub if you post there</td></tr>
+</table></div>
+<p>Stored only on your computer (we don't receive these): chats, bots and their memories, schedules, files in the shared Wayzerr Files folder, saved logins and cards (encrypted), API keys, connected-app settings and your preferences. Signing in with the same account on another computer does not bring any of these with you.</p>
+
+<h2>Cookies</h2>
+<p>The pages on wayzerr.com that describe the app set no cookies of their own and load no analytics, advertising or social scripts. Cloudflare, which delivers the site, may use its own security checks and cookies to block abusive traffic. The sign-in page sets a cookie that is strictly necessary: <code>wz_session</code> keeps you signed in on the website for up to 90 days, until you sign out. During "Sign in with Google", two short-lived cookies (10 minutes) protect the sign-in. We don't use these cookies for tracking, so there is no cookie banner. If we ever add analytics or other non-essential cookies, we will ask for your consent first.</p>
+
+<h2>2. Services your data passes through</h2>
+<p>These happen because of features you choose. We don't control these providers.</p>
+<ul>
+<li><strong>AI providers</strong> (OpenAI, Anthropic, Google, OpenRouter, xAI, Groq, Mistral, DeepSeek or an endpoint you add): receive your messages, files and tool results so they can answer. When you use your own plan or key, your messages go to the provider from your computer and not through our servers.</li>
+<li><strong>Connected apps (Composio)</strong>: when you connect apps like Gmail, Drive, Calendar, Classroom or Notion, the requests pass through wayzerr.com to Composio, with an identifier derived from your computer (not from your email). Composio and the app provider handle the connection.</li>
+<li><strong>Web search and browsing</strong>: searches go to DuckDuckGo. Websites your bots visit see your IP address and anything the bot types or signs into.</li>
+<li><strong>Free picture service</strong> (Pollinations, optional; switch it off in Settings → General → Privacy): receives your picture description.</li>
+<li><strong>Google icon service</strong> (optional, same settings page): sees the site names you ask logos for.</li>
+<li><strong>Sign in with Google</strong> (if you choose it): Google tells us your email address.</li>
+<li><strong>Resend</strong>: delivers the sign-in emails to your email address.</li>
+<li><strong>Cloudflare</strong>: hosts the website, the downloads, the sign-in service and its database, and carries traffic for the phone link.</li>
+<li><strong>GitHub</strong>: hosts our public source code and issue tracker.</li>
+</ul>
+
+<h2>3. Sensitive features</h2>
+<p>Bots can use saved logins and cards and, on a Mac, control your computer, but only if you allow it, and Wayzerr asks you first. Saved passwords and cards are stored encrypted on your computer. Anything a bot types into a website or sends to an AI provider goes where you told it to go. Don't put information in chats that you don't want the chosen AI provider to receive.</p>
+
+<h2>4. Why we use information, and our legal bases (EU/UK)</h2>
+<ul>
+<li>To provide the service you asked for: running your account, updates, the phone link and connected apps (contract).</li>
+<li>To keep the service secure and prevent abuse (legitimate interests).</li>
+<li>To answer your questions and comply with the law (legitimate interests, legal obligation).</li>
+<li>Optional features such as the free picture service or online icons run only while you leave them switched on (consent, which you can withdraw in Settings).</li>
+</ul>
+<p>We don't sell personal information or share it for cross-context advertising. We don't make decisions about you that have legal effects using automated processing.</p>
+
+<h2>5. How long we keep it</h2>
+<p>Account data is kept while your account exists. Expired sign-in codes and device records are removed automatically, and the abuse-protection counters last about an hour. If you ask us to close your account (email us from your account address), we delete your email address and sign-in records within 30 days. We may keep limited records longer if the law requires it or to resolve a dispute. Data on your computer stays until you delete it: "Delete account" in the app erases it from that computer.</p>
+
+<h2>6. Your rights</h2>
+<p>Depending on where you live (for example the EU/UK, California and other US states), you can ask to access, correct, delete, export or restrict use of your personal data, to object to certain uses, and to withdraw consent. Email <a href="mailto:info@wayzerr.com">info@wayzerr.com</a> from your account address, and we'll reply within the time the law requires (usually one month). You can complain to your local data protection authority. We won't treat you worse for using your rights.</p>
+
+<h2>7. International transfers</h2>
+<p>Our providers may process data in countries other than yours, including the United States. Where required we rely on safeguards such as standard contractual clauses or the EU–US Data Privacy Framework.</p>
+
+<h2>8. Children</h2>
+<p>Wayzerr isn't directed to children under 16, and you must be at least 16 to use it. We don't knowingly collect information from younger children. If you think a child has given us personal data, email us and we'll delete it. Parents and teachers: AI providers and connected apps (such as school accounts) have their own age rules.</p>
+
+<h2>9. Security</h2>
+<p>We store sign-in tokens and codes in hashed form, encrypt saved logins and keys on your computer, and check that updates are the exact files we published before installing them. No system is perfectly secure. Report vulnerabilities to <a href="mailto:info@wayzerr.com">info@wayzerr.com</a>. If a breach affects you, we'll tell you and the authorities as the law requires.</p>
+
+<h2>10. Changes</h2>
+<p>If we change this policy in a meaningful way we'll update the date above and tell you in the app or on the site.</p>
+
+<h2>11. Contact</h2>
+<p>Questions or requests: <a href="mailto:info@wayzerr.com">info@wayzerr.com</a></p>
+
+<hr>
+<p class="mute"><a href="/terms">Terms of Service</a> · <a href="/privacy">Privacy Policy</a></p>
+</main>
+</body>
+</html>

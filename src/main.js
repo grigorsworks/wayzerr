@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, safeStorage, shell, session, powerSaveBlocker, nativeTheme, systemPreferences } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, safeStorage, shell, session, powerSaveBlocker, nativeTheme, systemPreferences, powerMonitor } = require('electron');
 // The data folder is now "Wayzerr" (it used to be "Persona"): an old folder is moved over once, so bots, chats and passwords stay.
 if (!process.env.WAYZERR_DATA_DIR) {
   try {
@@ -67,6 +67,8 @@ const shown = () => (screenBot ? browserFor(screenBot) : null);
 // Encrypted with a private key file that only this computer user can read. We used to use the macOS
 // Keychain, but because Wayzerr isn't signed by Apple, macOS asked for your password after every
 // update. Now it asks at most once (to move old secrets over), then never again.
+// Before an update swaps the app, put a copy of your bots and chats aside (backups/pre-update-*.json).
+function installUpdate(update, cb) { try { store?.snapshot('pre-update'); } catch (_) {} return updater.install(update, cb); }
 const dataDir = () => process.env.WAYZERR_DATA_DIR || app.getPath('userData');
 let _mk = null;
 function masterKey() {
@@ -281,7 +283,11 @@ function recoverOldData() {
 app.whenReady().then(async () => {
   store = new Store(process.env.WAYZERR_DATA_DIR || app.getPath('userData'));
   try { dropRemovedProviders(); } catch (_) {}
-  if (store.restored) setTimeout(() => { try { dialog.showMessageBox({ type: 'info', message: 'Wayzerr restored your bots and chats', detail: 'Your saved data was damaged, so Wayzerr opened the last good copy. The damaged file was kept next to it.' }); } catch (_) {} }, 1500);
+  if (store.offer) setTimeout(async () => { try {
+    const r = await dialog.showMessageBox({ type: 'question', message: 'Bring your bots back?', detail: `Your bots list is empty, but Wayzerr still has a copy with ${store.offer.bots} bot${store.offer.bots === 1 ? '' : 's'} and their chats. Restore it? (Your current file is kept next to it.)`, buttons: ['Restore my bots', 'Keep it empty'], defaultId: 0, cancelId: 1 });
+    if (r.response === 0 && store.restoreFrom(store.offer.file)) { try { app.relaunch(); } catch (_) {} app.exit(0); }
+  } catch (_) {} }, 1800);
+  if (store.restored || store.unreadable) setTimeout(() => { try { dialog.showMessageBox({ type: store.unreadable ? 'warning' : 'info', message: store.unreadable ? 'Wayzerr could not open your saved data' : 'Wayzerr restored your bots and chats', detail: store.unreadable ? 'Your data file is still on this computer and was not changed. Wayzerr will not save until it can read it. Quit, then open Wayzerr again; if this stays, contact info@wayzerr.com and do not delete the folder.' : 'Your saved data could not be read, so Wayzerr opened the last good copy (' + (store.restoredFrom || 'backup') + '). The original file was kept next to it.' }); } catch (_) {} }, 1500);
   try { migrateSecrets(); } catch (_) {}
   vault = new Vault(store, enc, dec);
   migrate();
@@ -323,7 +329,7 @@ app.whenReady().then(async () => {
     doUpdate: async () => {
       if (!pendingUpdate) await checkUpdates(true);
       if (!pendingUpdate) throw new Error("You're already on the latest version.");
-      return updater.install(pendingUpdate, (msg) => win && !win.isDestroyed() && win.webContents.send('update-progress', msg));
+      return installUpdate(pendingUpdate, (msg) => win && !win.isDestroyed() && win.webContents.send('update-progress', msg));
     },
     checkUpdate: () => checkUpdates(true),
     answerPermission: (id, answer) => answerChecked(id, answer), // from the phone: the same Touch ID check as in the window
@@ -429,6 +435,9 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
+// Everything is written to disk the moment the computer shuts down or restarts, or the app is stopped from outside.
+try { powerMonitor.on('shutdown', () => { try { store?.flush(); } catch (_) {} }); } catch (_) {}
+for (const sig of ['SIGTERM', 'SIGINT', 'SIGHUP']) process.on(sig, () => { try { store?.flush(); } catch (_) {} app.quit(); });
 let quitGate = false;
 app.on('before-quit', async (e) => {
   try { store?.flush(); } catch (_) {}
@@ -574,13 +583,13 @@ handle('update-check', () => checkUpdates(true));
 handle('update-install', async () => {
   if (!pendingUpdate) await checkUpdates();
   if (!pendingUpdate) throw new Error("You're already on the latest version.");
-  return updater.install(pendingUpdate, (msg) => win.webContents.send('update-progress', msg));
+  return installUpdate(pendingUpdate, (msg) => win.webContents.send('update-progress', msg));
 });
 handle('update-from-file', async () => {
   const r = await dialog.showOpenDialog(win, { title: 'Choose the Wayzerr update file', defaultPath: app.getPath('downloads'), properties: ['openFile'], filters: [{ name: 'Wayzerr update', extensions: process.platform === 'win32' ? ['exe'] : process.platform === 'linux' ? ['AppImage', 'deb'] : ['dmg', 'zip'] }] });
   if (r.canceled || !r.filePaths[0]) return null;
   pendingUpdate = await updater.fromFile(r.filePaths[0]);
-  return updater.install(pendingUpdate, (msg) => win.webContents.send('update-progress', msg));
+  return installUpdate(pendingUpdate, (msg) => win.webContents.send('update-progress', msg));
 });
 
 // ---------- MCP Registry: browse & install connectors ----------
@@ -880,6 +889,13 @@ async function compactChat(id, { smart = false, signal } = {}) {
 handle('compact-chat', async (arg) => { const id = typeof arg === 'object' ? arg.id : arg; const r = await compactChat(id, { smart: typeof arg === 'object' && !!arg.smart }); return { ...r, state: publicState() }; });
 // ----- Terms of Service: shown before first use and again whenever TERMS_VERSION changes (change it when the Terms or Privacy Policy change in a material way) -----
 handle('accept-terms', () => { store.data.settings.terms = { version: TERMS_VERSION, at: Date.now() }; store.save(); pushState(); return publicState(); });
+// The Terms ship inside the app (src/site), so the "Terms of Service" link works offline and never depends on wayzerr.com being up.
+const LEGAL_DOCS = { terms: 'terms.html', privacy: 'privacy.html' };
+handle('legal-doc', (name) => {
+  const f = LEGAL_DOCS[String(name)];
+  if (!f) throw new Error('That document is not available.');
+  return fs.readFileSync(path.join(__dirname, 'site', f), 'utf8');
+});
 handle('quit-app', () => { app.quit(); return true; });
 // ----- Delete account: erases the account on wayzerr.com (when online), then everything Wayzerr keeps on this computer, then starts again as a new install -----
 handle('delete-account', async (arg) => {
@@ -888,7 +904,7 @@ handle('delete-account', async (arg) => {
   if (String(word || '').trim().toUpperCase() !== 'DELETE') throw new Error('Type DELETE to confirm.');
   if (!localOnly && account) {
     const r = await account.remove();
-    if (!r.ok) { const e = new Error(r.offline ? "Couldn't reach Wayzerr to delete your account there. Check your internet connection and try again, or erase this computer only." : "Wayzerr's server couldn't delete your account right now. Try again later, or erase this computer only and email hello@wayzerr.com to finish."); e.remoteFailed = true; throw e; }
+    if (!r.ok) { const e = new Error(r.offline ? "Couldn't reach Wayzerr to delete your account there. Check your internet connection and try again, or erase this computer only." : "Wayzerr's server couldn't delete your account right now. Try again later, or erase this computer only and email info@wayzerr.com to finish."); e.remoteFailed = true; throw e; }
   }
   for (const ctl of running.values()) { try { ctl.abort(); } catch (_) {} }
   store.wipe();
@@ -1293,7 +1309,10 @@ handle('clear-browser-data', async () => {
   return true;
 });
 function stopTurn(personaId) {
-  running.get(personaId)?.abort();
+  const ctlNow = running.get(personaId);
+  ctlNow?.abort();
+  // If the turn is stuck and never reports back, tell the window it is over so Stop always works.
+  setTimeout(() => { if (running.get(personaId) === ctlNow || (!ctlNow && !running.has(personaId))) { try { if (win && !win.isDestroyed()) win.webContents.send('chat-event', { personaId, type: 'done' }); } catch (_) {} } }, 4000);
   compacting.get(personaId)?.ctl.abort();
   queueGen.set(personaId, (queueGen.get(personaId) || 0) + 1);
   const g = store.data.personas.find((p) => p.id === personaId && p.group);
@@ -1353,8 +1372,10 @@ function runBotTurn(persona, text, { attachments, from, depth = 0, chatKey, grou
       turnUse.input += n.input; turnUse.cached += n.cached; turnUse.peak = Math.max(turnUse.peak, n.input + n.cached); turnUse.output += n.output; turnUse.cost += n.cost; turnUse.calls++;
       if (n.estimated) turnUse.est = true;
     };
+    if ((queueGen.get(persona.id) || 0) !== gen) { const e = new Error('Stopped'); e.stopped = true; throw e; } // Stop was pressed while this one was starting
     const target = computerTargetFor(text);
     const ctl = new AbortController();
+    let closed = false; // once the turn is over (or stopped), late events from tools must not make the bot look busy again
     running.set(persona.id, ctl);
     if (chatKey) running.set(chatKey, ctl);
     // Watchdog: if nothing happens for a long time (and it isn't waiting for you), stop instead of "typing" forever.
@@ -1383,7 +1404,7 @@ function runBotTurn(persona, text, { attachments, from, depth = 0, chatKey, grou
         skipUser,
         hooks: {
           signal: ctl.signal,
-          onEvent: (evt) => { alive(); return evt.type === 'message' ? pushState() : send('chat-event', { personaId: evId, botId: persona.id, botName: persona.name, ...evt, text: evt.text }); },
+          onEvent: (evt) => { alive(); if (closed || (ctl.signal.aborted && evt.type !== 'message')) return; return evt.type === 'message' ? pushState() : send('chat-event', { personaId: evId, botId: persona.id, botName: persona.name, ...evt, text: evt.text }); },
           askCard: (req) =>
             waitFor(new Promise((resolve) => {
               pendingCards.set(req.cardId, { resolve, personaId: persona.id });
@@ -1424,6 +1445,7 @@ function runBotTurn(persona, text, { attachments, from, depth = 0, chatKey, grou
       throw e;
     } finally {
       clearInterval(dog);
+      closed = true;
       if (timedOut) {
         (store.data.chats[evId] ||= []).push({ role: 'activity', content: `${persona.name} stopped because it took too long to answer. Check your internet and try again.`, ts: Date.now() });
         store.save();
