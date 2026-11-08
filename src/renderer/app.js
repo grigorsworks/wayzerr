@@ -370,7 +370,7 @@ function renderTerms() {
   $('#main').dataset.lg = '';
   $('#main').innerHTML = `
     <div class="setup"><div class="setup-card lg-card tm-card">
-      <div class="lg-brand"><img class="lg-dark" src="../icon.png" alt="" width="26" height="26"><img class="lg-light" src="../icon-light.png" alt="" width="26" height="26"><span>Wayzerr</span></div>
+      <div class="lg-brand"><svg class="lg-logo" viewBox="0 0 1024 1024" width="28" height="28" aria-hidden="true"><defs><clipPath id="lgb"><path d="M50 12C80 12 90 38 90 51V74C90 83 84 90 75 90C66 90 62 84 58 80Q50 74 42 80C38 84 34 90 25 90C16 90 10 83 10 74V51C10 38 20 12 50 12Z"/></clipPath></defs><rect width="1024" height="1024" rx="228" fill="#101012"/><g transform="translate(112 118) scale(8)"><path d="M50 12C80 12 90 38 90 51V74C90 83 84 90 75 90C66 90 62 84 58 80Q50 74 42 80C38 84 34 90 25 90C16 90 10 83 10 74V51C10 38 20 12 50 12Z" fill="#FF9440"/><g clip-path="url(#lgb)"><ellipse cx="78" cy="80" rx="40" ry="34" fill="#C25A0E" opacity=".55"/></g><path d="M24 34Q30 24 42 19" stroke="#fff" stroke-opacity=".6" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="36" cy="50" rx="5.4" ry="8.6" fill="#16161c"/><ellipse cx="64" cy="50" rx="5.4" ry="8.6" fill="#16161c"/><circle cx="37.8" cy="46.6" r="2.1" fill="#fff"/><circle cx="65.8" cy="46.6" r="2.1" fill="#fff"/><path d="M42 62Q46 70 50 62Q54 70 58 62" stroke="#16161c" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span>Wayzerr</span></div>
       <h1>Before you start</h1>
       <p class="lead">Here is how Wayzerr works.</p>
       <ul class="tm-list">
@@ -378,22 +378,31 @@ function renderTerms() {
         <li><b>AI can be wrong.</b> Don’t rely on answers for medical, legal, financial or safety decisions without checking.</li>
         <li><b>Your data goes where you send it.</b> Chats and logins stay on this computer. Messages go to the AI you pick, and your account is only your email address.</li>
       </ul>
-      <label class="f" for="tm-age">How old are you?</label>
-      <input id="tm-age" type="number" inputmode="numeric" min="1" max="120" autocomplete="off" />
+      <label class="f">Your birthday</label>
+      <div class="tm-dob"><input id="tm-d" type="text" inputmode="numeric" maxlength="2" placeholder="Day" autocomplete="off"><select id="tm-m"><option value="">Month</option>${['January','February','March','April','May','June','July','August','September','October','November','December'].map((m, i) => `<option value="${i + 1}">${m}</option>`).join('')}</select><input id="tm-y" type="text" inputmode="numeric" maxlength="4" placeholder="Year" autocomplete="off"></div>
       <div class="lg-err tm-agerr" role="alert"></div>
       <p class="lg-fine tm-fine">By continuing you accept the <a href="#" data-legal="terms">Terms of Service</a> and acknowledge the <a href="#" data-legal="privacy">Privacy Policy</a>.</p>
       <div class="lg-row"><button class="btn ghost" id="tm-quit" type="button">Quit</button><button class="btn primary" id="tm-go" type="button" disabled>Continue</button></div>
       <div class="lg-err" role="alert"></div>
     </div></div>`;
-  const go = $('#tm-go'), age = $('#tm-age');
-  const ageOk = () => { const n = parseInt(age.value, 10); return n >= MIN_AGE && n <= 120; };
+  const go = $('#tm-go'), dD = $('#tm-d'), dM = $('#tm-m'), dY = $('#tm-y'), age = dD;
+  // The birthday is only used to work out "old enough": it is never saved or sent.
+  const ageOf = () => {
+    const d = parseInt(dD.value, 10), m = parseInt(dM.value, 10), y = parseInt(dY.value, 10);
+    if (!(d >= 1 && d <= 31 && m >= 1 && m <= 12 && y >= 1900 && String(dY.value).length === 4)) return null;
+    const b = new Date(y, m - 1, d); if (b.getMonth() !== m - 1 || b.getDate() !== d) return null;
+    const now = new Date(); let a = now.getFullYear() - y; if (now < new Date(now.getFullYear(), m - 1, d)) a--;
+    return a >= 0 && a <= 120 ? a : null;
+  };
+  const ageOk = () => { const a = ageOf(); return a != null && a >= MIN_AGE; };
   const update = () => {
-    const n = parseInt(age.value, 10);
-    $('.tm-agerr').textContent = age.value !== '' && n < MIN_AGE ? `Sorry, Wayzerr is for people aged ${MIN_AGE} and over.` : '';
+    const a = ageOf();
+    $('.tm-agerr').textContent = a != null && a < MIN_AGE ? `Sorry, Wayzerr is for people aged ${MIN_AGE} and over.` : '';
     go.disabled = !ageOk();
   };
-  age.oninput = update;
-  age.onkeydown = (e) => { if (e.key === 'Enter' && ageOk()) { e.preventDefault(); go.click(); } };
+  [dD, dY].forEach((i) => { i.oninput = () => { i.value = i.value.replace(/\D/g, ''); if (i === dD && i.value.length === 2) dM.focus(); update(); }; });
+  dM.onchange = () => { update(); if (dM.value) dY.focus(); };
+  [dD, dM, dY].forEach((i) => (i.onkeydown = (e) => { if (e.key === 'Enter' && ageOk()) { e.preventDefault(); go.click(); } }));
   $('#tm-quit').onclick = () => api.quitApp().catch(() => {});
   go.onclick = async () => {
     if (!ageOk()) return; // only the yes/no is kept, never the exact age
@@ -419,7 +428,7 @@ function renderLogin() {
     : `<button id="lg-go" class="btn primary lg-btn" type="button">Continue in browser</button>`;
   $('#main').innerHTML = `
     <div class="setup"><div class="setup-card lg-card">
-      <div class="lg-brand"><img class="lg-dark" src="../icon.png" alt="" width="26" height="26"><img class="lg-light" src="../icon-light.png" alt="" width="26" height="26"><span>Wayzerr</span></div>
+      <div class="lg-brand"><svg class="lg-logo" viewBox="0 0 1024 1024" width="28" height="28" aria-hidden="true"><defs><clipPath id="lgb"><path d="M50 12C80 12 90 38 90 51V74C90 83 84 90 75 90C66 90 62 84 58 80Q50 74 42 80C38 84 34 90 25 90C16 90 10 83 10 74V51C10 38 20 12 50 12Z"/></clipPath></defs><rect width="1024" height="1024" rx="228" fill="#101012"/><g transform="translate(112 118) scale(8)"><path d="M50 12C80 12 90 38 90 51V74C90 83 84 90 75 90C66 90 62 84 58 80Q50 74 42 80C38 84 34 90 25 90C16 90 10 83 10 74V51C10 38 20 12 50 12Z" fill="#FF9440"/><g clip-path="url(#lgb)"><ellipse cx="78" cy="80" rx="40" ry="34" fill="#C25A0E" opacity=".55"/></g><path d="M24 34Q30 24 42 19" stroke="#fff" stroke-opacity=".6" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="36" cy="50" rx="5.4" ry="8.6" fill="#16161c"/><ellipse cx="64" cy="50" rx="5.4" ry="8.6" fill="#16161c"/><circle cx="37.8" cy="46.6" r="2.1" fill="#fff"/><circle cx="65.8" cy="46.6" r="2.1" fill="#fff"/><path d="M42 62Q46 70 50 62Q54 70 58 62" stroke="#16161c" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g></svg><span>Wayzerr</span></div>
       <h1>Sign in to Wayzerr</h1>
       <p class="lead">Sign in or create an account in your browser. You only need to do this once on this computer.</p>
       ${waiting}
@@ -2281,14 +2290,13 @@ function openBotEditor(p, presetName = '') {
   const d = p ? { ...p } : { name: presetName };
   const used = bots().map((b) => String(charOf(b).color || '').toLowerCase());
   // The 18 bots to choose from (bottom row) and the 16 accessories (top row) — like picking a kart.
-  const R_ = '#FF6B5B', B_ = '#4F8BFF', Y_ = '#FFB020', G_ = '#2FCB7A', P_ = '#A77BFF', K_ = '#FF7AB6', W_ = '#F2F2F2', T_ = '#2DD4BF';
-  // 18 bots, each its own colour
-  const LOOKS = [['orb', R_, 'dots', 'smile'], ['pebble', B_, 'ovals', 'none'], ['blob', Y_, 'wide', 'o'], ['bun', G_, 'dots', 'smile'], ['capsule', P_, 'ovals', 'none'], ['bean', K_, 'wide', 'o'],
-    ['orb', '#FF8A3D', 'ovals', 'o'], ['pebble', '#38BDF8', 'wide', 'smile'], ['blob', '#E879F9', 'dots', 'none'], ['bun', W_, 'ovals', 'o'], ['capsule', T_, 'wide', 'smile'], ['bean', '#A3E635', 'dots', 'none'],
-    ['orb', '#6366F1', 'dots', 'none'], ['pebble', '#FB7185', 'dots', 'o'], ['blob', '#6EE7B7', 'ovals', 'smile'], ['bun', '#B07A4F', 'wide', 'none'], ['capsule', '#FACC15', 'dots', 'o'], ['bean', '#5B6275', 'ovals', 'smile']]
-    .map(([shape, color, eyes, mouth]) => ({ shape, color, eyes, mouth, extra: 'none' }));
+  // 18 bots, each its own colour — the Wayzerr bot in six proportions (the first one is the logo bot)
+  const LOOKS = [['orb', '#FF8A2B', 'ovals'], ['pebble', '#4F8BFF', 'dots'], ['blob', '#2FCB7A', 'wide'], ['bun', '#FF7AB6', 'dots'], ['capsule', '#FFB020', 'ovals'], ['bean', '#2DD4BF', 'happy'],
+    ['orb', '#F2F2F2', 'ovals'], ['pebble', '#FF6B5B', 'wide'], ['blob', '#A77BFF', 'dots'], ['bun', '#38BDF8', 'ovals'], ['capsule', '#A3E635', 'wide'], ['bean', '#FB7185', 'sleepy'],
+    ['orb', '#4A4A54', 'ovals'], ['pebble', '#FACC15', 'happy'], ['blob', '#6366F1', 'dots'], ['bun', '#B07A4F', 'ovals'], ['capsule', '#E879F9', 'dots'], ['bean', '#6EE7B7', 'wide']]
+    .map(([shape, color, eyes]) => ({ shape, color, eyes, mouth: 'none', extra: 'none' }));
   const ACCS = window.Characters.ACCESSORIES;
-  const sameLook = (x, y) => x && y && x.shape === y.shape && String(x.color).toLowerCase() === String(y.color).toLowerCase() && x.eyes === y.eyes && (x.mouth || 'none') === (y.mouth || 'none');
+  const sameLook = (x, y) => x && y && x.shape === y.shape && String(x.color).toLowerCase() === String(y.color).toLowerCase() && x.eyes === y.eyes;
   const pickRandom = () => {
     const free = LOOKS.map((l, i) => i).filter((i) => !used.includes(LOOKS[i].color.toLowerCase()));
     const pool = free.length ? free : LOOKS.map((l, i) => i);
@@ -2326,6 +2334,7 @@ function openBotEditor(p, presetName = '') {
     $('#k-accname').textContent = ACCS[ai].id === 'none' ? 'No accessory' : ACCS[ai].name;
     $('#be-char').innerHTML = `<span class="${pop ? 'char-pop' : ''}" style="display:inline-block">${characterSvg(ch, { size: 120 })}</span>`;
     center($('#k-acc')); center($('#k-bot'));
+    if (pop && ai > 0) { const pv = $('#be-char .char'); setTimeout(() => { if (pv && pv.isConnected) window.Characters.play(pv, 'acc'); }, 520); } // it shows off the accessory's own move
     $$('#k-acc [data-ai]').forEach((x) => (x.onclick = () => { ai = +x.dataset.ai; draw(true); }));
     $$('#k-bot [data-bi]').forEach((x) => (x.onclick = () => { bi = +x.dataset.bi; draw(true); }));
   };
