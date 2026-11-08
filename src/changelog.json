@@ -1,4 +1,11 @@
 {
+  "1.3.47": [
+    "The search bar and + button now sit below the window buttons (close, minimise, full screen) so the search bar has its full width.",
+    "Talking to a bot now works like Claude: you see how loud your voice is while you talk, and your words appear in the message box as you speak (with the on-device voice engine).",
+    "Mac permissions (see the screen, click and type) now stay allowed after updates. After this update, allow Screen and Accessibility one last time (select Wayzerr, press the minus button, then Allow again).",
+    "Bots move in a new way: the face slides and tilts on the body, with new looks. Accessory moves and the rainbow spinner are unchanged.",
+    "Fixed the Download button turning white with unreadable text when you hover over it."
+  ],
   "1.3.46": [
     "Updates no longer depend on a single server. Wayzerr now asks wayzerr.com and GitHub at the same time, and if one cannot be reached (for example when an internet provider blocks it) it downloads the update from the other one.",
     "Check for updates is faster, because the update servers are asked at the same time."

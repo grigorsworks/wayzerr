@@ -82,9 +82,12 @@ svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-widt
 .char .c-pupil { transform-box: view-box; }
 
 .char .c-body { transform-origin: 50% 100%; transition: transform .3s var(--ease); }
-.char .c-eyes { animation: blink 6s var(--blink-delay, 0s) infinite; }
+.char .c-eyes { animation: blink 3.4s var(--blink-delay, 0s) infinite; }
+.char.track .c-eyes { animation-duration: 2s; } /* the reference bot blinks every two seconds */
+.char.perf .c-eyes { animation: none; }
+.char.perf .c-body { transition: none; }
 .char .c-dots { fill: #d9d9d9; opacity: 0; }
-@keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+@keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 94% { transform: scaleY(.22); } 96% { transform: scaleY(.22); } }
 
 /* working states */
 .char.is-thinking .c-body { animation: float 1.8s ease-in-out infinite; }

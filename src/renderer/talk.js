@@ -105,6 +105,8 @@
     };
     return {
       label: label,
+      // The audio so far, without stopping (for live text while you talk).
+      snapshot: function () { return done || !chunks.length ? null : { wav: toWav(chunks.slice(), rate), ms: chunks.length * 2048 / rate * 1000 }; },
       stop: function (cancel) {
         if (done) return Promise.resolve(null);
         done = true;

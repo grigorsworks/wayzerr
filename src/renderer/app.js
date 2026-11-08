@@ -878,15 +878,30 @@ async function toggleVoice(p) {
     if (engines[0] === 'On this computer') api.voiceWarm(); // loads the on-device engine while you talk
     if (!(await api.voiceMic())) return toast(MIC_DENIED, true);
     const v = voice = { start: Date.now(), p, rec: null, timer: null };
-    v.rec = await WzTalk.record({ deviceId: loadPref('micDevice', ''), onLevel: (l) => { const d = $('#mic .rec-dot'); if (d) d.style.transform = `scale(${(1 + l * 1.6).toFixed(2)})`; } });
+    v.live = engines[0] === 'On this computer'; // words appear while you talk only with the free on-device engine (a paid online engine would be asked again and again)
+    v.interim = ''; v.busy = false;
+    v.bars = new Array(48).fill(0); let lastDraw = 0;
+    v.rec = await WzTalk.record({ deviceId: loadPref('micDevice', ''), onLevel: (l) => {
+      const d = $('#mic .rec-dot'); if (d) d.style.transform = `scale(${(1 + l * 1.6).toFixed(2)})`;
+      const now = performance.now();
+      if (now - lastDraw > 50) { lastDraw = now; v.bars.push(l); v.bars.shift(); drawVoiceBars(v); }
+    } });
     if (voice !== v) return v.rec.stop(true);
     mic.classList.add('rec'); mic.title = 'Stop and turn into text';
     mic.innerHTML = `<span class="rec-dot"></span><span class="rec-time" id="rec-time">0:00</span>`;
+    const cin = $('#composer .composer-inner');
+    if (cin && !$('#voice-bar')) {
+      const vb = document.createElement('div'); vb.id = 'voice-bar'; vb.className = 'voice-bar';
+      vb.innerHTML = '<div class="vb-bars" id="vb-bars">' + '<i></i>'.repeat(48) + '</div><span class="vb-hint">Listening… press the mic again to finish, or Esc to cancel</span>';
+      cin.insertBefore(vb, cin.firstChild);
+    }
+    drawVoiceBars(v);
     v.timer = setInterval(() => {
       const s = Math.floor((Date.now() - v.start) / 1000), t = $('#rec-time');
       if (t) t.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
       if (s >= 300) stopVoice(false); // 5 minutes at most
     }, 250);
+    if (v.live) v.liveTimer = setInterval(() => liveVoice(v), 1800);
   } catch (e) {
     voice = null; resetMic();
     toast(/denied|not allowed|permission/i.test(e.message) ? MIC_DENIED : /not found|no device|requested device/i.test(e.message) ? 'No microphone found. Plug one in or pick another in Settings → Voice.' : e.message, true);
@@ -894,13 +909,39 @@ async function toggleVoice(p) {
 }
 function stopVoice(cancel) {
   const v = voice; if (!v) return;
-  voice = null; clearInterval(v.timer);
+  voice = null; clearInterval(v.timer); clearInterval(v.liveTimer);
   if (!v.rec) return resetMic();
-  finishVoice(v, cancel);
+  return finishVoice(v, cancel);
 }
-function resetMic() { const m = $('#mic'); if (m) { m.classList.remove('rec', 'busy'); m.disabled = false; m.title = 'Talk instead of typing'; m.innerHTML = icon('mic'); } }
+// The level meter: the loudness of your voice for the last few seconds, like in Claude.
+function drawVoiceBars(v) {
+  const el = $$('#vb-bars i'); if (!el.length) return;
+  v.bars.forEach((l, i) => { if (el[i]) el[i].style.height = Math.max(3, Math.round(3 + Math.min(1, l) * 25)) + 'px'; });
+}
+// Words appear in the message box while you are still talking (on-device engine only).
+async function liveVoice(v) {
+  if (voice !== v || v.busy || Date.now() - v.start < 1500 || Date.now() - v.start > 60000) return;
+  const snap = v.rec?.snapshot?.(); if (!snap) return;
+  v.busy = true;
+  try {
+    const { text } = await api.voiceTranscribe({ data: WzTalk.b64(snap.wav), mime: 'audio/wav' });
+    if (voice === v && text) setVoiceText(v, text);
+  } catch (_) { /* the final text still comes when you finish */ }
+  v.busy = false;
+}
+// Put (or replace) the not-yet-final words at the end of the message box, keeping anything you typed.
+function setVoiceText(v, text) {
+  const input = $('#composer-input'); if (!input || mounted?.id !== v.p.id) return;
+  let cur = input.value;
+  if (v.interim && cur.endsWith(v.interim)) cur = cur.slice(0, cur.length - v.interim.length);
+  const head = cur.trim() ? cur.replace(/\s*$/, ' ') : cur;
+  v.interim = text || ''; input.value = head + v.interim; autosize(input); syncSend(v.p);
+  input.scrollTop = input.scrollHeight;
+}
+function resetMic() { $('#voice-bar')?.remove(); const m = $('#mic'); if (m) { m.classList.remove('rec', 'busy'); m.disabled = false; m.title = 'Talk instead of typing'; m.innerHTML = icon('mic'); } }
 async function finishVoice(v, cancel) {
   const got = await v.rec.stop(cancel);
+  if (v.interim && (cancel || !got)) { const inp = $('#composer-input'); if (inp && inp.value.endsWith(v.interim)) { inp.value = inp.value.slice(0, inp.value.length - v.interim.length).replace(/\s+$/, ''); autosize(inp); syncSend(v.p); } }
   if (cancel || !got) return resetMic();
   const mic = $('#mic');
   if (mic) { mic.classList.remove('rec'); mic.classList.add('busy'); mic.disabled = true; mic.innerHTML = '<span class="acct-spin"></span>'; }
@@ -909,7 +950,10 @@ async function finishVoice(v, cancel) {
     if (!text) toast("I didn't catch any words. Try again a little closer to the mic.", true);
     else {
       const input = $('#composer-input');
-      if (input && mounted?.id === v.p.id) { input.value = (input.value.trim() ? input.value.replace(/\s*$/, ' ') : '') + text; autosize(input); syncSend(v.p); input.focus(); input.setSelectionRange(input.value.length, input.value.length); }
+      if (input && mounted?.id === v.p.id) {
+        let cur = input.value; if (v.interim && cur.endsWith(v.interim)) cur = cur.slice(0, cur.length - v.interim.length); v.interim = '';
+        input.value = (cur.trim() ? cur.replace(/\s*$/, ' ') : '') + text; autosize(input); syncSend(v.p); input.focus(); input.setSelectionRange(input.value.length, input.value.length);
+      }
     }
   } catch (e) { toast(String(e.message || e).replace(/^Error invoking remote method '[^']+': (Error: )?/, ''), true); }
   resetMic();
@@ -2060,6 +2104,7 @@ function stopBot(p) {
   setTimeout(clear, 1500);
 }
 async function send(p, preset) {
+  if (voice && !preset) await stopVoice(false); // sending while you are still talking: finish the words first, then send them
   stoppedAt.delete(p.id);
   const input = $('#composer-input');
   const text = preset ? preset.text : input.value.trim();
@@ -3595,8 +3640,8 @@ function tabComputer() {
       <div class="hint">Whichever you pick here, you can tell a bot in the chat: "use my computer" or "use your own computer", and it does that for that message.</div>
       ${mac ? `<div class="section-title sm">Permissions for ${esc(name)}</div>
       <div class="card simple">
-        <div class="card-row"><div class="grow"><div class="nm">${dot(pm.screen === 'granted')}See the screen</div><div class="ds">System Settings → Privacy & Security → Screen & System Audio Recording. After switching Wayzerr on, restart Wayzerr.</div></div>${pm.screen === 'granted' ? '<span class="ok-t">Allowed</span>' : '<button class="btn sm" data-p="screen">Allow…</button>'}</div>
-        <div class="card-row"><div class="grow"><div class="nm">${dot(pm.accessibility)}Click and type</div><div class="ds">System Settings → Privacy & Security → Accessibility.</div></div>${pm.accessibility ? '<span class="ok-t">Allowed</span>' : '<button class="btn sm" data-p="accessibility">Allow…</button>'}</div>
+        <div class="card-row"><div class="grow"><div class="nm">${dot(pm.screen === 'granted')}See the screen</div><div class="ds">System Settings → Privacy & Security → Screen & System Audio Recording. After switching Wayzerr on, restart Wayzerr. Still orange although it is switched on? Select Wayzerr in that list, press the − button to remove it, then press Allow… again.</div></div>${pm.screen === 'granted' ? '<span class="ok-t">Allowed</span>' : '<button class="btn sm" data-p="screen">Allow…</button>'}</div>
+        <div class="card-row"><div class="grow"><div class="nm">${dot(pm.accessibility)}Click and type</div><div class="ds">System Settings → Privacy & Security → Accessibility. Still orange although it is switched on? Select Wayzerr, press −, then Allow… again.</div></div>${pm.accessibility ? '<span class="ok-t">Allowed</span>' : '<button class="btn sm" data-p="accessibility">Allow…</button>'}</div>
         <div class="card-row"><div class="grow"><div class="nm">Already switched them on?</div><div class="ds">Press to check again.</div></div><button class="btn sm" id="cm-check">Check again</button></div>
       </div>` : `<div class="hint">Using your own computer works on a Mac for now.</div>`}
       <div class="section-title sm">The bots' own computers</div>
