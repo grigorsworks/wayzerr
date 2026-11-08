@@ -1,6 +1,6 @@
 {
   "name": "wayzerr-app",
-  "version": "1.3.45",
+  "version": "1.3.46",
   "description": "Wayzerr — AI bots with their own personalities, memory, browser and tools",
   "main": "src/main.js",
   "author": "Wayzerr",

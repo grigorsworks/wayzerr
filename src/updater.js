@@ -167,12 +167,17 @@ const newerThan = (a, b) => !b || (isStamp(a.build) && isStamp(String(b.build ||
 
 async function check(feedUrl, { manual = false } = {}) {
   let feed = null, reached = false;
-  // One or more feeds (your site first, older ones as backup) — the newest wins.
-  for (const f of [].concat(feedUrl || []).filter(Boolean)) {
-    let got = null;
-    try { got = await findFeed(f); reached = true; } catch (_) { /* offline or gone */ }
-    if (got && (!feed || newerThan(got, feed))) feed = got;
+  // One or more feeds (your site first, GitHub as a second route that does not depend on Cloudflare) are asked at the same
+  // time. The newest wins; the same update seen on another route is kept as a spare place to download it from.
+  const list = [].concat(feedUrl || []).filter(Boolean);
+  const got = await Promise.all(list.map((f) => findFeed(f).then((g) => { reached = true; return g; }, () => null)));
+  const spare = [];
+  for (const g of got) {
+    if (!g) continue;
+    if (!feed || newerThan(g, feed)) { if (feed) spare.length = 0; feed = g; }
+    else if (g.version === feed.version && g.sha256 && g.sha256 === feed.sha256 && g.url !== feed.url) spare.push(g.url);
   }
+  if (feed && spare.length) feed.alts = [...new Set(spare)];
   // The Downloads folder is only looked at when you press "Check for updates" and the online update server can't be reached,
   // so macOS has no reason to ask for permission to it when Wayzerr starts or updates.
   const scan = manual && !reached; // only when you press Check for updates AND the update server can't be reached (never on start-up: macOS asks for Downloads access again after every update)
@@ -264,9 +269,15 @@ async function install(update, onProgress = () => {}) {
     if (!/^https:\/\//i.test(update.url) && !(process.env.WAYZERR_DATA_DIR && /^http:\/\/127\.0\.0\.1[:/]/.test(update.url))) throw new Error('This update is not on a secure (https) address, so Wayzerr will not install it.');
     if (!update.sha256) throw new Error('The update feed has no checksum for this download, so Wayzerr will not install it.');
     onProgress('Downloading…');
-    const r = await fetch(update.url);
-    if (!r.ok) throw new Error('Download failed (' + r.status + ')');
-    isDmg = /\.dmg(\?|$)/i.test(update.url) || /diskimage|octet-stream/i.test(r.headers.get('content-type') || '');
+    // Try the main address first; if it can't be reached (or answers with an error), the same update from the other route.
+    let r = null, usedUrl = update.url, lastErr = null;
+    for (const u of [update.url, ...(update.alts || [])]) {
+      if (!/^https:\/\//i.test(u) && !(process.env.WAYZERR_DATA_DIR && /^http:\/\/127\.0\.0\.1[:/]/.test(u))) continue;
+      const ac = new AbortController(); const t = setTimeout(() => ac.abort(), 20000);
+      try { const x = await fetch(u, { signal: ac.signal }); clearTimeout(t); if (x.ok) { r = x; usedUrl = u; break; } lastErr = new Error('Download failed (' + x.status + ')'); } catch (e) { clearTimeout(t); lastErr = new Error("Couldn't reach the download server"); }
+    }
+    if (!r) throw lastErr || new Error('Download failed');
+    isDmg = /\.dmg(\?|$)/i.test(usedUrl) || /diskimage|octet-stream/i.test(r.headers.get('content-type') || '');
     zip = path.join(work, isDmg ? 'update.dmg' : 'update.zip');
     const total = Number(r.headers.get('content-length')) || update.size || 0;
     const hash = crypto.createHash('sha256');
