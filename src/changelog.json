@@ -1,4 +1,8 @@
 {
+  "1.3.43": [
+    "Your profile button is back on the right of Settings.",
+    "The search box and + button sit a little lower, so they are not squeezed against the top."
+  ],
   "1.3.42": [
     "Bots can now build and run apps in your Files folder. Every command a bot wants to run asks for your OK first, every time.",
     "Install skills and plugins by asking a bot (it asks before installing).",
