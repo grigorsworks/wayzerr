@@ -290,3 +290,10 @@ html.light #set-body .seg-tabs button.on { box-shadow: 0 0 0 1px var(--line-2), 
 
 /* light.css has a stray `html.light.light { --accent: #e8e8e8 }` that made every accent (the + button, the avatar, toggles, active icons, primary buttons) pale in light mode. Same specificity, later file: the accent from the top of this file wins. */
 html.light.light { --accent: #c6613f; }
+
+/* Profile avatar (.me: the round button in the sidebar and the big one in the account menu): an accent circle with a white letter in both themes.
+   Light mode used to get a pale background (claude.css `html.light .me`, light.css) under the white letter, so it could not be read, and styles.css turned
+   the hover background charcoal / grey. Only these two elements carry the .me class. */
+.me, html.light .me { background: var(--accent); color: var(--accent-ink); }
+.me:hover, html.light .me:hover { background: var(--accent); color: var(--accent-ink); filter: brightness(1.1); }
+html.light .me:hover { filter: brightness(.93); }

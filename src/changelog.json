@@ -1,4 +1,7 @@
 {
+  "1.3.50": [
+    "Light mode: your profile letter (the round button in the sidebar and the account menu) is readable again."
+  ],
   "1.3.49": [
     "Settings has a new look: a menu on the left with every page (General, Appearance, Updates, Privacy, AI and apps, Skills, Computer, Browser, Passwords, Voice, Notifications, Phone, Help), and rows with the name on the left and the control on the right.",
     "Bots can use your Downloads, Documents and Desktop folders. The first time a bot needs one, Wayzerr asks \"Can Wayzerr access your Downloads?\" and your yes is remembered. Turn it off any time in Settings, Connectors, Files.",
