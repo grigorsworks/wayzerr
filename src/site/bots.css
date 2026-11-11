@@ -1,0 +1,78 @@
+/* Wayzerr bots on the website: the same look and moves as the app (copied from src/renderer/styles.css). */
+:root{--ease:cubic-bezier(.22,1,.36,1);--spring:cubic-bezier(.34,1.56,.64,1)}
+/* ---------- Characters ---------- */
+.char { display: inline-block; flex-shrink: 0; position: relative; }
+.char svg { display: block; overflow: visible; }
+.char .c-body, .char .c-eyes, .char .c-face, .char .c-turn, .char .c-eye { transform-box: fill-box; transform-origin: 50% 50%; }
+.char .c-turn { transform-origin: 50% 75%; }
+.char .c-pupil { transform-box: view-box; }
+
+.char .c-body { transform-origin: 50% 100%; transition: transform .3s var(--ease); }
+.char .c-eyes { animation: b_blink 3.4s var(--blink-delay, 0s) infinite; }
+.char.track .c-eyes { animation-duration: 2s; } /* the reference bot blinks every two seconds */
+.char.perf .c-eyes { animation: none; }
+.char.perf .c-body { transition: none; }
+.char .c-dots { fill: #d9d9d9; opacity: 0; }
+@keyframes b_blink { 0%, 90%, 100% { transform: scaleY(1); } 94% { transform: scaleY(.22); } 96% { transform: scaleY(.22); } }
+
+/* working states */
+.char.is-thinking .c-body { animation: b_float 1.8s ease-in-out infinite; }
+
+.char.is-thinking .c-dots { animation: b_dots 1.6s ease-in-out infinite; }
+.char.is-thinking .c-dots circle:nth-child(2) { animation: b_dot2 1.6s ease-in-out infinite; }
+.char.is-browsing .c-body, .char.is-reading .c-body { animation: b_sway 2.4s ease-in-out infinite; }
+
+.char.is-typing .c-body, .char.is-working .c-body { animation: b_hop .8s ease-in-out infinite; }
+
+.char.is-remembering .c-body { animation: b_pulse 1.2s ease-in-out infinite; }
+.char.is-waiting .c-body { animation: b_float 2.6s ease-in-out infinite; }
+
+.char[class*='is-'] .c-bulb { animation: b_bulb 1s ease-in-out infinite alternate; }
+.char[class*='is-'] .c-spark { animation: b_spark 1.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.char[class*='is-'] .c-leaf { animation: b_leaf 1.2s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 100% 100%; }
+.char[class*='is-'] .c-leaf2 { animation: b_leaf2 1.2s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 0% 100%; }
+@keyframes b_float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5%); } }
+@keyframes b_ponder { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(6%, -5%); } 60% { transform: translate(-4%, -4%); } }
+@keyframes b_scan { 0%, 100% { transform: translateX(-7%); } 50% { transform: translateX(7%); } }
+@keyframes b_sway { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
+@keyframes b_hop { 0%, 100% { transform: translateY(0) scale(1, 1); } 20% { transform: translateY(0) scale(1.04, .96); } 55% { transform: translateY(-7%) scale(.98, 1.03); } }
+@keyframes b_nod { from { transform: translateY(0); } to { transform: translateY(4%); } }
+@keyframes b_pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+@keyframes b_dots { 0%, 100% { opacity: 0; transform: translateY(2px); } 30%, 70% { opacity: 1; transform: translateY(0); } }
+@keyframes b_dot2 { 0%, 20% { opacity: 0; } 50%, 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes b_bulb { from { filter: brightness(1); } to { filter: brightness(1.6) drop-shadow(0 0 3px #fff); } }
+@keyframes b_spark { 0%, 100% { transform: scale(.7) rotate(0deg); opacity: .6; } 50% { transform: scale(1.2) rotate(45deg); opacity: 1; } }
+@keyframes b_leaf { from { transform: rotate(-6deg); } to { transform: rotate(8deg); } }
+@keyframes b_leaf2 { from { transform: rotate(6deg); } to { transform: rotate(-8deg); } }
+.char.is-thinking .c-turn { animation: b_headTilt 3.4s ease-in-out infinite; }
+.char.is-browsing .c-face, .char.is-reading .c-face { animation: b_faceToScreen 1.9s ease-in-out infinite; }
+
+.char.is-thinking .c-eyes, .char.is-browsing .c-eyes, .char.is-reading .c-eyes, .char.is-typing .c-eyes { animation-duration: 3.2s; }
+@keyframes b_pupilPonder { 0%, 100% { transform: translate(0, 0); } 22% { transform: translate(2px, -2.4px); } 50% { transform: translate(-1.6px, -2.8px); } 78% { transform: translate(2.6px, -1.2px); } }
+@keyframes b_headTilt { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+@keyframes b_pupilRead { 0%, 100% { transform: translate(0, 0); } 12% { transform: translate(-2.6px, -0.6px); } 62% { transform: translate(2.6px, -0.6px); } 72% { transform: translate(2.6px, 1px); } 86% { transform: translate(-1px, 1px); } }
+@keyframes b_faceToScreen { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+@keyframes b_pupilType { 0%, 100% { transform: translate(0, 0); } 30% { transform: translate(-.8px, 2.6px); } 70% { transform: translate(.8px, 2.6px); } }
+@keyframes b_pupilRemember { 0%, 100% { transform: translate(0, 0); } 30%, 70% { transform: translate(-2.4px, -2.6px); } }
+@keyframes b_pupilWait { 0%, 60%, 100% { transform: translate(0, 0); } 70%, 90% { transform: translate(0, 1.4px); } }
+.char .c-fx .c-puff { fill: rgba(255,255,255,.85); filter: blur(1.2px); opacity: 0; transform-box: fill-box; transform-origin: center; }
+.char .c-swirl { position: absolute; inset: -22%; border-radius: 50%; pointer-events: none; opacity: 0;
+  background: conic-gradient(from 0deg, #ff4d6d, #ffb020, #ffe45c, #3ddc84, #3ab8ff, #8a6bff, #ff5cc8, #ff4d6d);
+  -webkit-mask: radial-gradient(closest-side, transparent 66%, #000 70%, #000 84%, transparent 88%);
+  mask: radial-gradient(closest-side, transparent 66%, #000 70%, #000 84%, transparent 88%);
+  filter: blur(.6px) saturate(1.15); }
+.char .c-swirl::after { content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from 90deg, transparent 0 70%, rgba(255,255,255,.9) 78%, transparent 86%); }
+
+/* ---------- v0.9: 3D + rainbow swirls ---------- */
+.char .c-3d { display: block; width: 100%; height: 100%; transform-origin: 50% 58%; will-change: transform; }
+.char .c-swirl { z-index: 0; }
+.char .c-swirl-b { inset: -6%; opacity: 0;
+  background: conic-gradient(from 180deg, #8a6bff, #3ab8ff, #3ddc84, #ffe45c, #ffb020, #ff4d6d, #ff5cc8, #8a6bff);
+  -webkit-mask: radial-gradient(closest-side, transparent 78%, #000 81%, #000 90%, transparent 93%);
+  mask: radial-gradient(closest-side, transparent 78%, #000 81%, #000 90%, transparent 93%); }
+.char .c-sparkles { position: absolute; inset: -30%; pointer-events: none; opacity: 0; }
+.char .c-sparkles i { position: absolute; width: 9%; height: 9%; border-radius: 50%; left: 45.5%; top: 45.5%; box-shadow: 0 0 6px currentColor; background: currentColor; }
+.char .c-sparkles i:nth-child(1) { color: #ff4d6d; transform: rotate(0deg) translateY(-46%) scale(.9); transform: translate(0, -520%); }
+.char .c-sparkles i:nth-child(2) { color: #ffb020; transform: translate(450%, -260%); }
+.char svg{display:block;overflow:visible}
