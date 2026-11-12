@@ -404,6 +404,7 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
 @media(max-width:960px){.ngrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.ngrid{grid-template-columns:1fr}.nsec{padding-top:80px}}
 /* 1 download */
+.nv{height:196px}
 .s1 .f{display:flex;gap:12px;align-items:center;background:#1b1b1e;border:1px solid #2a2a2f;border-radius:14px;padding:12px 16px;width:236px}
 .s1 .ic{width:34px;height:34px;border-radius:9px;background:#fff;color:#000;display:grid;place-items:center;font-weight:700;animation:s1b 1.2s ease-in-out infinite}
 .s1 u{display:block;text-decoration:none;font-size:13px;margin-bottom:7px}
@@ -420,103 +421,120 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
 .s2 span:nth-child(2){animation-delay:2s}.s2 span:nth-child(3){animation-delay:4s}
 @keyframes s2a{0%,30%{border-color:#fff;background:#25252a}34%,100%{border-color:#2a2a2f;background:#1b1b1e}}
 @keyframes s2d{0%,30%{background:#4ad991;box-shadow:0 0 10px #4ad991}34%,100%{background:#44444a;box-shadow:none}}
-/* 3 first bot */
-.s3{display:flex;flex-direction:column;align-items:center;gap:12px}
-.s3 .rb{animation:s3p 5s infinite}
-.s3 b{display:block;overflow:hidden;white-space:nowrap;font-weight:500;font-size:15px;width:0;border-right:2px solid #fff;animation:s3t 5s steps(5) infinite}
-@keyframes s3p{0%{transform:scale(.2);opacity:0}12%{transform:scale(1.12);opacity:1}18%,92%{transform:scale(1);opacity:1}100%{opacity:0}}
-@keyframes s3t{0%,20%{width:0}45%,90%{width:5ch}100%{width:0}}
-@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+/* little stage: everything in a scene is centred in the card */
+.nv{display:flex;align-items:center;justify-content:center}
+.sc{position:relative;display:flex;align-items:center;justify-content:center}
+.rb{display:inline-block;line-height:0}.rb .char,.sc .char{display:block}
+/* 3 first bot: a hat, and the jobs it can be given */
+.s3{flex-direction:column;gap:6px}
+.s3 .stg{position:relative;width:96px;height:96px}
+.s3 .stg .rb{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transform:scale(.3) translateY(10px);transition:opacity .28s,transform .45s var(--spring)}
+.s3 .stg .rb.on{opacity:1;transform:none}
+.s3 .job{height:24px;width:100%;text-align:center;font-weight:500;font-size:15px;white-space:nowrap}
+/* typed text: the full sentence is held (invisible) so the line stays centred while it is typed */
+.tyw{position:relative;display:inline-block;white-space:pre}
+.tyw .gh{visibility:hidden}
+.tyw b{position:absolute;left:0;top:0;font-weight:inherit;white-space:pre}
+.tyw b::after{content:"";display:inline-block;width:2px;height:1em;background:#fff;margin-left:2px;vertical-align:-2px;animation:cur 1s steps(1) infinite}
+@keyframes cur{50%{opacity:0}}
 /* 4 task chat */
-.s4{width:232px;display:flex;flex-direction:column;gap:8px}
-.s4 p{margin:0;padding:8px 13px;border-radius:16px;font-size:13.5px;max-width:84%;opacity:0}
-.s4 .u{align-self:flex-end;background:#545454;animation:s4a 7s infinite}
-.s4 .d{align-self:flex-start;background:#252525;display:flex;gap:4px;padding:11px 14px;animation:s4d 7s infinite}
+.s4{width:248px;height:150px;position:relative}
+.s4 .hd{position:absolute;left:0;top:0;display:flex;align-items:center;gap:9px;font-size:12.5px;color:#9a9aa1}
+.s4 .hd b{color:#fff;font-weight:500;font-size:13.5px;display:block}
+.s4 p{position:absolute;margin:0;padding:8px 13px;border-radius:16px;font-size:13.5px;opacity:0;transform:translateY(8px);transition:opacity .3s,transform .35s var(--spring)}
+.s4 p.on{opacity:1;transform:none}
+.s4 .u{right:0;top:52px;background:#545454}
+.s4 .d{left:0;top:96px;background:#252525;display:flex;gap:4px;padding:12px 14px}
 .s4 .d i{width:6px;height:6px;border-radius:50%;background:#9a9aa1;animation:s4j 1s infinite}
 .s4 .d i:nth-child(2){animation-delay:.15s}.s4 .d i:nth-child(3){animation-delay:.3s}
-.s4 .b{align-self:flex-start;background:#252525;animation:s4b 7s infinite;margin-top:-30px}
-@keyframes s4a{0%,4%{opacity:0;transform:translateY(8px)}10%,92%{opacity:1;transform:none}98%,100%{opacity:0}}
-@keyframes s4d{0%,24%{opacity:0}28%,44%{opacity:1}48%,100%{opacity:0}}
-@keyframes s4b{0%,46%{opacity:0;transform:translateY(8px)}52%,92%{opacity:1;transform:none}98%,100%{opacity:0}}
+.s4 .b{left:0;top:96px;background:#252525}
 @keyframes s4j{50%{transform:translateY(-4px)}}
 /* 5 works on own computer */
-.s5{width:216px;height:122px;background:#1b1b1e;border:1px solid #2a2a2f;border-radius:12px;position:relative;padding:26px 14px 0}
-.s5::before{content:"";position:absolute;left:11px;top:9px;width:7px;height:7px;border-radius:50%;background:#ff6b5e;box-shadow:12px 0 #ffc24a,24px 0 #4ad991}
+.s5{gap:14px}
+.s5 .w5{width:186px;height:118px;background:#1b1b1e;border:1px solid #2a2a2f;border-radius:12px;position:relative;padding:28px 14px 0;flex:none}
+.s5 .w5::before{content:"";position:absolute;left:11px;top:10px;width:7px;height:7px;border-radius:50%;background:#ff6b5e;box-shadow:12px 0 #ffc24a,24px 0 #4ad991}
 .s5 em{display:block;height:9px;border-radius:5px;background:#2a2a2f;margin-bottom:11px;position:relative;overflow:hidden}
 .s5 em i{position:absolute;inset:0;width:0;background:#4ad991;animation:s5f 6s infinite}
-.s5 em:nth-child(2) i{animation-delay:1.3s}.s5 em:nth-child(3) i{animation-delay:2.6s}
-.s5 .cur{position:absolute;left:14px;top:34px;width:14px;height:18px;background:#fff;clip-path:polygon(0 0,0 100%,30% 76%,52% 100%,66% 92%,44% 68%,80% 68%);animation:s5c 6s infinite}
+.s5 em:nth-of-type(2) i{animation-delay:1.3s}.s5 em:nth-of-type(3) i{animation-delay:2.6s}
+.s5 .cur{position:absolute;left:14px;top:38px;width:14px;height:18px;background:#fff;clip-path:polygon(0 0,0 100%,30% 76%,52% 100%,66% 92%,44% 68%,80% 68%);animation:s5c 6s infinite}
 @keyframes s5f{0%{width:0}14%,92%{width:100%}100%{width:0}}
-@keyframes s5c{0%{transform:translate(0,0)}22%{transform:translate(120px,0)}26%{transform:translate(0,20px)}48%{transform:translate(140px,20px)}52%{transform:translate(20px,40px)}74%,100%{transform:translate(160px,40px)}}
+@keyframes s5c{0%{transform:translate(0,0)}22%{transform:translate(110px,0)}26%{transform:translate(0,20px)}48%{transform:translate(124px,20px)}52%{transform:translate(18px,40px)}74%,100%{transform:translate(140px,40px)}}
 /* 6 team */
-.s6{display:flex;align-items:center}
-.s6 .rb{width:58px;height:58px;margin-left:-12px;animation:s6p 6s infinite;opacity:0}
-@keyframes s6p{0%{transform:scale(.2);opacity:0}10%{transform:scale(1.14);opacity:1}16%,88%{transform:scale(1);opacity:1}100%{opacity:0}}
-/* F1 brain per bot */
-.f1{display:flex;flex-direction:column;align-items:center;gap:14px}
-.f1 .chipc{position:relative;width:112px;height:30px;border:1px solid #3a3a42;border-radius:999px;background:#1b1b1e}
-.f1 .chipc span{position:absolute;inset:0;display:grid;place-items:center;font-size:14px;opacity:0;animation:f1c 6s infinite}
-.f1 .chipc span:nth-child(2){animation-delay:2s}.f1 .chipc span:nth-child(3){animation-delay:4s}
-.f1 .rb{width:56px;height:56px;background:#9a9aa1;animation:f1g 6s infinite}
-@keyframes f1c{0%{opacity:0;transform:translateY(9px)}5%,28%{opacity:1;transform:none}33%,100%{opacity:0;transform:translateY(-9px)}}
-@keyframes f1g{0%,33%,66%,100%{transform:scale(1)}3%,36%,69%{transform:scale(1.1)}}
+.s6 .team{display:grid;grid-template-columns:repeat(6,40px);gap:6px 8px;justify-items:center;align-items:center}
+.s6 .team .rb{opacity:0;transform:scale(.2);transition:opacity .25s,transform .45s var(--spring)}
+.s6 .team .rb.on{opacity:1;transform:none}
+/* F1 brain per bot: a wheel that scrolls through the brains */
+.f1{flex-direction:column;gap:8px;background:radial-gradient(ellipse 55% 60% at 50% 45%,#202027,#0e0e10)}
+.f1 .wheel .rb{width:64px;height:64px}
+.f1 .wheel{position:relative;width:100%;height:92px;perspective:520px}
+.f1 .wheel .rb{position:absolute;left:50%;top:50%;margin:-32px 0 0 -32px;transition:transform .75s cubic-bezier(.22,1,.36,1),opacity .6s,filter .6s;will-change:transform}
+.f1 .nm{position:relative;height:24px;width:112px;border:1px solid #3a3a42;border-radius:999px;background:#1b1b1e;overflow:hidden}
+.f1 .nm span{position:absolute;inset:0;display:grid;place-items:center;font-size:13.5px;opacity:0;transform:translateY(10px);transition:opacity .35s,transform .45s var(--spring)}
+.f1 .nm span.on{opacity:1;transform:none}
+.f1::before,.f1::after{content:"";position:absolute;top:0;bottom:0;width:70px;pointer-events:none;z-index:2}
+.f1::before{left:0;background:linear-gradient(90deg,#0e0e10,transparent)}
+.f1::after{right:0;background:linear-gradient(270deg,#0e0e10,transparent)}
 /* F2 apps */
-.f2{display:flex;flex-direction:column;align-items:center;gap:0}
-.f2 .hub{padding:7px 16px;border-radius:999px;background:#fff;color:#000;font-size:13px;font-weight:600}
-.f2 .bus{width:2px;height:16px;background:#2a2a2f}
-.f2 .row{display:flex;gap:12px;border-top:2px solid #2a2a2f;padding-top:0;position:relative}
-.f2 .t{position:relative;width:44px;height:44px;border-radius:12px;background:#1b1b1e;border:1px solid #2a2a2f;display:grid;place-items:center;font-weight:600;font-size:15px;color:#9a9aa1;margin-top:16px;animation:f2l 6s infinite}
-.f2 .t::before{content:"";position:absolute;left:50%;top:-17px;width:2px;height:16px;background:#2a2a2f;animation:f2w 6s infinite;animation-delay:inherit}
-.f2 .t:nth-child(2){animation-delay:1.5s}.f2 .t:nth-child(3){animation-delay:3s}.f2 .t:nth-child(4){animation-delay:4.5s}
-@keyframes f2l{0%,18%{border-color:#fff;color:#fff;background:#25252a;transform:translateY(-3px)}24%,100%{border-color:#2a2a2f;color:#9a9aa1;background:#1b1b1e;transform:none}}
-@keyframes f2w{0%,18%{background:#fff}24%,100%{background:#2a2a2f}}
+.f2{position:relative;width:300px;height:160px}
+.f2 svg.ln{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.f2 svg.ln path{fill:none;stroke:#2a2a2f;stroke-width:2;stroke-linecap:round}
+.f2 svg.ln path.hot{stroke:#fff;stroke-dasharray:1;stroke-dashoffset:1;opacity:0}
+.f2 .hubb{position:absolute;left:50%;top:50%;margin:-26px 0 0 -26px;z-index:2}
+.f2 .tl{position:absolute;width:46px;height:46px;border-radius:13px;background:#1b1b1e;border:1px solid #2a2a2f;display:grid;place-items:center;color:#7d7d86;transition:border-color .3s,color .3s,background .3s,transform .4s var(--spring),box-shadow .3s;z-index:1}
+.f2 .tl svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f2 .tl.on{border-color:var(--c);color:var(--c);background:#1d1d22;transform:scale(1.12);box-shadow:0 0 18px -2px var(--c)}
+.f2 .tl i{position:absolute;right:-5px;top:-5px;width:16px;height:16px;border-radius:50%;background:#4ad991;color:#04140c;font-style:normal;font-size:10px;font-weight:800;display:grid;place-items:center;transform:scale(0);transition:transform .35s var(--spring)}
+.f2 .tl.on i{transform:scale(1)}
+.f2 .t1{left:14px;top:6px;--c:#ff6b5e}.f2 .t2{right:14px;top:6px;--c:#9b7bff}.f2 .t3{left:14px;bottom:6px;--c:#4ad991}.f2 .t4{right:14px;bottom:6px;--c:#ffb020}
 /* F3 chat list */
-.f3{position:relative;width:224px;height:132px}
-.f3 .r{position:absolute;left:0;right:0;height:38px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px;background:#1b1b1e;border:1px solid #2a2a2f}
-.f3 .r::before{content:"";width:22px;height:22px;border-radius:50%;background:var(--c)}
+.f3{position:relative;width:236px;height:156px}
+.f3 .r{position:absolute;left:0;right:0;height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px;background:#1b1b1e;border:1px solid #2a2a2f;transition:top .38s cubic-bezier(.3,1.2,.4,1),border-color .25s,background .25s}
+.f3 .r .char{flex:none}
 .f3 .r u{text-decoration:none;flex:1;height:7px;border-radius:4px;background:#34343a}
-.f3 .r i{width:9px;height:9px;border-radius:50%;background:#ff9440;opacity:0}
-.f3 .r1{top:0;--c:#4ad991;animation:f3a 6s infinite}
-.f3 .r2{top:47px;--c:#ff9440;animation:f3b 6s infinite}
-.f3 .r3{top:94px;--c:#7db2ff}
-.f3 .r2 i{animation:f3i 6s infinite}
-@keyframes f3a{0%,50%{transform:none}62%,90%{transform:translateY(47px)}100%{transform:none}}
-@keyframes f3b{0%,50%{transform:none;border-color:#2a2a2f}62%,90%{transform:translateY(-47px);border-color:#fff}100%{transform:none}}
-@keyframes f3i{0%,20%{opacity:0;transform:scale(0)}30%,60%{opacity:1;transform:scale(1)}66%,100%{opacity:0}}
+.f3 .r u+u{flex:none;width:34px;background:#2a2a2f}
+.f3 .r i{width:9px;height:9px;border-radius:50%;background:#ff9440;transform:scale(0);transition:transform .3s var(--spring);flex:none}
+.f3 .r i.nw{transform:scale(1)}
+.f3 .r .pn{width:14px;height:14px;flex:none;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:0;transform:scale(.2) rotate(-30deg);transition:opacity .25s,transform .35s var(--spring)}
+.f3 .r.pinned{border-color:#fff;background:#25252a}
+.f3 .r.pinned .pn{opacity:1;transform:rotate(30deg)}
+.f3 .r.hot{border-color:#ff9440}
 /* F4 talk back */
-.f4{display:flex;align-items:center;gap:14px}
-.f4 .wv{display:flex;align-items:center;gap:3px;height:40px}
-.f4 .wv i{width:4px;height:100%;border-radius:2px;background:#fff;transform:scaleY(.2);animation:f4w 1s ease-in-out infinite}
+.f4{gap:16px}
+.f4 .sc{gap:12px;align-items:flex-end}
+.f4 .q{width:168px;background:#252525;border-radius:16px 16px 16px 5px;padding:11px 13px;font-size:13px;position:relative;height:74px}
+.f4 .q span{display:block;transition:opacity .3s}
+.f4 .q .z{position:absolute;left:13px;top:11px;opacity:0;color:#4ad991}
+.f4 .q .bt{position:absolute;left:13px;bottom:10px;display:flex;gap:6px;transition:opacity .3s}
+.f4 .q .bt b{font-weight:500;font-size:12px;padding:4px 11px;border-radius:999px;background:#34343a;transition:transform .15s}
+.f4 .q .bt b:first-child{background:#fff;color:#000}
+.f4 .q .bt b.press{transform:scale(.86)}
+.f4 .q.done .a,.f4 .q.done .bt{opacity:0}.f4 .q.done .z{opacity:1}
+.f4 .wv{display:flex;align-items:center;gap:3px;height:34px;position:absolute;left:50%;top:-34px;transform:translateX(-50%);opacity:0;transition:opacity .3s}
+.f4 .wv.on{opacity:1}
+.f4 .wv i{width:4px;height:100%;border-radius:2px;background:#fff;transform:scaleY(.2);animation:f4w .9s ease-in-out infinite}
 .f4 .wv i:nth-child(2){animation-delay:.12s}.f4 .wv i:nth-child(3){animation-delay:.24s}.f4 .wv i:nth-child(4){animation-delay:.36s}.f4 .wv i:nth-child(5){animation-delay:.48s}
-.f4 .q{width:160px;background:#252525;border-radius:16px;padding:10px 13px;font-size:13px;position:relative}
-.f4 .q span{display:block}
-.f4 .q .a{animation:f4a 6s infinite}
-.f4 .q .z{position:absolute;left:13px;top:10px;opacity:0;animation:f4z 6s infinite;color:#4ad991}
-.f4 .q .bt{display:flex;gap:6px;margin-top:8px;animation:f4a 6s infinite}
-.f4 .q .bt b{font-weight:500;font-size:12px;padding:4px 11px;border-radius:999px;background:#34343a}
-.f4 .q .bt b:first-child{background:#fff;color:#000;animation:f4y 6s infinite}
 @keyframes f4w{50%{transform:scaleY(1)}}
-@keyframes f4a{0%,58%{opacity:1}64%,92%{opacity:0}98%,100%{opacity:1}}
-@keyframes f4z{0%,60%{opacity:0}68%,90%{opacity:1}98%,100%{opacity:0}}
-@keyframes f4y{0%,50%{transform:scale(1)}56%{transform:scale(.88)}62%,100%{transform:scale(1)}}
 /* F5 keys */
-.f5{display:flex;align-items:center;gap:20px}
-.f5 .key{width:46px;height:46px;animation:f5k 6s infinite}
-.f5 .grid{display:grid;grid-template-columns:repeat(3,26px);gap:7px}
-.f5 .grid i{height:26px;border-radius:7px;background:#1b1b1e;border:1px solid #2a2a2f;animation:f5l 6s infinite}
-.f5 .grid i:nth-child(2),.f5 .grid i:nth-child(4){animation-delay:.18s}.f5 .grid i:nth-child(3),.f5 .grid i:nth-child(5),.f5 .grid i:nth-child(7){animation-delay:.36s}.f5 .grid i:nth-child(6),.f5 .grid i:nth-child(8){animation-delay:.54s}.f5 .grid i:nth-child(9){animation-delay:.72s}
-@keyframes f5k{0%{transform:translateX(-14px);opacity:.3}20%,80%{transform:none;opacity:1}100%{opacity:.3;transform:translateX(-14px)}}
-@keyframes f5l{0%,25%{background:#1b1b1e;border-color:#2a2a2f;box-shadow:none}35%,80%{background:#ffd9b5;border-color:#ffb870;box-shadow:0 0 14px rgba(255,148,64,.55)}92%,100%{background:#1b1b1e;border-color:#2a2a2f;box-shadow:none}}
+.f5 .sc{gap:18px}
+.f5 .key{width:46px;height:46px;flex:none;transition:transform .8s cubic-bezier(.22,1,.36,1),opacity .5s}
+.f5 .grid{display:grid;grid-template-columns:repeat(3,36px);gap:7px}
+.f5 .grid span{height:36px;border-radius:10px;background:#1b1b1e;border:1px solid #2a2a2f;display:grid;place-items:center;transition:background .4s,border-color .4s,box-shadow .4s}
+.f5 .grid span .char{filter:grayscale(1) brightness(.55);opacity:.7;transition:filter .5s,opacity .5s}
+.f5 .grid span.on{background:#2a1f16;border-color:#ffb870;box-shadow:0 0 14px rgba(255,148,64,.5)}
+.f5 .grid span.on .char{filter:none;opacity:1}
+.f5.off .key{transform:translateX(-16px);opacity:.3}
 /* F6 one sentence */
-.f6{display:flex;flex-direction:column;align-items:center;gap:16px}
-.f6 .sen{border:1px solid #3a3a42;border-radius:999px;background:#1b1b1e;padding:8px 14px;font-size:13px}
-.f6 .sen b{display:block;font-weight:400;overflow:hidden;white-space:nowrap;width:0;border-right:2px solid #fff;animation:f6t 8s steps(30) infinite}
+.f6{flex-direction:column;gap:16px}
+.f6 .sen{border:1px solid #3a3a42;border-radius:999px;background:#1b1b1e;padding:9px 18px;font-size:13.5px;white-space:nowrap}
+.f6 .sen b{font-weight:400}
 .f6 .flow{display:flex;align-items:center;gap:8px}
-.f6 .flow span{padding:6px 12px;border-radius:9px;border:1px solid #2a2a2f;background:#1b1b1e;font-size:12.5px;color:#9a9aa1;animation:f6n 8s infinite}
-.f6 .flow span:nth-child(3){animation-delay:.6s}.f6 .flow span:nth-child(5){animation-delay:1.2s}
-.f6 .flow i{width:14px;height:2px;background:#2a2a2f}
-@keyframes f6t{0%{width:0}34%,88%{width:30ch}100%{width:0}}
-@keyframes f6n{0%,36%{border-color:#2a2a2f;color:#9a9aa1;background:#1b1b1e}42%,86%{border-color:#4ad991;color:#fff;background:#1c2a23}96%,100%{border-color:#2a2a2f;color:#9a9aa1;background:#1b1b1e}}
+.f6 .flow>span{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:9px;border:1px solid #2a2a2f;background:#1b1b1e;font-size:12.5px;color:#9a9aa1;transition:border-color .3s,color .3s,background .3s;height:34px}
+.f6 .flow>span.on{border-color:#4ad991;color:#fff;background:#1c2a23}
+.f6 .flow>span.ib b{display:grid;place-items:center;min-width:16px;height:16px;border-radius:8px;background:#ff9440;color:#1a0f05;font-size:10px;font-weight:800;transform:scale(0);transition:transform .35s var(--spring)}
+.f6 .flow>span.ib.got b{transform:scale(1)}
+.f6 .flow i{width:14px;height:2px;background:#2a2a2f;transition:background .3s}
+.f6 .flow i.on{background:#4ad991}
+@media(prefers-reduced-motion:reduce){.nx *{animation:none!important;transition:none!important}.s3 .stg .rb:first-child,.s6 .team .rb{opacity:1;transform:none}}
 /* phone section */
 .ph{padding-top:110px}
 .ph-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;max-width:1180px;margin:0 auto;padding:0 24px}
@@ -569,7 +587,6 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
 @media(prefers-reduced-motion:reduce){.nx *,.ph-v *{animation:none!important}}
 .dlcard{zoom:.84}.dlcard .os{padding-top:10px!important;padding-bottom:10px!important}
 
-.rb{display:inline-block;line-height:0}.rb .char{display:block}.s6 .rb:first-child{margin-left:0}.s6 .rb:nth-child(2){animation-delay:.7s}.s6 .rb:nth-child(3){animation-delay:1.4s}.s6 .rb:nth-child(4){animation-delay:2.1s}
 /* ---- phone section: a phone scans the code on the computer (preview, in development) ---- */
 .pz{padding:110px 0 30px}
 .pz-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:center;max-width:1180px;margin:0 auto;padding:0 24px}
@@ -682,15 +699,9 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
 @keyframes pzbub{to{opacity:1;transform:none}}
 @media(max-width:900px){.pz-grid{grid-template-columns:1fr;gap:26px}.pz{padding-top:80px}}
 @media(prefers-reduced-motion:reduce){.pz-stage *{animation:none!important}.st3 .pz-bub{opacity:1!important;transform:none!important}}
-/* bots as actors in the little scenes */
+/* the bot that shows up in step 1 */
 .sbot{position:absolute;line-height:0;pointer-events:none}
 .sb1{right:12px;bottom:14px;animation:s1o 4.2s infinite}
-.sb4{left:14px;bottom:14px;animation:s4bot 7s infinite}
-.sb5{right:16px;bottom:16px}
-@keyframes s4bot{0%,26%{transform:none}28%,44%{transform:rotate(-9deg) translateY(-2px)}48%,50%{transform:none}53%{transform:translateY(-14px) scale(.96,1.05)}59%,100%{transform:none}}
-.f3 .r::before{display:none}.f3 .r .char{flex:none}
-.f1 .rb{background:none}
-.s3,.s6{justify-content:center}
 </style>
 </head>
 <body>
@@ -732,22 +743,22 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
   <div class="ngrid">
     <div class="nx rv"><div class="nv s1"><div class="f"><b class="ic">&darr;</b><div><u>Wayzerr</u><em><i></i></em></div><s>&check;</s></div><span class="sbot sb1"><span class="wzb" data-shape="orb" data-color="#FF8A2B" data-eyes="ovals" data-size="44"></span></span></div><div class="nt"><span class="no">Step 1</span><h3>Get the desktop app</h3><p>Download Wayzerr for Mac, Windows or Linux. It is free.</p></div></div>
     <div class="nx rv"><div class="nv s2"><span>Claude</span><span>ChatGPT</span><span>Gemini</span></div><div class="nt"><span class="no">Step 2</span><h3>Connect one provider</h3><p>Sign in with the AI plan you already pay for, such as Claude or ChatGPT.</p></div></div>
-    <div class="nx rv"><div class="nv s3"><span class="rb"><span class="wzb" data-shape="orb" data-color="#FF9440" data-eyes="ovals" data-size="78"></span></span><b>Buddy</b></div><div class="nt"><span class="no">Step 3</span><h3>Create your first bot</h3><p>Give it a name, a personality and a job. Buddy is already waiting for you.</p></div></div>
-    <div class="nx rv"><div class="nv"><span class="sbot sb4"><span class="wzb" data-shape="orb" data-color="#FF8A2B" data-eyes="ovals" data-size="40"></span></span><div class="s4"><p class="u">Sort my inbox</p><p class="d"><i></i><i></i><i></i></p><p class="b">Done. 12 emails sorted.</p></div></div><div class="nt"><span class="no">Step 4</span><h3>Send a small task</h3><p>Ask the way you would ask a friend. Start with something tiny.</p></div></div>
-    <div class="nx rv"><div class="nv"><span class="sbot sb5" data-state="working"><span class="wzb" data-shape="pebble" data-color="#4F8BFF" data-eyes="dots" data-size="44"></span></span><div class="s5"><em><i></i></em><em><i></i></em><em><i></i></em><span class="cur"></span></div></div><div class="nt"><span class="no">Step 5</span><h3>Watch it work</h3><p>Your bot uses a small computer of its own, so it never touches your files.</p></div></div>
-    <div class="nx rv"><div class="nv s6"><span class="rb"><span class="wzb" data-shape="orb" data-color="#FF9440" data-eyes="ovals" data-size="62"></span></span><span class="rb"><span class="wzb" data-shape="blob" data-color="#4AD991" data-eyes="dots" data-size="62"></span></span><span class="rb"><span class="wzb" data-shape="pebble" data-color="#6DA4FF" data-eyes="ovals" data-size="62"></span></span><span class="rb"><span class="wzb" data-shape="capsule" data-color="#F1F1F4" data-eyes="dots" data-size="62"></span></span></div><div class="nt"><span class="no">Step 6</span><h3>Grow your team</h3><p>Add more bots, each with its own job and its own memory.</p></div></div>
+    <div class="nx rv"><div class="nv s3" data-scene="s3"><div class="stg"></div><div class="job"><span class="tyw"><span class="gh">SEO manager</span><b>SEO manager</b></span></div></div><div class="nt"><span class="no">Step 3</span><h3>Create your first bot</h3><p>Give it a name, a look and a job. A top hat is optional.</p></div></div>
+    <div class="nx rv"><div class="nv" data-scene="s4"><div class="s4"><div class="hd"><span class="wzb" data-shape="bun" data-color="#4F8BFF" data-eyes="dots" data-size="40"></span><div><b>Inbox bot</b>online</div></div><p class="u on">Sort my inbox</p><p class="d"><i></i><i></i><i></i></p><p class="b on">Done. 12 emails sorted.</p></div></div><div class="nt"><span class="no">Step 4</span><h3>Send a small task</h3><p>Ask the way you would ask a friend. Start with something tiny.</p></div></div>
+    <div class="nx rv"><div class="nv s5" data-scene="s5"><span class="rb"><span class="wzb" data-shape="bean" data-color="#B58CFF" data-eyes="dots" data-size="50"></span></span><div class="w5"><em><i></i></em><em><i></i></em><em><i></i></em><span class="cur"></span></div></div><div class="nt"><span class="no">Step 5</span><h3>Watch it work</h3><p>Your bot uses a small computer of its own, so it never touches your files.</p></div></div>
+    <div class="nx rv"><div class="nv s6" data-scene="s6"><div class="team"></div></div><div class="nt"><span class="no">Step 6</span><h3>Grow your team</h3><p>Add more bots, each with its own job and its own memory.</p></div></div>
   </div>
 </section>
 
 <section class="nsec" id="features">
   <div class="head rv"><span class="eyebrow">Features</span><h2>Everything a bot needs</h2><p>Memory, a computer, a brain of your choice and your own apps.</p></div>
   <div class="ngrid">
-    <div class="nx rv"><div class="nv f1"><div class="chipc"><span>Claude</span><span>ChatGPT</span><span>Gemini</span></div><span class="rb"><span class="wzb" data-shape="orb" data-color="#F1F1F4" data-eyes="ovals" data-size="64"></span></span></div><div class="nt"><h3>A brain for each bot</h3><p>Sign in with an AI plan you already pay for, or paste your own API key. Every bot can use a different one.</p></div></div>
-    <div class="nx rv"><div class="nv f2"><span class="hub">Wayzerr</span><span class="bus"></span><div class="row"><span class="t">G</span><span class="t">S</span><span class="t">H</span><span class="t">N</span></div></div><div class="nt"><h3>Your apps, wired in</h3><p>Link Gmail, Slack, GitHub, Notion and more. Bots use them before they reach for the web.</p></div></div>
-    <div class="nx rv"><div class="nv"><div class="f3"><div class="r r1"><span class="wzb" data-shape="blob" data-color="#4AD991" data-eyes="dots" data-size="24"></span><u></u></div><div class="r r2"><span class="wzb" data-shape="orb" data-color="#FF9440" data-eyes="ovals" data-size="24"></span><u></u><i></i></div><div class="r r3"><span class="wzb" data-shape="pebble" data-color="#6DA4FF" data-eyes="dots" data-size="24"></span><u></u></div></div></div><div class="nt"><h3>Bots live in your chat list</h3><p>Every bot is a chat. Pin the ones you love, search the rest, and jump between them.</p></div></div>
-    <div class="nx rv"><div class="nv f4"><div class="wv"><i></i><i></i><i></i><i></i><i></i></div><div class="q"><span class="a">Send this to Sam?</span><span class="z">Sent &check;</span><div class="bt"><b>Yes</b><b>Not yet</b></div></div></div><div class="nt"><h3>Bots that answer back</h3><p>They ask before they do something that matters, and they tell you what they did.</p></div></div>
-    <div class="nx rv"><div class="nv f5"><svg class="key" viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="24" r="9"/><path d="M24 24h20M38 24v8M32 24v6"/></svg><div class="grid"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="nt"><h3>One key, everything lights up</h3><p>Add a key once and every bot that needs it just works. Keys stay on your computer.</p></div></div>
-    <div class="nx rv"><div class="nv f6"><div class="sen"><b>Every Friday, email me a summary</b></div><div class="flow"><span>Fri 9:00</span><i></i><span>Bot</span><i></i><span>Inbox</span></div></div><div class="nt"><h3>Say it once, it runs</h3><p>Describe a job in plain words and Wayzerr sets it up to repeat on its own.</p></div></div>
+    <div class="nx rv"><div class="nv f1" data-scene="f1"><div class="wheel"></div><div class="nm"><span class="on">Claude</span><span>ChatGPT</span><span>Gemini</span><span>Grok</span></div></div><div class="nt"><h3>A brain for each bot</h3><p>Sign in with an AI plan you already pay for, or paste your own API key. Every bot can use a different one.</p></div></div>
+    <div class="nx rv"><div class="nv"><div class="f2" data-scene="f2"><svg class="ln" viewBox="0 0 300 160" aria-hidden="true"><path d="M150 80L37 29"/><path d="M150 80L263 29"/><path d="M150 80L37 131"/><path d="M150 80L263 131"/><path class="hot" pathLength="1" d="M150 80L37 29"/><path class="hot" pathLength="1" d="M150 80L263 29"/><path class="hot" pathLength="1" d="M150 80L37 131"/><path class="hot" pathLength="1" d="M150 80L263 131"/></svg><span class="hubb"><span class="wzb" data-shape="orb" data-color="#FF8A2B" data-eyes="ovals" data-size="52"></span></span><span class="tl t1" title="Gmail"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M4 7l8 6 8-6"/></svg><i>&check;</i></span><span class="tl t2" title="Slack"><svg viewBox="0 0 24 24"><path d="M9.5 4L7.5 20M16.5 4l-2 16M4 9h16M3.5 15h16"/></svg><i>&check;</i></span><span class="tl t3" title="GitHub"><svg viewBox="0 0 24 24"><circle cx="7" cy="6" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="17" cy="9" r="2.2"/><path d="M7 8.2v7.6M17 11.2c0 3.2-3 4.2-7.4 4.4"/></svg><i>&check;</i></span><span class="tl t4" title="Notion"><svg viewBox="0 0 24 24"><path d="M6 3.5h8l4 4V20.5H6z"/><path d="M14 3.5v4h4M9 12h6M9 16h6"/></svg><i>&check;</i></span></div></div><div class="nt"><h3>Your apps, wired in</h3><p>Link Gmail, Slack, GitHub, Notion and more. Bots use them before they reach for the web.</p></div></div>
+    <div class="nx rv"><div class="nv"><div class="f3" data-scene="f3"></div></div><div class="nt"><h3>Bots live in your chat list</h3><p>Every bot is a chat. Pin the ones you love, search the rest, and jump between them.</p></div></div>
+    <div class="nx rv"><div class="nv f4" data-scene="f4"><div class="sc"><span class="rb"><span class="wzb" data-shape="capsule" data-color="#6DA4FF" data-eyes="wide" data-size="54"></span></span><div class="q"><div class="wv"><i></i><i></i><i></i><i></i><i></i></div><span class="a">Send this to Sam?</span><span class="z">Sent &check;</span><div class="bt"><b>Yes</b><b>Not yet</b></div></div></div></div><div class="nt"><h3>Bots that answer back</h3><p>They ask before they do something that matters, and they tell you what they did.</p></div></div>
+    <div class="nx rv"><div class="nv f5" data-scene="f5"><div class="sc"><svg class="key" viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="24" r="9"/><path d="M24 24h20M38 24v8M32 24v6"/></svg><div class="grid"></div></div></div><div class="nt"><h3>One key, everything lights up</h3><p>Add a key once and every bot that needs it just works. Keys stay on your computer.</p></div></div>
+    <div class="nx rv"><div class="nv f6" data-scene="f6"><div class="sen"><span class="tyw"><span class="gh">Send me an email every Friday</span><b>Send me an email every Friday</b></span></div><div class="flow"><span class="cl">Fri 9:00</span><i></i><span class="bt2"><span class="wzb" data-shape="blob" data-color="#4AD991" data-eyes="dots" data-size="24"></span>Bot</span><i></i><span class="ib">Inbox <b>1</b></span></div></div><div class="nt"><h3>Say it once, it runs</h3><p>Describe a job in plain words and Wayzerr sets it up to repeat on its own.</p></div></div>
   </div>
 </section>
 
@@ -942,14 +953,199 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
     var say=document.createElement('div'); say.className='say'; art.appendChild(say);
     art.addEventListener('click',function(){C.play(big,MV[si%MV.length]);say.textContent=SAYS[si%SAYS.length];si++;say.classList.add('on');clearTimeout(sayT);sayT=setTimeout(function(){say.classList.remove('on')},2400)});
   }
-  $$('.sbot[data-state]').forEach(function(w){var b=w.querySelector('.char');if(b&&C&&!calm)C.setState(b,w.dataset.state)});
-  // hello: the bots in the hero wave one after another
-  if(C&&!calm)$$('.fc .char').forEach(function(b,i){setTimeout(function(){C.play(b,'bounce')},1100+i*260)});
-  // every card plays its bots when it scrolls into view
-  if(C&&!calm&&'IntersectionObserver' in window){
-    var bio=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){bio.unobserve(e.target);e.target.querySelectorAll('.char').forEach(function(b,i){setTimeout(function(){C.play(b,'bounce')},450+i*220)})}})},{threshold:.5});
-    $$('.nx').forEach(function(n){bio.observe(n)});
+  // the hero cards: their bots only blink and look around (no jumps)
+  if(C)$$('.fc .char').forEach(function(b){b.classList.add('still')});
+
+  // ---- the little scenes: bots acting out what each card says. They play while on screen, one after another. ----
+  var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
+  function mk(b,size){var t=document.createElement('div');t.innerHTML=C.characterSvg({shape:b.s,color:b.c,eyes:b.e,extra:'none',mouth:'none',acc:b.a||'none'},{size:size});return t.firstElementChild}
+  function rbox(b,size){var s=document.createElement('span');s.className='rb';s.appendChild(mk(b,size));return s}
+  function typeTo(el,txt,ms){return new Promise(function(res){var i=0;(function n(){el.textContent=txt.slice(0,i);if(i++<txt.length)setTimeout(n,ms);else res()})()})}
+  function play(b,m){if(b&&!calm)C.play(b,m)}
+  // scenes[name] = {init(el), cycle(el)}: init draws the finished picture (what reduced-motion users see), cycle loops it
+  var SC={};
+  function run(el,sc){
+    sc.init(el);
+    if(calm||!sc.cycle)return;
+    var on=false,going=false;
+    function go(){if(going)return;going=true;(async function(){try{while(on)await sc.cycle(el)}catch(e){}going=false})()}
+    if('IntersectionObserver' in window)new IntersectionObserver(function(es){on=es[0].isIntersecting;if(on)go()},{threshold:.3}).observe(el);
+    else{on=true;go()}
   }
+
+  // step 3: a new bot with a hat gets its first job
+  var JOBS=[
+    {t:'SEO manager',b:{s:'orb',c:'#FF8A2B',e:'ovals',a:'tophat'}},
+    {t:'Competitor bot',b:{s:'pebble',c:'#4F8BFF',e:'dots',a:'shades'}},
+    {t:'Inbox sorter',b:{s:'bun',c:'#4AD991',e:'wide',a:'cap'}},
+    {t:'Research buddy',b:{s:'bean',c:'#B58CFF',e:'dots',a:'glasses'}},
+    {t:'Price watcher',b:{s:'capsule',c:'#FFC24A',e:'happy',a:'cowboy'}},
+    {t:'Study coach',b:{s:'blob',c:'#FF7AB6',e:'ovals',a:'wizard'}}
+  ];
+  SC.s3={
+    init:function(el){var stg=el.querySelector('.stg');stg.innerHTML='';JOBS.forEach(function(j,i){var r=rbox(j.b,84);if(!i)r.classList.add('on');stg.appendChild(r)});this.set(el,JOBS[0].t)},
+    set:function(el,t){var tw=el.querySelector('.tyw');tw.querySelector('.gh').textContent=t;tw.querySelector('b').textContent=t},
+    cycle:async function(el){
+      var rs=el.querySelectorAll('.stg .rb'),tw=el.querySelector('.tyw'),g=tw.querySelector('.gh'),b=tw.querySelector('b');
+      for(var i=0;i<JOBS.length;i++){
+        rs.forEach(function(r){r.classList.remove('on')});
+        g.textContent=JOBS[i].t;b.textContent='';
+        await sleep(350);
+        rs[i].classList.add('on');play(rs[i].firstElementChild,'bounce');
+        await sleep(650);
+        await typeTo(b,JOBS[i].t,55);
+        await sleep(250);play(rs[i].firstElementChild,'acc');
+        await sleep(1700);
+      }
+    }
+  };
+
+  // step 4: ask, it thinks, it answers
+  SC.s4={
+    init:function(el){var s=el.querySelector('.s4');s.querySelector('.d').classList.remove('on');s.querySelector('.u').classList.add('on');s.querySelector('.b').classList.add('on')},
+    cycle:async function(el){
+      var s=el.querySelector('.s4'),u=s.querySelector('.u'),d=s.querySelector('.d'),a=s.querySelector('.b'),bot=s.querySelector('.hd .char');
+      [u,d,a].forEach(function(p){p.classList.remove('on')});
+      await sleep(700);u.classList.add('on');
+      await sleep(1100);d.classList.add('on');C.setState(bot,'thinking');
+      await sleep(1900);d.classList.remove('on');a.classList.add('on');C.setState(bot,null);play(bot,'bounce');
+      await sleep(3000);
+    }
+  };
+
+  // step 5: the bot works while its little computer fills in (the bars and the cursor are css)
+  SC.s5={
+    init:function(el){var b=el.querySelector('.char');if(b&&!calm)C.setState(b,'working')}
+  };
+
+  // step 6: the team grows, then waves
+  var TS=['orb','pebble','blob','bun','capsule','bean'],TE=['dots','ovals','wide','happy'],TC=['#FF8A2B','#4F8BFF','#4AD991','#B58CFF','#FF7AB6','#FFC24A','#F1F1F4','#2DD4BF','#FF6B5B','#26262C'],TA={4:'beanie',9:'bowtie',13:'headbow',16:'crown',2:'cap',11:'glasses'};
+  SC.s6={
+    init:function(el){var t=el.querySelector('.team');t.innerHTML='';
+      for(var i=0;i<18;i++){var r=rbox({s:TS[(i*5+i%3)%6],c:TC[(i*7+(i>>1))%TC.length],e:TE[(i*3+i%4)%4],a:TA[i]},38);r.classList.add('on');t.appendChild(r)}},
+    cycle:async function(el){
+      var rs=[].slice.call(el.querySelectorAll('.team .rb'));
+      rs.forEach(function(r){r.classList.remove('on')});
+      await sleep(500);
+      for(var i=0;i<rs.length;i++){rs[i].classList.add('on');await sleep(110)}
+      await sleep(400);
+      rs.forEach(function(r,i){setTimeout(function(){play(r.firstElementChild,'bounce')},(i%6)*110+((i/6)|0)*160)});
+      await sleep(3600);
+    }
+  };
+
+  // feature 1: a wheel of brains, like the picker in a game
+  var BR=[{n:'Claude',b:{s:'orb',c:'#FF8A2B',e:'ovals'}},{n:'ChatGPT',b:{s:'bun',c:'#F1F1F4',e:'dots'}},{n:'Gemini',b:{s:'blob',c:'#4AD991',e:'wide'}},{n:'Grok',b:{s:'capsule',c:'#2B2B33',e:'dots'}}];
+  SC.f1={
+    place:function(el,a,quick){
+      var rs=el.querySelectorAll('.wheel .rb'),names=el.querySelectorAll('.nm span');
+      rs.forEach(function(r,i){
+        var d=((i-a+6)%4)-2; // -2..1, 0 = in the middle
+        var x=d*104,sc=d===0?1:Math.abs(d)===1?.7:.45,ry=-d*36,op=d===0?1:Math.abs(d)===1?.85:0;
+        if(quick)r.style.transition='none';
+        r.style.transform='translateX('+x+'px) translateY('+(d===0?0:6)+'px) scale('+sc+') rotateY('+ry+'deg)';
+        r.style.opacity=op;r.style.filter=d===0?'none':'brightness(.8)';r.style.zIndex=d===0?2:1;
+        if(quick){void r.offsetWidth;r.style.transition=''}
+      });
+      names.forEach(function(n,i){n.classList.toggle('on',i===a)});
+    },
+    init:function(el){var w=el.querySelector('.wheel');w.innerHTML='';BR.forEach(function(x){w.appendChild(rbox(x.b,64))});this.a=0;this.place(el,0,true)},
+    cycle:async function(el){
+      await sleep(2000);
+      this.a=(this.a+1)%BR.length;this.place(el,this.a);
+      var rs=el.querySelectorAll('.wheel .rb'),b=rs[this.a].firstElementChild;
+      setTimeout(function(){play(b,'v_spin')},250);
+    }
+  };
+
+  // feature 2: the bot connects your apps one by one
+  SC.f2={
+    init:function(el){el.querySelectorAll('.tl').forEach(function(t){t.classList.add('on')});el.querySelectorAll('path.hot').forEach(function(p){p.style.opacity=1;p.style.strokeDashoffset=0})},
+    cycle:async function(el){
+      var tl=el.querySelectorAll('.tl'),hot=el.querySelectorAll('path.hot'),hub=el.querySelector('.hubb .char');
+      tl.forEach(function(t){t.classList.remove('on')});
+      hot.forEach(function(p){p.style.opacity='';p.style.strokeDashoffset='';p.getAnimations().forEach(function(a){a.cancel()})});
+      await sleep(900);
+      for(var k=0;k<4;k++){
+        play(hub,'glance');
+        hot[k].animate([{opacity:1,strokeDashoffset:1},{opacity:1,strokeDashoffset:0}],{duration:520,easing:'ease-out',fill:'forwards'});
+        await sleep(540);tl[k].classList.add('on');
+        await sleep(650);
+      }
+      play(hub,'bounce');
+      await sleep(2600);
+    }
+  };
+
+  // feature 3: the chat list: a new message bumps a bot up, one bot gets pinned to the top and unpinned again
+  var CR=[{s:'blob',c:'#4AD991',e:'dots'},{s:'orb',c:'#FF9440',e:'ovals'},{s:'pebble',c:'#6DA4FF',e:'happy'},{s:'bun',c:'#F1F1F4',e:'wide'}];
+  var PIN='<svg class="pn" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/></svg>';
+  SC.f3={
+    put:function(el,order){this.rows.forEach(function(r,id){r.style.top=(order.indexOf(id)*40)+'px'})},
+    init:function(el){
+      el.innerHTML='';this.rows=CR.map(function(x){var r=document.createElement('div');r.className='r';r.appendChild(mk(x,26));r.insertAdjacentHTML('beforeend','<u></u><u></u>'+PIN+'<i></i>');el.appendChild(r);return r});
+      this.put(el,[0,1,2,3]);
+    },
+    cycle:async function(el){
+      var R=this.rows,self=this,dot=R[1].querySelector('i');
+      self.put(el,[0,1,2,3]);R.forEach(function(r){r.classList.remove('pinned','hot')});dot.classList.remove('nw');
+      await sleep(900);
+      R[1].classList.add('hot');dot.classList.add('nw');self.put(el,[1,0,2,3]);play(R[1].firstElementChild,'bounce'); // a new message: it moves up
+      await sleep(1100);
+      R[2].classList.add('pinned');self.put(el,[2,1,0,3]);play(R[2].firstElementChild,'jump'); // pinned: to the top
+      await sleep(1500);
+      R[2].classList.remove('pinned');self.put(el,[1,0,2,3]);play(R[2].firstElementChild,'tilt'); // unpinned: back in line
+      await sleep(1100);
+      R[1].classList.remove('hot');dot.classList.remove('nw');
+      await sleep(500);
+    }
+  };
+
+  // feature 4: it asks first, you say yes, it tells you what it did
+  SC.f4={
+    init:function(el){el.querySelector('.q').classList.add('done')},
+    cycle:async function(el){
+      var q=el.querySelector('.q'),wv=el.querySelector('.wv'),y=el.querySelector('.bt b'),bot=el.querySelector('.rb .char');
+      q.classList.remove('done');wv.classList.remove('on');
+      await sleep(700);wv.classList.add('on');play(bot,'lookAround');
+      await sleep(1800);wv.classList.remove('on');
+      await sleep(600);y.classList.add('press');
+      await sleep(180);y.classList.remove('press');q.classList.add('done');play(bot,'bounce');
+      await sleep(2600);
+    }
+  };
+
+  // feature 5: one key and every bot wakes up
+  var KB=[{s:'orb',c:'#FF8A2B',e:'ovals'},{s:'pebble',c:'#4F8BFF',e:'dots'},{s:'blob',c:'#4AD991',e:'wide'},{s:'bun',c:'#B58CFF',e:'happy'},{s:'capsule',c:'#FF7AB6',e:'dots'},{s:'bean',c:'#FFC24A',e:'ovals'},{s:'orb',c:'#F1F1F4',e:'wide'},{s:'blob',c:'#2DD4BF',e:'dots'},{s:'pebble',c:'#FF6B5B',e:'happy'}];
+  SC.f5={
+    init:function(el){var g=el.querySelector('.grid');g.innerHTML='';KB.forEach(function(x){var s=document.createElement('span');s.appendChild(mk(x,26));s.classList.add('on');g.appendChild(s)});el.classList.remove('off')},
+    cycle:async function(el){
+      var cs=[].slice.call(el.querySelectorAll('.grid span'));
+      cs.forEach(function(c){c.classList.remove('on')});el.classList.add('off');
+      await sleep(900);el.classList.remove('off');
+      await sleep(900);
+      for(var i=0;i<cs.length;i++){cs[i].classList.add('on');play(cs[i].firstElementChild,'bounce');await sleep(150)}
+      await sleep(2600);
+    }
+  };
+
+  // feature 6: say it once (typed), and the job runs: Friday, the bot, your inbox
+  var SAY='Send me an email every Friday';
+  SC.f6={
+    init:function(el){var b=el.querySelector('.sen b');b.textContent=SAY;el.querySelectorAll('.flow>span').forEach(function(s){s.classList.add('on')});el.querySelector('.ib').classList.add('got');el.querySelectorAll('.flow i').forEach(function(i){i.classList.add('on')})},
+    cycle:async function(el){
+      var b=el.querySelector('.sen b'),sp=[].slice.call(el.querySelectorAll('.flow>span')),ln=[].slice.call(el.querySelectorAll('.flow i')),bot=el.querySelector('.bt2 .char');
+      sp.forEach(function(s){s.classList.remove('on','got')});ln.forEach(function(i){i.classList.remove('on')});b.textContent='';
+      await sleep(700);
+      await typeTo(b,SAY,55);
+      await sleep(500);sp[0].classList.add('on');
+      await sleep(450);ln[0].classList.add('on');sp[1].classList.add('on');C.setState(bot,'working');
+      await sleep(1100);C.setState(bot,null);ln[1].classList.add('on');sp[2].classList.add('on','got');play(bot,'bounce');
+      await sleep(2600);
+    }
+  };
+
+  $$('[data-scene]').forEach(function(el){var sc=SC[el.dataset.scene];if(sc&&C)run(el,sc)});
 
   // the phone preview: three scenes that play by themselves while it is on screen (click to jump)
   var pz=$('#pzStage'), pzFit=$('#pzFit'), pzSteps=$$('.pz-step'), pzI=-1, pzT=0, pzOn=false, pzRound=0, PZD=[5200,9200,10400];
@@ -1036,15 +1232,7 @@ hero.addEventListener('pointermove',function(e){var b=hero.getBoundingClientRect
 hero.addEventListener('pointerleave',function(){spot.style.opacity=.13});
 (function f(){x+=(tx-x)*.08;y+=(ty-y)*.08;spot.style.transform='translate('+(x-260)+'px,'+(y-260)+'px)';requestAnimationFrame(f)})()}
 d.querySelectorAll('[data-qr]').forEach(function(qr){var N=13,seed=7,g=[];function fin(x,y){return(x<5&&y<5)||(x>7&&y<5)||(x<5&&y>7)}function ring(x,y,ox,oy){var a=x-ox,b=y-oy;if(a<0||b<0||a>4||b>4)return -1;return(a===0||b===0||a===4||b===4||(a===2&&b===2))?1:0}for(var y=0;y<N;y++)for(var x=0;x<N;x++){var v;if(fin(x,y)){var r=ring(x,y,0,0);if(r<0)r=ring(x,y,8,0);if(r<0)r=ring(x,y,0,8);v=r}else{seed=(seed*73+41)%97;v=seed%5<2?1:0}var c=d.createElement('i');if(!v)c.className='o';qr.appendChild(c)}});
-var art=d.getElementById('art');
-if(art){var say=d.createElement('div');say.className='say';say.textContent='Hi! Click me.';art.appendChild(say);
-var hint=d.createElement('div');hint.className='hintc';hint.textContent='Try clicking the bot';art.appendChild(hint);
-var lines=['Hi, I am Buddy!','Want me to sort your inbox?','I remember what you like.','Ask me anything.','I work on my own computer.','Again! Again!','Tickles!','Ready when you are.'],n=0,t;
-art.addEventListener('click',function(ev){var ch=art.querySelector('.char');if(!ch)return;
-ch.classList.remove('hop');void ch.offsetWidth;ch.classList.add('hop');
-say.textContent=lines[n++%lines.length];say.classList.add('on');hint.style.opacity=0;clearTimeout(t);t=setTimeout(function(){say.classList.remove('on')},2200);
-var r=art.getBoundingClientRect(),cx=r.width/2,cy=r.height*.55,cols=['#ff9440','#ffd9b5','#4ad991','#fff'];
-for(var k=0;k<12;k++){var p=d.createElement('i');p.className='pop';var a=Math.PI*2*k/12,dist=110+Math.random()*70;p.style.cssText='left:'+cx+'px;top:'+cy+'px;background:'+cols[k%4]+';--x:'+Math.cos(a)*dist+'px;--y:'+Math.sin(a)*dist+'px';art.appendChild(p);setTimeout(function(q){return function(){q.remove()}}(p),850)}})}
+
 })();
 </script>
 </body>

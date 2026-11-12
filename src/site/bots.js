@@ -102,7 +102,35 @@
       const det = -e[0] * u[1] + u[0] * e[1];
       return { x, y, p, e, u, inv: [-u[1] / det, u[0] / det, -e[1] / det, e[0] / det] };
     };
-    return (faceGeoCache[shape] = { cx, cy, Rf, eyes: [patch(50 - ex, g.eyeY), patch(50 + ex, g.eyeY)], mid: patch(50, g.eyeY) });
+    const eyes = [patch(50 - ex, g.eyeY), patch(50 + ex, g.eyeY)];
+    eyes.forEach((q) => { q.room = eyeRoom(shape, q); });
+    return (faceGeoCache[shape] = { cx, cy, Rf, eyes, mid: patch(50, g.eyeY) });
+  }
+  // How far an eye may travel from its resting spot, in 36 directions, before its edge would leave the body. Short bodies (pebble,
+  // bean, capsule) have little room above and below the eyes, so a big look-up or a jump pose used to push the eyes off the face.
+  const ROOM_N = 36;
+  function eyeRoom(shape, q) {
+    const inside = INSIDE[shape] || INSIDE.orb, hw = 5.5, hh = 9.5, out = [];
+    for (let k = 0; k < ROOM_N; k++) {
+      const a = (k / ROOM_N) * 2 * Math.PI, ca = Math.cos(a), sa = Math.sin(a);
+      let lo = 0, hi = 60;
+      for (let i = 0; i < 12; i++) {
+        const m = (lo + hi) / 2, x = q.x + ca * m, y = q.y + sa * m;
+        if (inside(x - hw, y - hh) && inside(x + hw, y - hh) && inside(x - hw, y + hh) && inside(x + hw, y + hh) && inside(x, y - hh) && inside(x, y + hh)) lo = m; else hi = m;
+      }
+      out.push(lo);
+    }
+    return out;
+  }
+  // Pull a point that is further from the resting spot than the room allows back inside, smoothly (no sudden stop).
+  function keepInside(q, X, Y) {
+    const dx = X - q.x, dy = Y - q.y, r = Math.hypot(dx, dy);
+    if (r < 0.01) return [X, Y];
+    let f = (Math.atan2(dy, dx) / (2 * Math.PI)) * ROOM_N; if (f < 0) f += ROOM_N;
+    const i = Math.floor(f) % ROOM_N, u = f - Math.floor(f), rm = q.room[i] * (1 - u) + q.room[(i + 1) % ROOM_N] * u, k0 = 0.7 * rm;
+    if (r <= k0) return [X, Y];
+    const s = (k0 + (rm - k0) * Math.tanh((r - k0) / Math.max(0.01, rm - k0))) / r;
+    return [q.x + dx * s, q.y + dy * s];
   }
   // The SVG matrix that carries an eye (or the face-wear) from the straight-ahead face to a rotated one. su / sv squash the eye
   // along its own width / height (blinks, the video's small round eye next to a big one).
@@ -110,7 +138,9 @@
     const P = mulV(M, q.p), E = mulV(M, q.e), U = mulV(M, q.u);
     const a = su * E[0], b = su * E[1], c = -sv * U[0], d = -sv * U[1];
     const m0 = a * q.inv[0] + c * q.inv[2], m1 = a * q.inv[1] + c * q.inv[3], m2 = b * q.inv[0] + d * q.inv[2], m3 = b * q.inv[1] + d * q.inv[3];
-    const tx = geo.cx + geo.Rf * P[0] - (m0 * q.x + m1 * q.y), ty = geo.cy + geo.Rf * P[1] - (m2 * q.x + m3 * q.y);
+    let X = geo.cx + geo.Rf * P[0], Y = geo.cy + geo.Rf * P[1];
+    if (q.room) [X, Y] = keepInside(q, X, Y); // an eye never leaves the face
+    const tx = X - (m0 * q.x + m1 * q.y), ty = Y - (m2 * q.x + m3 * q.y);
     return { t: `matrix(${m0.toFixed(4)},${m2.toFixed(4)},${m1.toFixed(4)},${m3.toFixed(4)},${tx.toFixed(3)},${ty.toFixed(3)})`, z: P[2] };
   }
   const FACE_ORIGIN = 'transform-box:view-box;transform-origin:0 0;';
@@ -892,7 +922,7 @@
       if (document.hidden) return;
       const now = performance.now();
       for (const c of document.querySelectorAll('.char')) {
-        if (isBusy(c) || c._playing || !visible(c)) continue;
+        if (c.classList.contains('still') || isBusy(c) || c._playing || !visible(c)) continue; // .still = a bot that only blinks and looks (website cards)
         if (c._nextIdle === undefined) c._nextIdle = now + 400 + Math.random() * 2600;
         if (now >= c._nextIdle) play(c);
       }

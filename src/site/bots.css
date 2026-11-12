@@ -76,3 +76,15 @@
 .char .c-sparkles i:nth-child(1) { color: #ff4d6d; transform: rotate(0deg) translateY(-46%) scale(.9); transform: translate(0, -520%); }
 .char .c-sparkles i:nth-child(2) { color: #ffb020; transform: translate(450%, -260%); }
 .char svg{display:block;overflow:visible}
+/* ---------- solid 3D + trail (from the app: without these the stacked body slices show up when a bot jumps or spins) ---------- */
+.char { perspective: 280px; transform-style: preserve-3d; }
+.char .c-3d { position: relative; transform-style: preserve-3d; }
+.char .c-slab { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; opacity: 0; transform-origin: 50% 100%; }
+.char .c-slab svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.char .c-front { position: relative; transform: translateZ(.5px); backface-visibility: hidden; }
+.char .c-slab .c-back { backface-visibility: hidden; }
+.char .c-trail { position: absolute; inset: -16%; border-radius: 50%; pointer-events: none; opacity: 0;
+  background: conic-gradient(from 0deg, transparent 0deg 150deg, rgba(255,77,109,.0) 150deg, #ff4d6d 200deg, #ffb020 235deg, #ffe45c 265deg, #3ddc84 295deg, #3ab8ff 322deg, #8a6bff 345deg, #ff5cc8 358deg, transparent 360deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 72%, #000 76%, #000 90%, transparent 95%);
+  mask: radial-gradient(closest-side, transparent 72%, #000 76%, #000 90%, transparent 95%);
+  filter: blur(.4px) saturate(1.2); }
