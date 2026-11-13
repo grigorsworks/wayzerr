@@ -103,14 +103,17 @@
       return { x, y, p, e, u, inv: [-u[1] / det, u[0] / det, -e[1] / det, e[0] / det] };
     };
     const eyes = [patch(50 - ex, g.eyeY), patch(50 + ex, g.eyeY)];
-    eyes.forEach((q) => { q.room = eyeRoom(shape, q); });
-    return (faceGeoCache[shape] = { cx, cy, Rf, eyes, mid: patch(50, g.eyeY) });
+    eyes.forEach((q) => { q.room = eyeRoom(shape, q, 5.5, 9.5); });
+    // any other spot on the face (the mouth, the cheeks) with its own room to move in
+    const spots = {};
+    const at = (x, y, hw, hh) => { const k = x + ',' + y + ',' + hw + ',' + hh; if (!spots[k]) { const q = patch(x, y); q.room = eyeRoom(shape, q, hw, hh); spots[k] = q; } return spots[k]; };
+    return (faceGeoCache[shape] = { cx, cy, Rf, eyes, mid: patch(50, g.eyeY), at });
   }
   // How far an eye may travel from its resting spot, in 36 directions, before its edge would leave the body. Short bodies (pebble,
   // bean, capsule) have little room above and below the eyes, so a big look-up or a jump pose used to push the eyes off the face.
   const ROOM_N = 36;
-  function eyeRoom(shape, q) {
-    const inside = INSIDE[shape] || INSIDE.orb, hw = 5.5, hh = 9.5, out = [];
+  function eyeRoom(shape, q, hw, hh) {
+    const inside = INSIDE[shape] || INSIDE.orb, out = [];
     for (let k = 0; k < ROOM_N; k++) {
       const a = (k / ROOM_N) * 2 * Math.PI, ca = Math.cos(a), sa = Math.sin(a);
       let lo = 0, hi = 60;
@@ -167,6 +170,78 @@
     return eye(50 - ex, 'l', 0) + eye(50 + ex, 'r', 1);
   }
   const wearStyle = (shape, P) => `${FACE_ORIGIN}transform:${patchMap(faceGeo(shape), faceGeo(shape).mid, gazeM(P.gx, P.gy)).t}`;
+
+  // ---------- mouth and cheeks ----------
+  // What makes a Wayzerr bot a Wayzerr bot: a mouth and two soft cheeks that sit on the same ball as the eyes (so they turn, squeeze and
+  // fade round the edge together with them). The mouth has moods: it smiles wider when the bot is happy, opens when it talks or puffs up,
+  // and goes flat while it thinks.
+  // Each style: w = half width, u / d = how far the upper / lower lip sits below the corners (negative = above), cl / cr = corner heights.
+  const f2 = (n) => +(+n).toFixed(2);
+  const MOUTH = {
+    smile: { w: 5.4, u: 3.2, d: 3.2 },
+    grin: { w: 6.8, u: 1.0, d: 6.2 },
+    o: { w: 3.0, u: -2.8, d: 3.0, o: true },
+    smirk: { w: 5.4, u: 2.4, d: 2.4, cl: 1.4, cr: -2.0 },
+    cat: { w: 6.4, u: 2.4, d: 2.4, cat: true },
+    flat: { w: 4.4, u: 0.3, d: 0.3 },
+  };
+  const MOUTH_AUTO = ['smile', 'grin', 'smile', 'cat', 'smirk', 'o', 'grin', 'smile'];
+  const EYE_BOTTOM = { dots: 7.8, ovals: 10.5, wide: 7.5, happy: 6.4, sleepy: 5.2 }; // how far each eye style reaches below the eye line
+  /** The mouth a bot has: its own style if one is set ('off' = none), otherwise one picked from its look, so it never changes. */
+  function mouthOf(ch) {
+    const m = ch.mouth;
+    if (m === 'off') return null;
+    if (m && MOUTH[m]) return m;
+    const list = ch.eyes === 'happy' ? ['smile', 'grin', 'cat', 'smile'] : ch.eyes === 'sleepy' ? ['flat', 'o', 'smile'] : MOUTH_AUTO;
+    return list[hash('m' + ch.shape + ch.color + ch.eyes) % list.length];
+  }
+  /** Which extras a bot has: soft cheeks, unless the look says 'off' (anything else, including the old 'none', means cheeks). */
+  function extraOf(ch) {
+    return { cheeks: String(ch.extra || '') !== 'off' };
+  }
+  const WEAR_BOTTOM = { shades: 8.4, glasses: 10.5 }; // sunglasses and glasses reach lower than the eyes behind them
+  function faceLayout(shape, eyes, acc) {
+    const g = GEO[shape] || GEO.orb, b = (WB[shape] || WB.orb)[3], ex = EX[shape] || 13;
+    const my = f1(Math.min(g.eyeY + Math.max(EYE_BOTTOM[eyes] || 7.8, WEAR_BOTTOM[acc] || 0) + 6, b - 19));
+    // room = how far the lower lip may drop below the mouth line before it would leave the body (the notch between the feet)
+    return { my, cy: f1(my - 1.5), cx: f1(ex + 8), sc: Math.min(1, ex / 13), room: f1(Math.max(3.4, geo(shape).bottom - my - 2.8)) };
+  }
+  /** The mouth outline for a smile amount s (1 = the style's own, 0 = flat, 1.8 = beaming), an openness o (0..1) and the room below it. */
+  function mouthD(style, sc, s, o, room) {
+    const B = MOUTH[style] || MOUTH.smile, f = f2, rm = room > 0 ? room : 99;
+    s = Math.max(0, Math.min(1.9, s)); o = Math.max(0, Math.min(1, o));
+    if (B.cat) { // :3 — two little arcs
+      const w = B.w * sc * (1 + 0.1 * (s - 1) + 0.1 * o), a = Math.min(rm, B.u * s + 2.6 * o);
+      return `M${f(-w)} 0Q${f(-w / 2)} ${f(2 * a)} 0 0Q${f(w / 2)} ${f(2 * a)} ${f(w)} 0`;
+    }
+    const sm = B.o ? 1 : s;
+    const w = B.o ? B.w * sc * (1 + 0.4 * o) : B.w * sc * (1 + 0.12 * (s - 1) - 0.15 * o);
+    const cl = (B.cl || 0) * sm, cr = (B.cr || 0) * sm, mid = (cl + cr) / 2;
+    const ad = Math.min(rm, B.d * sm + (B.o ? 3 : 5.4) * o), au = Math.min(ad, B.u * sm - (B.o ? 2 : 1.3) * o);
+    return `M${f(-w)} ${f(cl)}Q0 ${f(2 * au - mid)} ${f(w)} ${f(cr)}Q0 ${f(2 * ad - mid)} ${f(-w)} ${f(cl)}Z`;
+  }
+  // The mouth and the cheeks sit on the ball through small patches (half width, half height, how far below the mouth line the centre is).
+  // Keep them small: a taller patch makes the body's edge push the mouth up into the eyes when the bot looks down.
+  const MOUTH_PATCH = [6.5, 3.4, 0];
+  const CHEEK_PATCH = [5.4, 3.5];
+  const fadeCheek = (z) => Math.max(0, Math.min(1, (z - 0.1) / 0.3)); // cheeks are soft, they go before the edge does
+  const facePose = (m, fz = fade) => `${FACE_ORIGIN}transform:${m.t}${fz(m.z) < 1 ? ';opacity:' + fz(m.z).toFixed(2) : ''}`;
+  function mouthSvg(shape, style, color, ink, L, M) {
+    const fg = faceGeo(shape), m = patchMap(fg, fg.at(50, f1(L.my + MOUTH_PATCH[2]), MOUTH_PATCH[0], MOUTH_PATCH[1]), M);
+    const cavity = lumOf(color) < 95 ? shade(color, -0.24) : ink; // the inside of an open mouth
+    return `<g class="c-mouth" data-style="${style}" data-y="${L.my}" data-sc="${L.sc.toFixed(2)}" data-room="${L.room}" style="${facePose(m)}"><path class="c-mpath" transform="translate(50 ${L.my})" d="${mouthD(style, L.sc, 1, 0, L.room)}" fill="${MOUTH[style].cat ? 'none' : cavity}" stroke="${ink}" stroke-width="2.9" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+  }
+  function blushOf(color) {
+    const [h, s, l] = toHsl(color);
+    return s < 0.2 ? { c: '#FF7C98', o: l > 0.5 ? 0.5 : 0.42 } : { c: fromHsl(h - 8, Math.min(1, s + 0.1), Math.max(0.28, l - 0.16)), o: 0.62 };
+  }
+  function cheeksSvg(shape, color, L, M) {
+    const fg = faceGeo(shape), bl = blushOf(color);
+    return [-1, 1].map((sd) => {
+      const x = f1(50 + sd * L.cx);
+      return `<g class="c-cheek" data-x="${x}" data-y="${L.cy}" data-op="${bl.o}" style="${facePose(patchMap(fg, fg.at(x, L.cy, CHEEK_PATCH[0], CHEEK_PATCH[1]), M), fadeCheek)}"><ellipse cx="${x}" cy="${L.cy}" rx="5.4" ry="3.5" fill="${bl.c}" opacity="${bl.o}"/></g>`;
+    }).join('');
+  }
 
   // ---------- Accessories: separate items you can put on any bot ----------
   // The real outline of each body, so accessories sit ON the head.
@@ -249,7 +324,7 @@
   const sp = (x, y, r, fill = '#fff') => `<path class="sp" d="${starD(x, y, r)}" fill="${fill}" ${HID()}/>`; // sparkle
 
   /** The accessory as { back, front } SVG: `back` goes behind the body (ears), `front` on top. `bot` = body colour (accents adapt to it). */
-  function accSvg(acc, shape, eyeY, uidBase, bot, picker) {
+  function accSvg(acc, shape, eyeY, uidBase, bot, picker, eyes) {
     const none = { back: '', front: '' };
     if (!acc || acc === 'none') return none;
     bot = okHex(bot);
@@ -337,7 +412,9 @@
           `<g fill="none" stroke="${PAL.ink[1]}" stroke-width="2.4" stroke-linecap="round"><circle cx="${f1(50 - ex)}" cy="${y}" r="${f1(r)}" fill="#fff" fill-opacity=".14"/><circle cx="${f1(50 + ex)}" cy="${y}" r="${f1(r)}" fill="#fff" fill-opacity=".14"/><path d="M${f1(50 - ex + r)} ${y - 1}Q50 ${y - 4.5} ${f1(50 + ex - r)} ${y - 1}"/><path d="M${f1(50 - ex - r)} ${y - 1}l-5 -2M${f1(50 + ex + r)} ${y - 1}l5 -2"/></g><path class="gl" d="M${f1(50 - ex - r * 0.55)} ${f1(y - r * 0.55)}q3 -3 6.5 -2.4" stroke="#fff" stroke-opacity=".8" stroke-width="1.8" fill="none" stroke-linecap="round"/>`);
       }
       case 'bowtie': {
-        const y = Math.min(G.bottom - 10, eyeY + 25), k = Math.min(1.45, (G.half(y) * 0.95) / 17);
+        // sits under the mouth, as big as the room between the mouth and the bottom edge allows (it may hang a little over the feet, like a bow at the chin)
+        const my = faceLayout(shape, eyes).my, top = my + 5.5, kw = (G.half(Math.min(G.bottom - 10, eyeY + 25)) * 0.95) / 17;
+        const k = Math.max(0.62, Math.min(1.45, kw, (G.bottom + 4 - top) / 17)), y = Math.min(top + 8.5 * k, G.bottom + 6.5);
         return item(`translate(50 ${f1(y)}) rotate(${(-wearOf(shape, 'bowtie')[0] * 0.6).toFixed(1)}) scale(${k.toFixed(3)})`, gd(1, ac),
           `<path d="${rpoly([[0, 0, 1], [-15.5, -8.5, 2.6], [-15.5, 8.5, 2.6]])}" fill="${u(1)}"/><path d="${rpoly([[0, 0, 1], [15.5, -8.5, 2.6], [15.5, 8.5, 2.6]])}" fill="${u(1)}"/><rect x="-4.2" y="-5" width="8.4" height="10" rx="3" fill="${PAL[ac][2]}"/>`);
       }
@@ -360,7 +437,8 @@
     const state = opts.state ? ' is-' + opts.state : '';
     const track = size >= 60 ? ' track' : '';
     const face = FACEWEAR.has(ch.acc);
-    const acc = accSvg(ch.acc, ch.shape, g.eyeY, id, ch.color);
+    const acc = accSvg(ch.acc, ch.shape, g.eyeY, id, ch.color, false, ch.eyes);
+    const mouth = mouthOf(ch), ext = extraOf(ch), L = faceLayout(ch.shape, ch.eyes, ch.acc), M0 = gazeM(P.gx, P.gy);
     return `<span class="char${state}${track}" data-eyes="${ch.eyes}" data-shape="${ch.shape}" data-color="${ch.color}" data-acc="${ch.acc || ''}" data-uid="${id}" data-gx="${P.gx}" data-gy="${P.gy}" style="width:${size}px;height:${size}px;--blink-delay:${delay}s;rotate:${P.tilt}deg;transform-origin:50% 90%">
       <span class="c-swirl c-swirl-a"></span><span class="c-swirl c-swirl-b"></span>
       <span class="c-sparkles"><i></i><i></i><i></i><i></i><i></i><i></i></span>
@@ -375,13 +453,16 @@
         <g class="c-body"><g class="c-turn">
           ${acc.back}
           ${bodyPath(ch.shape, `url(#${id}g)`)}
+          ${ch.acc === 'bowtie' ? acc.front : ''}
           <g class="c-face">
             <g class="c-look">
+              ${ext.cheeks ? cheeksSvg(ch.shape, ch.color, L, M0) : ''}
               <g class="c-eyes">${eyesSvg(ch.eyes, g.eyeY, ink, ex, ch.shape, P)}</g>
-              ${face ? `<g class="c-wear" style="${wearStyle(ch.shape, P)}">${acc.front}</g>` : ''}
+              ${mouth ? mouthSvg(ch.shape, mouth, ch.color, ink, L, M0) : ''}
+              ${face ?`<g class="c-wear" style="${wearStyle(ch.shape, P)}">${acc.front}</g>` : ''}
             </g>
           </g>
-          ${face ? '' : acc.front}
+          ${face || ch.acc === 'bowtie' ? '' : acc.front}
         </g></g>
         <g class="c-dots"><circle cx="80" cy="14" r="4"/><circle cx="90" cy="6" r="2.6"/></g>
         <g class="c-fx"><circle class="c-puff c-puff-l" cx="30" cy="92" r="6.5"/><circle class="c-puff c-puff-r" cx="70" cy="92" r="6.5"/></g>
@@ -443,7 +524,7 @@
     const acc = el.dataset.acc || '';
     const [, br, bt, bb] = WB[shape] || WB.orb;
     const [k1, k2, k3] = tones(shade(color, -0.1));
-    const A = acc && acc !== 'none' && !FACEWEAR.has(acc) ? accSvg(acc, shape, (GEO[shape] || GEO.orb).eyeY, uidB, color) : { back: '', front: '' };
+    const A = acc && acc !== 'none' && !FACEWEAR.has(acc) ? accSvg(acc, shape, (GEO[shape] || GEO.orb).eyeY, uidB, color, false, el.dataset.eyes) : { back: '', front: '' };
     const back = `<defs><linearGradient id="${uidB}g" gradientUnits="userSpaceOnUse" x1="${br}" y1="${bt}" x2="${100 - br}" y2="${bb}"><stop offset="0" stop-color="${k1}"/><stop offset=".55" stop-color="${k2}"/><stop offset="1" stop-color="${k3}"/></linearGradient><clipPath id="${uidB}k">${bodyPath(shape, '#000')}</clipPath></defs>${A.back}${bodyPath(shape, `url(#${uidB}g)`)}${A.front}`;
     html += `<svg class="c-back" viewBox="0 0 100 100" style="transform: translateZ(${(-depth - 0.4).toFixed(2)}px) scale(0.87) rotateY(180deg)">${back}</svg>`;
     p.slab.innerHTML = html;
@@ -513,8 +594,31 @@
     return [0, 0];
   }
 
+  // The mouth's mood for each working state: [smile amount, openness]. 1 = the mouth's own smile, 0 = flat.
+  const MOUTH_STATE = {
+    thinking: (s) => [0.3, 0.04 + 0.04 * Math.sin(s * 2.1)],
+    browsing: () => [0.85, 0.1],
+    reading: () => [0.85, 0.1],
+    typing: (s) => [0.6, 0.1 + 0.1 * Math.max(0, Math.sin(s * 8))],
+    working: (s) => [0.75, 0.2 + 0.14 * Math.sin(s * 3.1)],
+    remembering: () => [1.5, 0],
+    waiting: () => [0.95, 0],
+    talking: (s) => [1.1, Math.max(0, Math.min(1, 0.55 + 0.45 * Math.sin(s * 12) * Math.sin(s * 4.7 + 1.3)))], // irregular, like speech
+  };
+  const MT = [1, 0];
+  function mouthTarget(el, now) {
+    let s = 1, o = 0;
+    const st = stateOf(el), f = st && MOUTH_STATE[st];
+    if (f) { const k = Math.min(1, (now - (el._stateT0 || 0)) / 400), v = f(now / 1000); s = 1 + (v[0] - 1) * k; o = v[1] * k; }
+    const h = el._moHold; // a little smile or "oh" the bot makes now and then on its own
+    if (h && now < h.until) { s = Math.max(s, h.s); o = Math.max(o, h.o); }
+    MT[0] = s; MT[1] = o;
+    return MT;
+  }
+
   let last = performance.now();
   let eyeTimer = 0, eyeRaf = 0, calmFor = 0;
+  const GRACE = 0.3; // seconds of full-speed frames after the last movement, before the loop goes to sleep
   // The eyes only need frames while something moves. Once everything has settled the loop sleeps (a quick check
   // a few times a second) and wakes at once when the mouse moves or a character starts doing something.
   function scheduleEyes(delay) {
@@ -544,15 +648,41 @@
       }
     }
     if (N.wear) { const m = patchMap(N.geo, N.geo.mid, M); N.wear.style.transform = m.t; const o = fade(m.z); N.wear.style.opacity = o < 1 ? o.toFixed(2) : ''; }
+    // the mouth and the cheeks ride on the same ball (their mood is drawn by setMood)
+    if (N.mouth) { const m = patchMap(N.geo, N.mouth.q, M), o = fade(m.z); N.mouth.g.style.transform = m.t; N.mouth.g.style.opacity = o < 1 ? o.toFixed(2) : ''; }
+    for (const Ck of N.cheeks) { const m = patchMap(N.geo, Ck.q, M), o = fadeCheek(m.z); Ck.g.style.transform = m.t; Ck.g.style.opacity = o < 1 ? o.toFixed(2) : ''; }
+    setMood(el);
     const h = S && S.hap >= 0.5 ? 1 : 0; // the pill bends into the happy arc within a frame or two, so it switches, no ghost in between
     if (h !== N.hap) { N.hap = h; N.pills.forEach((n) => (n.style.opacity = h ? '0' : '')); N.arcs.forEach((n) => (n.style.opacity = h ? '1' : '0')); }
+  }
+  // The mouth's shape and the cheeks' glow from el._mx (smile amount s, openness o). Only touches the page when something shows a difference,
+  // and never moves the face, so a bot that just smiles costs one attribute write a frame.
+  function setMood(el) {
+    const N = el._face === undefined ? (el._face = faceNodes(el)) : el._face;
+    if (!N) return;
+    const E = el._mx || (el._mx = { s: 1, o: 0, vs: 0, vo: 0 });
+    if (N.ls !== undefined && Math.abs(E.s - N.ls) < 0.004 && Math.abs(E.o - N.lo) < 0.004) return; // nothing a viewer could see changed
+    N.ls = E.s; N.lo = E.o;
+    if (N.mouth) {
+      const Mo = N.mouth, key = E.s.toFixed(2) + ',' + E.o.toFixed(2);
+      if (key !== Mo.key) { Mo.key = key; Mo.path.setAttribute('d', mouthD(Mo.style, Mo.sc, E.s, E.o, Mo.room)); }
+    }
+    if (N.cheeks.length) {
+      const bright = Math.min(1, Math.max(0, E.s - 1) + 0.5 * E.o).toFixed(2); // cheeks glow when the bot is happy
+      for (const Ck of N.cheeks) if (bright !== Ck.key) { Ck.key = bright; Ck.e.setAttribute('opacity', (Ck.op * (1 + 0.45 * bright)).toFixed(2)); }
+    }
   }
   function faceNodes(el) {
     const eyes = [el.querySelector('.c-eye-l'), el.querySelector('.c-eye-r')];
     if (!eyes[0] || !eyes[1]) return null;
     const pills = [...el.querySelectorAll('.c-pill')];
     const pg = pills.map((r) => { const x = +r.getAttribute('x'), y = +r.getAttribute('y'), w = +r.getAttribute('width'), h = +r.getAttribute('height'); return { cx: x + w / 2, cy: y + h / 2, w, h }; });
-    return { geo: faceGeo(el.dataset.shape || 'orb'), eyes, wear: el.querySelector('.c-wear'), pills, pg, pk: ['', ''], arcs: [...el.querySelectorAll('.c-arc')], hap: 0 };
+    const shape = el.dataset.shape || 'orb', geo = faceGeo(shape), mg = el.querySelector('.c-mouth');
+    return {
+      geo, eyes, wear: el.querySelector('.c-wear'), pills, pg, pk: ['', ''], arcs: [...el.querySelectorAll('.c-arc')], hap: 0,
+      mouth: mg ? { g: mg, path: mg.firstElementChild, q: geo.at(50, f1(+mg.dataset.y + MOUTH_PATCH[2]), MOUTH_PATCH[0], MOUTH_PATCH[1]), sc: +mg.dataset.sc, room: +mg.dataset.room || 0, style: mg.dataset.style, key: '' } : null,
+      cheeks: [...el.querySelectorAll('.c-cheek')].map((g) => ({ g, e: g.firstElementChild, q: geo.at(+g.dataset.x, +g.dataset.y, CHEEK_PATCH[0], CHEEK_PATCH[1]), op: +g.dataset.op, key: '' })),
+    };
   }
 
   // One move of the reference video, played frame by frame (30 per second): the body (up/down, squash), the face turning on
@@ -574,6 +704,9 @@
     const l = m > 0 ? 6 : 8, r = m > 0 ? 8 : 6;
     S.su[0] = g(l) / 100; S.sv[0] = g(l + 1) / 100; S.su[1] = g(r) / 100; S.sv[1] = g(r + 1) / 100;
     S.hap = Math.round(g(10)) / 100;
+    // the mouth follows the move: a grin when the eyes turn happy, a little "o" when the body puffs up
+    const E = el._mx || (el._mx = { s: 1, o: 0, vs: 0, vo: 0 }), puff = Math.max(0, Math.min(1, (g(1) / 1000) * 11));
+    E.s += (1 + 0.85 * S.hap - E.s) * 0.4; E.o += (0.6 * S.hap + 0.75 * puff - E.o) * 0.4; E.vs = E.vo = 0;
     setFace(el, M, S);
     const body = C.body || (C.body = el.querySelector('.c-body'));
     if (body) body.style.transform = `translateY(${((g(0) / 1000) * C.bw).toFixed(2)}px) scale(${(1 + g(1) / 1000).toFixed(4)}, ${(1 + g(2) / 1000).toFixed(4)})`;
@@ -607,13 +740,22 @@
       e.vy += (k * (ty - e.y) - c * e.vy) * dt;
       e.x += e.vx * dt;
       e.y += e.vy * dt;
-      const key = e.x.toFixed(3) + ',' + e.y.toFixed(3);
-      if (key !== e.key) { e.key = key; setFace(el, gazeM(e.x, e.y), null); }
+      // the mouth's mood glides the same way (a softer spring): smile amount s, openness o
+      const X = mouthTarget(el, now), E = el._mx || (el._mx = { s: 1, o: 0, vs: 0, vo: 0 }), km = 110, cm = 2 * Math.sqrt(km);
+      E.vs += (km * (X[0] - E.s) - cm * E.vs) * dt;
+      E.vo += (km * (X[1] - E.o) - cm * E.vo) * dt;
+      E.s += E.vs * dt;
+      E.o += E.vo * dt;
+      if (E.o < 0) { E.o = 0; E.vo = 0; }
+      const gk = e.x.toFixed(3) + ',' + e.y.toFixed(3);
+      if (gk !== e.key) { e.key = gk; setFace(el, gazeM(e.x, e.y), null); } // the face turned (setFace draws the mood too)
+      else setMood(el); // only the smile changed: redraw just the mouth and the cheek glow
       if (Math.abs(tx - e.x) > 0.002 || Math.abs(ty - e.y) > 0.002 || Math.abs(e.vx) > 0.01 || Math.abs(e.vy) > 0.01) moving = true;
+      else if (Math.abs(X[0] - E.s) > 0.004 || Math.abs(X[1] - E.o) > 0.004 || Math.abs(E.vs) > 0.02 || Math.abs(E.vo) > 0.02) moving = true;
     }
     if (moving) { calmFor = 0; return scheduleEyes(0); }
     calmFor += dt;
-    scheduleEyes(calmFor < 0.8 ? 0 : 250);
+    scheduleEyes(calmFor < GRACE ? 0 : 250);
   }
 
 
@@ -914,7 +1056,7 @@
     if (started) return;
     started = true;
     requestAnimationFrame(eyeLoop);
-    addEventListener('mousemove', (e) => { mouse = { x: e.clientX, y: e.clientY, t: performance.now() }; if (calmFor > 0.8) wakeEyes(); });
+    addEventListener('mousemove', (e) => { mouse = { x: e.clientX, y: e.clientY, t: performance.now() }; if (calmFor > GRACE) wakeEyes(); });
     document.addEventListener('mouseleave', () => (mouse = null));
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     // Every bot rests for a moment, then does the next move from the video.
@@ -922,6 +1064,14 @@
       if (document.hidden) return;
       const now = performance.now();
       for (const c of document.querySelectorAll('.char')) {
+        // every bot now and then smiles a little wider (or says "oh") on its own, like it blinks
+        if (c._moNext === undefined) c._moNext = now + 2000 + Math.random() * 8000;
+        if (now >= c._moNext && !isBusy(c) && !c._playing && c.querySelector('.c-mouth') && visible(c)) {
+          const oh = Math.random() < 0.3;
+          c._moHold = { s: oh ? 1 : 1.55 + Math.random() * 0.35, o: oh ? 0.4 : Math.random() < 0.4 ? 0.3 : 0, until: now + 800 + Math.random() * 600 };
+          c._moNext = now + 6500 + Math.random() * 8500;
+          wakeEyes();
+        }
         if (c.classList.contains('still') || isBusy(c) || c._playing || !visible(c)) continue; // .still = a bot that only blinks and looks (website cards)
         if (c._nextIdle === undefined) c._nextIdle = now + 400 + Math.random() * 2600;
         if (now >= c._nextIdle) play(c);
@@ -938,5 +1088,5 @@
   function fitAccessory(svg, pad = 3) {
     try { const b = svg.querySelector('.acc-wrap').getBBox(); const s = Math.max(b.width, b.height) + pad * 2; svg.setAttribute('viewBox', `${(b.x + b.width / 2 - s / 2).toFixed(1)} ${(b.y + b.height / 2 - s / 2).toFixed(1)} ${s.toFixed(1)} ${s.toFixed(1)}`); } catch (_) {}
   }
-  window.Characters = { setFace, rotZXY, mul3, gazeM, accessorySvg, fitAccessory, ACCESSORIES, makeCharacter, characterSvg, COLORS, play, startIdle, setState, ACTIONS, tones };
+  window.Characters = { setFace, rotZXY, mul3, gazeM, accessorySvg, fitAccessory, ACCESSORIES, makeCharacter, characterSvg, COLORS, play, startIdle, setState, ACTIONS, tones, MOUTHS: Object.keys(MOUTH), IDLE };
 })();

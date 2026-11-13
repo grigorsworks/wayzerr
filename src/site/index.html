@@ -464,10 +464,9 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
 .s6 .team .rb{opacity:0;transform:scale(.2);transition:opacity .25s,transform .45s var(--spring)}
 .s6 .team .rb.on{opacity:1;transform:none}
 /* F1 brain per bot: a wheel that scrolls through the brains */
-.f1{flex-direction:column;gap:8px;background:radial-gradient(ellipse 55% 60% at 50% 45%,#202027,#0e0e10)}
-.f1 .wheel .rb{width:64px;height:64px}
-.f1 .wheel{position:relative;width:100%;height:92px;perspective:520px}
-.f1 .wheel .rb{position:absolute;left:50%;top:50%;margin:-32px 0 0 -32px;transition:transform .75s cubic-bezier(.22,1,.36,1),opacity .6s,filter .6s;will-change:transform}
+.f1{flex-direction:column;gap:6px;background:radial-gradient(ellipse 55% 60% at 50% 45%,#202027,#0e0e10)}
+.f1 .wheel{position:relative;width:100%;height:108px}
+.f1 .wheel .rb{position:absolute;left:50%;top:44px;width:64px;height:64px;margin:-32px 0 0 -32px;transition:transform .95s cubic-bezier(.3,.85,.3,1),opacity .6s,filter .6s;will-change:transform}
 .f1 .nm{position:relative;height:24px;width:112px;border:1px solid #3a3a42;border-radius:999px;background:#1b1b1e;overflow:hidden}
 .f1 .nm span{position:absolute;inset:0;display:grid;place-items:center;font-size:13.5px;opacity:0;transform:translateY(10px);transition:opacity .35s,transform .45s var(--spring)}
 .f1 .nm span.on{opacity:1;transform:none}
@@ -488,7 +487,7 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
 .f2 .t1{left:14px;top:6px;--c:#ff6b5e}.f2 .t2{right:14px;top:6px;--c:#9b7bff}.f2 .t3{left:14px;bottom:6px;--c:#4ad991}.f2 .t4{right:14px;bottom:6px;--c:#ffb020}
 /* F3 chat list */
 .f3{position:relative;width:236px;height:156px}
-.f3 .r{position:absolute;left:0;right:0;height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px;background:#1b1b1e;border:1px solid #2a2a2f;transition:top .38s cubic-bezier(.3,1.2,.4,1),border-color .25s,background .25s}
+.f3 .r{position:absolute;left:0;right:0;height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:12px;background:#1b1b1e;border:1px solid #2a2a2f;transition:top .75s cubic-bezier(.3,1.12,.4,1),border-color .4s,background .4s}
 .f3 .r .char{flex:none}
 .f3 .r u{text-decoration:none;flex:1;height:7px;border-radius:4px;background:#34343a}
 .f3 .r u+u{flex:none;width:34px;background:#2a2a2f}
@@ -518,10 +517,8 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
 .f5 .sc{gap:18px}
 .f5 .key{width:46px;height:46px;flex:none;transition:transform .8s cubic-bezier(.22,1,.36,1),opacity .5s}
 .f5 .grid{display:grid;grid-template-columns:repeat(3,36px);gap:7px}
-.f5 .grid span{height:36px;border-radius:10px;background:#1b1b1e;border:1px solid #2a2a2f;display:grid;place-items:center;transition:background .4s,border-color .4s,box-shadow .4s}
-.f5 .grid span .char{filter:grayscale(1) brightness(.55);opacity:.7;transition:filter .5s,opacity .5s}
-.f5 .grid span.on{background:#2a1f16;border-color:#ffb870;box-shadow:0 0 14px rgba(255,148,64,.5)}
-.f5 .grid span.on .char{filter:none;opacity:1}
+.f5 .grid span{height:36px;border-radius:10px;background:#1b1b1e;border:1px solid #2a2a2f;transition:background .5s,border-color .5s,box-shadow .5s}
+.f5 .grid span.on{background:var(--t);border-color:var(--c);box-shadow:0 0 16px var(--g),inset 0 0 9px var(--t)}
 .f5.off .key{transform:translateX(-16px);opacity:.3}
 /* F6 one sentence */
 .f6{flex-direction:column;gap:16px}
@@ -867,7 +864,7 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
 </main>
 
 <script src="/bots.js"></script>
-<script>(function(){var C=window.Characters;if(!C)return;function mount(root){(root||document).querySelectorAll(".wzb").forEach(function(p){var d=p.dataset,t=document.createElement("div");t.innerHTML=C.characterSvg({shape:d.shape||"orb",color:d.color||"#FF8A2B",eyes:d.eyes||"ovals",extra:"none",mouth:"none",acc:"none"},{size:+d.size||48});p.replaceWith(t.firstElementChild)})}window.WzMount=mount;mount();C.startIdle()})();</script>
+<script>(function(){var C=window.Characters;if(!C)return;function mount(root){(root||document).querySelectorAll(".wzb").forEach(function(p){var d=p.dataset,t=document.createElement("div");t.innerHTML=C.characterSvg({shape:d.shape||"orb",color:d.color||"#FF8A2B",eyes:d.eyes||"ovals",acc:"none"},{size:+d.size||48});p.replaceWith(t.firstElementChild)})}window.WzMount=mount;mount();var vi=C.IDLE.indexOf("v_spin");if(vi>-1)C.IDLE.splice(vi,1);C.startIdle()})();</script>
 <script>
 (function(){
   var $=function(s){return document.querySelector(s)}, $$=function(s){return [].slice.call(document.querySelectorAll(s))};
@@ -948,20 +945,21 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
   var C=window.Characters;
   // the big bot: a click makes it move and say something
   var art=$('#art'), big=art&&art.querySelector('.char');
-  var SAYS=['Hi! I am Buddy.','Give me a job.','I remember how you like things.','Want me to check your inbox?','Ask me anything.'], MV=['bounce','lookAround','jump','tilt','v_curious','v_shrink','v_spin'], si=0, sayT;
+  var SAYS=['Hi! I am Buddy.','Give me a job.','I remember how you like things.','Want me to check your inbox?','Ask me anything.'], MV=['bounce','lookAround','jump','tilt','v_curious','v_shrink'], si=0, sayT;
   if(art&&big&&C){
     var say=document.createElement('div'); say.className='say'; art.appendChild(say);
-    art.addEventListener('click',function(){C.play(big,MV[si%MV.length]);say.textContent=SAYS[si%SAYS.length];si++;say.classList.add('on');clearTimeout(sayT);sayT=setTimeout(function(){say.classList.remove('on')},2400)});
+    art.addEventListener('click',function(){C.play(big,MV[si%MV.length]);say.textContent=SAYS[si%SAYS.length];si++;say.classList.add('on');C.setState(big,'talking');clearTimeout(sayT);sayT=setTimeout(function(){say.classList.remove('on');C.setState(big,null)},2400)});
   }
   // the hero cards: their bots only blink and look around (no jumps)
   if(C)$$('.fc .char').forEach(function(b){b.classList.add('still')});
 
   // ---- the little scenes: bots acting out what each card says. They play while on screen, one after another. ----
   var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
-  function mk(b,size){var t=document.createElement('div');t.innerHTML=C.characterSvg({shape:b.s,color:b.c,eyes:b.e,extra:'none',mouth:'none',acc:b.a||'none'},{size:size});return t.firstElementChild}
+  function mk(b,size){var t=document.createElement('div');t.innerHTML=C.characterSvg({shape:b.s,color:b.c,eyes:b.e,acc:b.a||'none'},{size:size});return t.firstElementChild}
   function rbox(b,size){var s=document.createElement('span');s.className='rb';s.appendChild(mk(b,size));return s}
   function typeTo(el,txt,ms){return new Promise(function(res){var i=0;(function n(){el.textContent=txt.slice(0,i);if(i++<txt.length)setTimeout(n,ms);else res()})()})}
   function play(b,m){if(b&&!calm)C.play(b,m)}
+  function rgba(h,a){var n=parseInt(h.slice(1),16);return 'rgba('+(n>>16)+','+((n>>8)&255)+','+(n&255)+','+a+')'}
   // scenes[name] = {init(el), cycle(el)}: init draws the finished picture (what reduced-motion users see), cycle loops it
   var SC={};
   function run(el,sc){
@@ -1019,10 +1017,12 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
   };
 
   // step 6: the team grows, then waves
-  var TS=['orb','pebble','blob','bun','capsule','bean'],TE=['dots','ovals','wide','happy'],TC=['#FF8A2B','#4F8BFF','#4AD991','#B58CFF','#FF7AB6','#FFC24A','#F1F1F4','#2DD4BF','#FF6B5B','#26262C'],TA={4:'beanie',9:'bowtie',13:'headbow',16:'crown',2:'cap',11:'glasses'};
+  var TEAM=[['orb','#FF6B5B','dots'],['pebble','#4F8BFF','ovals'],['blob','#FFB020','wide'],['bun','#2FCB7A','happy','headbow'],['capsule','#A77BFF','dots','beanie'],['bean','#FF7AB6','ovals'],
+    ['blob','#FF8A3D','happy','cap'],['bun','#38BDF8','wide'],['capsule','#E879F9','ovals','crown'],['bean','#F2F2F2','dots'],['orb','#2DD4BF','wide','glasses'],['pebble','#A3E635','happy'],
+    ['capsule','#6366F1','wide'],['bean','#FB7185','dots','bowtie'],['orb','#6EE7B7','ovals'],['pebble','#B07A4F','sleepy'],['blob','#FACC15','dots','shades'],['bun','#5B6275','ovals']];
   SC.s6={
     init:function(el){var t=el.querySelector('.team');t.innerHTML='';
-      for(var i=0;i<18;i++){var r=rbox({s:TS[(i*5+i%3)%6],c:TC[(i*7+(i>>1))%TC.length],e:TE[(i*3+i%4)%4],a:TA[i]},38);r.classList.add('on');t.appendChild(r)}},
+      TEAM.forEach(function(x){var r=rbox({s:x[0],c:x[1],e:x[2],a:x[3]},38);r.classList.add('on');t.appendChild(r)})},
     cycle:async function(el){
       var rs=[].slice.call(el.querySelectorAll('.team .rb'));
       rs.forEach(function(r){r.classList.remove('on')});
@@ -1034,27 +1034,32 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
     }
   };
 
-  // feature 1: a wheel of brains, like the picker in a game
-  var BR=[{n:'Claude',b:{s:'orb',c:'#FF8A2B',e:'ovals'}},{n:'ChatGPT',b:{s:'bun',c:'#F1F1F4',e:'dots'}},{n:'Gemini',b:{s:'blob',c:'#4AD991',e:'wide'}},{n:'Grok',b:{s:'capsule',c:'#2B2B33',e:'dots'}}];
+  // feature 1: a wheel of brains, like the picker in a game: the bots ride along the rim of a big wheel and the next one rolls into the middle
+  var BR=[{n:'Claude',b:{s:'orb',c:'#FF8A2B',e:'ovals'}},{n:'ChatGPT',b:{s:'bun',c:'#F1F1F4',e:'dots'}},{n:'Gemini',b:{s:'blob',c:'#4AD991',e:'wide'}},{n:'Grok',b:{s:'capsule',c:'#A77BFF',e:'dots'}}];
+  var WR=170,WS=38; // rim radius (px) and the angle between two neighbours (degrees)
   SC.f1={
     place:function(el,a,quick){
-      var rs=el.querySelectorAll('.wheel .rb'),names=el.querySelectorAll('.nm span');
+      var rs=el.querySelectorAll('.wheel .rb'),names=el.querySelectorAll('.nm span'),n=rs.length;
       rs.forEach(function(r,i){
-        var d=((i-a+6)%4)-2; // -2..1, 0 = in the middle
-        var x=d*104,sc=d===0?1:Math.abs(d)===1?.7:.45,ry=-d*36,op=d===0?1:Math.abs(d)===1?.85:0;
-        if(quick)r.style.transition='none';
-        r.style.transform='translateX('+x+'px) translateY('+(d===0?0:6)+'px) scale('+sc+') rotateY('+ry+'deg)';
-        r.style.opacity=op;r.style.filter=d===0?'none':'brightness(.8)';r.style.zIndex=d===0?2:1;
-        if(quick){void r.offsetWidth;r.style.transition=''}
+        var d=((i-a+n+2)%n)-2, // -2..1: 0 = in the middle, -2 = out of sight at the back
+            th=d*WS*Math.PI/180, x=WR*Math.sin(th), y=WR*(1-Math.cos(th)), tilt=d*WS*.6, k=Math.abs(d),
+            sc=k===0?1:k===1?.72:.5, op=k===0?1:k===1?.9:0,
+            hop=r._d!==undefined&&Math.abs(d-r._d)>1.5&&!quick; // the one that goes round the back fades in at its new place, it does not fly across
+        if(quick||hop)r.style.transition=hop?'opacity .6s,filter .6s':'none';
+        r.style.transform='translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px) rotate('+tilt.toFixed(1)+'deg) scale('+sc+')';
+        r.style.opacity=op;r.style.filter=k===0?'none':'brightness(.82)';r.style.zIndex=3-k;
+        if(quick||hop){void r.offsetWidth;r.style.transition=''}
+        r._d=d;
       });
-      names.forEach(function(n,i){n.classList.toggle('on',i===a)});
+      names.forEach(function(nm,i){nm.classList.toggle('on',i===a)});
     },
-    init:function(el){var w=el.querySelector('.wheel');w.innerHTML='';BR.forEach(function(x){w.appendChild(rbox(x.b,64))});this.a=0;this.place(el,0,true)},
+    init:function(el){var w=el.querySelector('.wheel');w.innerHTML='';BR.forEach(function(x){var r=rbox(x.b,64);r.firstElementChild.classList.add('still');w.appendChild(r)});this.a=0;this.place(el,0,true)},
     cycle:async function(el){
-      await sleep(2000);
+      await sleep(2400);
       this.a=(this.a+1)%BR.length;this.place(el,this.a);
-      var rs=el.querySelectorAll('.wheel .rb'),b=rs[this.a].firstElementChild;
-      setTimeout(function(){play(b,'v_spin')},250);
+      var b=el.querySelectorAll('.wheel .rb')[this.a].firstElementChild;
+      await sleep(700);play(b,'bounce'); // it has arrived in the middle: a happy hop
+      await sleep(1200);
     }
   };
 
@@ -1089,15 +1094,15 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
     cycle:async function(el){
       var R=this.rows,self=this,dot=R[1].querySelector('i');
       self.put(el,[0,1,2,3]);R.forEach(function(r){r.classList.remove('pinned','hot')});dot.classList.remove('nw');
-      await sleep(900);
+      await sleep(1600);
       R[1].classList.add('hot');dot.classList.add('nw');self.put(el,[1,0,2,3]);play(R[1].firstElementChild,'bounce'); // a new message: it moves up
-      await sleep(1100);
+      await sleep(2300);
       R[2].classList.add('pinned');self.put(el,[2,1,0,3]);play(R[2].firstElementChild,'jump'); // pinned: to the top
-      await sleep(1500);
+      await sleep(2800);
       R[2].classList.remove('pinned');self.put(el,[1,0,2,3]);play(R[2].firstElementChild,'tilt'); // unpinned: back in line
-      await sleep(1100);
+      await sleep(2300);
       R[1].classList.remove('hot');dot.classList.remove('nw');
-      await sleep(500);
+      await sleep(1100);
     }
   };
 
@@ -1115,17 +1120,17 @@ footer .wrap{flex-wrap:wrap;gap:14px 28px}.flinks{display:flex;gap:20px;flex-wra
     }
   };
 
-  // feature 5: one key and every bot wakes up
-  var KB=[{s:'orb',c:'#FF8A2B',e:'ovals'},{s:'pebble',c:'#4F8BFF',e:'dots'},{s:'blob',c:'#4AD991',e:'wide'},{s:'bun',c:'#B58CFF',e:'happy'},{s:'capsule',c:'#FF7AB6',e:'dots'},{s:'bean',c:'#FFC24A',e:'ovals'},{s:'orb',c:'#F1F1F4',e:'wide'},{s:'blob',c:'#2DD4BF',e:'dots'},{s:'pebble',c:'#FF6B5B',e:'happy'}];
+  // feature 5: one key and every box lights up
+  var KB=['#FF6B5B','#4F8BFF','#FFB020','#2FCB7A','#A77BFF','#FF7AB6','#38BDF8','#FACC15','#2DD4BF'];
   SC.f5={
-    init:function(el){var g=el.querySelector('.grid');g.innerHTML='';KB.forEach(function(x){var s=document.createElement('span');s.appendChild(mk(x,26));s.classList.add('on');g.appendChild(s)});el.classList.remove('off')},
+    init:function(el){var g=el.querySelector('.grid');g.innerHTML='';KB.forEach(function(c){var s=document.createElement('span');s.style.setProperty('--c',c);s.style.setProperty('--t',rgba(c,.16));s.style.setProperty('--g',rgba(c,.5));s.classList.add('on');g.appendChild(s)});el.classList.remove('off')},
     cycle:async function(el){
       var cs=[].slice.call(el.querySelectorAll('.grid span'));
       cs.forEach(function(c){c.classList.remove('on')});el.classList.add('off');
       await sleep(900);el.classList.remove('off');
-      await sleep(900);
-      for(var i=0;i<cs.length;i++){cs[i].classList.add('on');play(cs[i].firstElementChild,'bounce');await sleep(150)}
-      await sleep(2600);
+      await sleep(1000);
+      for(var i=0;i<cs.length;i++){cs[i].classList.add('on');await sleep(190)}
+      await sleep(2800);
     }
   };
 
