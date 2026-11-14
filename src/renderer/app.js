@@ -825,8 +825,34 @@ function mountChat(p) {
     if (sendNow) return send(p, { text });
     input.value = text; autosize(input); syncSend(p); input.focus(); input.setSelectionRange(text.length, text.length);
   }));
-  input.oninput = () => { autosize(input); syncSend(p); saveDraftSoon(p.id, input.value); };
+  // Type "/" to pick one of your skills, like in Claude: the list filters as you type; arrows + Enter/Tab choose, Esc closes.
+  const SL = /^\/([\w.-]*)$/;
+  const slash = { items: [], at: 0, el: null, list: null };
+  const slashClose = () => { if (slash.el) slash.el.parentNode?.removeChild(slash.el); slash.el = null; slash.items = []; };
+  const slashPick = (k) => { input.value = `/${k.id} `; slashClose(); autosize(input); syncSend(p); saveDraftSoon(p.id, input.value); input.focus(); input.setSelectionRange(input.value.length, input.value.length); };
+  const slashDraw = () => {
+    if (!slash.el) { slash.el = document.createElement('div'); slash.el.className = 'slash-menu'; slash.el.setAttribute('role', 'listbox'); const host = $('#composer'); if (getComputedStyle(host).position === 'static') host.style.position = 'relative'; host.appendChild(slash.el); }
+    slash.el.innerHTML = slash.items.length ? slash.items.map((k, i) => `<button type="button" class="sl-item${i === slash.at ? ' on' : ''}" role="option" data-i="${i}"><span class="sl-nm">/${esc(k.id)}</span><span class="sl-ds">${esc(k.description || '')}</span></button>`).join('') : `<div class="sl-empty">${slash.list ? 'No skill with that name. Add skills in Settings → Skills.' : 'Loading skills…'}</div>`;
+    $$('.sl-item', slash.el).forEach((b) => { b.onmousedown = (e) => { e.preventDefault(); slashPick(slash.items[+b.dataset.i]); }; });
+    slash.el.querySelector('.sl-item.on')?.scrollIntoView({ block: 'nearest' });
+  };
+  const slashUpdate = async () => {
+    if (!SL.test(input.value)) return slashClose();
+    if (!slash.list) { slash.items = []; slashDraw(); try { slash.list = (await api.skillsList()) || []; } catch (_) { slash.list = []; } if (!SL.test(input.value)) return slashClose(); }
+    const q = (SL.exec(input.value) || [, ''])[1].toLowerCase();
+    const has = (k) => String(k.id || '').toLowerCase().includes(q) || String(k.name || '').toLowerCase().includes(q);
+    slash.items = slash.list.filter((k) => !q || has(k)).sort((a, b) => (String(a.id).toLowerCase().startsWith(q) ? 0 : 1) - (String(b.id).toLowerCase().startsWith(q) ? 0 : 1));
+    slash.at = Math.min(slash.at, Math.max(0, slash.items.length - 1));
+    slashDraw();
+  };
+  input.addEventListener('blur', () => setTimeout(slashClose, 120));
+  input.oninput = () => { autosize(input); syncSend(p); saveDraftSoon(p.id, input.value); slashUpdate(); };
   input.onkeydown = (e) => {
+    if (slash.el && slash.items.length && !e.isComposing) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); slash.at = (slash.at + (e.key === 'ArrowDown' ? 1 : -1) + slash.items.length) % slash.items.length; slashDraw(); return; }
+      if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); slashPick(slash.items[slash.at]); return; }
+    }
+    if (slash.el && e.key === 'Escape') { e.preventDefault(); slashClose(); return; }
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(p); }
     else if (e.key === 'ArrowUp' && !input.value && !e.isComposing) { // bring back your last message to fix it or send it again
       const last = [...(S.chats[p.id] || [])].reverse().find((m) => m.role === 'user' && !m.from && m.content);
@@ -2690,7 +2716,7 @@ function initScreen() {
 }
 // ---------- settings hub (General · Connectors & API keys · Browser & data) ----------
 let settingsTab = 'general';
-function go(v, tab) { view = v; if (tab) settingsTab = tab; closePopover(); render(); }
+function go(v, tab) { view = v; if (tab) settingsTab = tab; if (v !== 'settings') renderSettings.q = ''; closePopover(); render(); }
 // "Schedule" in the sidebar: the Schedule tab of the side panel, next to the current chat.
 function openSchedule() {
   if (view !== 'chat') go('chat');
@@ -2979,9 +3005,11 @@ function tabPrivacy() {
     <h1>Privacy</h1>
     <div class="card simple" id="privacy-card">
       <div class="card-row"><div class="grow"><div class="nm">Where your information goes</div>
-        <div class="ds">Chats, memories and logins stay on this computer (logins are encrypted). Your Wayzerr account is only your email address, and there are no usage statistics. Messages go to the AI you picked; connected apps go through Composio; web search uses DuckDuckGo.</div></div></div>
+        <div class="ds">Chats, memories and logins stay on this computer (logins are encrypted). Your Wayzerr account is only your email address, and Wayzerr only counts anonymous visits (see below). Messages go to the AI you picked; connected apps go through Composio; web search uses DuckDuckGo.</div></div></div>
       <div class="card-row"><div class="grow"><div class="nm">Free picture service</div><div class="ds">With no picture AI connected, bots use a free online service. It receives your picture description.</div></div>
         <label class="switch"><input type="checkbox" id="pv-free" aria-label="Free picture service" ${S.settings.freeImages !== false ? 'checked' : ''}><span></span></label></div>
+      <div class="card-row"><div class="grow"><div class="nm">Count me in the usage numbers</div><div class="ds">When Wayzerr starts it tells wayzerr.com a random number (not your name or email), the app version and your system. The country is worked out from the connection; your location is never asked. No chats, bots or files. Off sends nothing.</div></div>
+        <label class="switch"><input type="checkbox" id="pv-usage" aria-label="Count me in the usage numbers" ${S.settings.shareUsage !== false ? 'checked' : ''}><span></span></label></div>
       <div class="card-row"><div class="grow"><div class="nm">Download logos online</div><div class="ds">Logos come from Google’s icon service, which sees the site names. Off shows letters.</div></div>
         <label class="switch"><input type="checkbox" id="pv-icons" aria-label="Download logos online" ${S.settings.onlineIcons !== false ? 'checked' : ''}><span></span></label></div>
     </div>
@@ -2991,6 +3019,7 @@ function tabPrivacy() {
       <div class="card-row"><div class="grow"><div class="nm">Privacy Policy</div><div class="ds">What Wayzerr collects, where it goes and your choices.</div></div><button class="btn sm" type="button" data-legal-read="privacy">Read here</button><button class="btn sm primary" type="button" data-legal-open="privacy">Open in browser</button></div>
     </div>`;
   $('#pv-free').onchange = async (e) => { S = await api.saveProfile({ freeImages: e.target.checked }); toast(e.target.checked ? 'Free picture service is on' : 'Picture descriptions now stay on your connected AI only'); };
+  $('#pv-usage').onchange = async (e) => { S = await api.saveProfile({ shareUsage: e.target.checked }); toast(e.target.checked ? 'Thanks, Wayzerr counts you in' : 'Wayzerr no longer sends usage numbers'); };
   $('#pv-icons').onchange = async (e) => { S = await api.saveProfile({ onlineIcons: e.target.checked }); toast(e.target.checked ? 'Logos will be downloaded online' : 'No more logo downloads. New logos show as letters.'); };
   $$('[data-legal-read]').forEach((b) => b.addEventListener('click', () => showLegal(b.dataset.legalRead)));
   $$('[data-legal-open]').forEach((b) => b.addEventListener('click', () => openLegalInBrowser(b.dataset.legalOpen)));

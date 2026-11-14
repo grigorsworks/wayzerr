@@ -2391,3 +2391,14 @@ label.f { font-size: 12px; margin: 14px 0 6px; }
 .lg-doc th, .lg-doc td { border: 1px solid var(--line-2); padding: 6px 8px; text-align: left; vertical-align: top; color: var(--text-2); }
 .lg-doc th { color: var(--text); font-weight: 600; background: var(--panel); }
 .lg-doc code { font-family: ui-monospace, Menlo, monospace; font-size: 12px; background: var(--raised); padding: 1px 5px; border-radius: 3px; }
+.cmp-state { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+.cmp-state i { width: 9px; height: 9px; border-radius: 50%; background: #8a8a8a; }
+.cmp-state.on { color: #4cc38a; } .cmp-state.on i { background: #4cc38a; box-shadow: 0 0 0 3px rgba(76,195,138,.25); }
+.cmp-state.off { color: var(--muted, #9a9a9a); }
+.cmp-state.wait { color: #e0a93b; } .cmp-state.wait i { background: #e0a93b; animation: cmpPulse 1s ease-in-out infinite; }
+@keyframes cmpPulse { 50% { opacity: .3; } }
+.slash-menu { position: absolute; left: 12px; right: 12px; bottom: calc(100% + 6px); max-height: 260px; overflow-y: auto; background: var(--panel, #232323); border: 1px solid var(--line, #3a3a3a); border-radius: 12px; box-shadow: 0 8px 28px rgba(0,0,0,.35); padding: 6px; z-index: 30; }
+.slash-menu .sl-item { display: flex; flex-direction: column; gap: 1px; width: 100%; text-align: left; padding: 8px 10px; border-radius: 8px; background: none; border: 0; color: inherit; cursor: pointer; font: inherit; }
+.slash-menu .sl-item.on, .slash-menu .sl-item:hover { background: rgba(127,127,127,.18); }
+.slash-menu .sl-nm { font-weight: 600; font-size: 13px; } .slash-menu .sl-ds { font-size: 12px; opacity: .65; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slash-menu .sl-empty { padding: 8px 10px; font-size: 12px; opacity: .65; }

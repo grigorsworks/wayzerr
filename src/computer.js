@@ -23,7 +23,8 @@ const ARM_FIRMWARE = [...(process.env.WAYZERR_ARM_FIRMWARE ? [process.env.WAYZER
 const armFirmware = () => ARM_FIRMWARE.find((f) => { try { fs.accessSync(f, fs.constants.R_OK); return true; } catch (_) { return false; } }) || '';
 // Without KVM the computer still runs, in software: it works but is slow (a few minutes to start)
 const kvmOk = () => { try { fs.accessSync('/dev/kvm', fs.constants.R_OK | fs.constants.W_OK); return true; } catch (_) { return false; } };
-const isSlow = () => (LINUX && (process.env.WAYZERR_QEMU_ACCEL === 'tcg' || !kvmOk())) || (WIN && (process.env.WAYZERR_QEMU_ACCEL === 'tcg' || whpxOk === false));
+let macSoft = false; // Mac: the engine's hardware mode (hvf) crashed on this chip (newer Apple chips with SME), so run in software
+const isSlow = () => (!LINUX && !WIN && macSoft) || (LINUX && (process.env.WAYZERR_QEMU_ACCEL === 'tcg' || !kvmOk())) || (WIN && (process.env.WAYZERR_QEMU_ACCEL === 'tcg' || whpxOk === false));
 
 // An endpoint is a socket file / named pipe (a string) or a local port.
 const connectEp = (ep) => (typeof ep === 'string' ? net.connect(ep) : net.connect(ep.port, '127.0.0.1'));
@@ -417,7 +418,7 @@ module.exports = function createComputers({ dir, feedUrl, sharedDir, log = () =>
       '-display', 'none', ...vncArgs, ...monArgs, ...netArgs,
     ] : [
       '-L', path.join(engineDir, 'share/qemu'),
-      '-machine', 'virt,highmem=on', '-accel', 'hvf', '-cpu', 'host', '-smp', '2', '-m', '3072',
+      '-machine', 'virt,highmem=on', ...(macSoft ? ['-accel', 'tcg,thread=multi', '-cpu', 'cortex-a72'] : ['-accel', 'hvf', '-cpu', 'host']), '-smp', '2', '-m', macSoft ? '2048' : '3072',
       '-drive', `if=pflash,format=raw,readonly=on,file=${path.join(engineDir, 'share/qemu/edk2-aarch64-code.fd')}`,
       '-drive', `if=pflash,format=raw,file=${await vars(id)}`,
       '-drive', `file=${disk},if=virtio,format=qcow2`,
@@ -432,6 +433,7 @@ module.exports = function createComputers({ dir, feedUrl, sharedDir, log = () =>
     proc.stderr.on('data', (d) => { err += d; });
     proc.on('exit', (code) => { const r = running.get(id); running.delete(id); inputs.get(id)?.sock.destroy(); inputs.delete(id); r?.bridge.server.close(); try { r?.monConn?.destroy(); } catch (_) {} fs.rmSync(sock, { force: true }); fs.rmSync(sock + '.mon', { force: true }); fs.rmSync(path.join(diskDir, id + '.pid'), { force: true }); if (code) log('computer exited', code, err.slice(-500)); });
     await new Promise((ok) => setTimeout(ok, 2000));
+    if (proc.exitCode !== null && !LINUX && !WIN && !macSoft && /sme|sve|property .* not found|hvf/i.test(err)) { macSoft = true; log('computer: hardware mode failed, using software mode', err.trim().split('\n').pop()); return startOnce(id); }
     if (proc.exitCode !== null) throw new Error('The computer would not start: ' + (err.trim().split('\n').pop() || 'unknown error'));
     const b = await bridge(vncEp, token, vncCreds);
     const info = { running: true, port: b.port, token };

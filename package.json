@@ -1,6 +1,6 @@
 {
   "name": "wayzerr-app",
-  "version": "1.3.50",
+  "version": "1.3.51",
   "description": "Wayzerr — AI bots with their own personalities, memory, browser and tools",
   "main": "src/main.js",
   "author": "Wayzerr",
@@ -17,6 +17,114 @@
   "updateFeedBackup": "https://nexarium.netlify.app/latest.json",
   "updateFeedCloud": "https://wayzerr.com/latest.json",
   "accountUrl": "https://wayzerr.com",
+  "build": {
+    "appId": "com.persona.app",
+    "productName": "Wayzerr",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/npm/**"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dir",
+      "extendInfo": {
+        "PersonaNotes": "Every bot now has a mouth and soft cheeks. The mouth smiles, opens when the bot talks and goes flat while it thinks, and bots wearing glasses or sunglasses keep it clear of them. | Type / in the chat box to see your skills. Keep typing to filter them, pick one with the arrow keys and Enter or Tab, and press Esc to close the list. | The Computer box now shows clearly whether your bot's computer is On, Off or Turning on, in plain words. | Macs with the newest chips (like the M5): the bot's computer no longer fails to start. It falls back to a slower mode that takes a few minutes to boot. | Wayzerr now counts anonymous visits so we know how many people use it: a random number made on your computer, the app version, your system and your country. Nothing from your chats, bots or files. You can switch it off in Settings → Privacy. | Token numbers under replies are on by default, and the \"This chat is getting long\" note is gone.",
+        "NSMicrophoneUsageDescription": "Wayzerr uses the microphone when you talk to your bots (speech to text).",
+        "WayzerrNotes": "Every bot now has a mouth and soft cheeks. The mouth smiles, opens when the bot talks and goes flat while it thinks, and bots wearing glasses or sunglasses keep it clear of them. | Type / in the chat box to see your skills. Keep typing to filter them, pick one with the arrow keys and Enter or Tab, and press Esc to close the list. | The Computer box now shows clearly whether your bot's computer is On, Off or Turning on, in plain words. | Macs with the newest chips (like the M5): the bot's computer no longer fails to start. It falls back to a slower mode that takes a few minutes to boot. | Wayzerr now counts anonymous visits so we know how many people use it: a random number made on your computer, the app version, your system and your country. Nothing from your chats, bots or files. You can switch it off in Settings → Privacy. | Token numbers under replies are on by default, and the \"This chat is getting long\" note is gone.",
+        "NSAppleEventsUsageDescription": "Wayzerr uses System Events to click and type on your Mac, only when you let a bot control it.",
+        "NSDownloadsFolderUsageDescription": "Wayzerr saves pictures you choose to download here. It only looks for an update file here when you press Check for updates and the update server cannot be reached.",
+        "NSLocalNetworkUsageDescription": "Wayzerr lets your phone connect to this Mac over your Wi-Fi when you switch on Phone.",
+        "NSCameraUsageDescription": "Wayzerr does not use the camera.",
+        "NSBluetoothAlwaysUsageDescription": "Wayzerr does not use Bluetooth.",
+        "NSBluetoothPeripheralUsageDescription": "Wayzerr does not use Bluetooth.",
+        "NSAudioCaptureUsageDescription": "Wayzerr does not record the sound of other apps."
+      },
+      "identity": "-",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "buildVersion": "202611140940",
+    "dmg": {
+      "artifactName": "Wayzerr.dmg",
+      "background": "build/dmg-background.tiff",
+      "contents": [
+        {
+          "x": 150,
+          "y": 190
+        },
+        {
+          "x": 430,
+          "y": 190,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 580,
+        "height": 460
+      }
+    },
+    "afterSign": "scripts/after-sign.js",
+    "afterPack": "scripts/after-pack.js",
+    "win": {
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "artifactName": "Wayzerr-Setup.${ext}",
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico"
+    },
+    "linux": {
+      "icon": "build/icons",
+      "target": [
+        "deb",
+        "AppImage"
+      ],
+      "category": "Utility",
+      "executableName": "wayzerr",
+      "maintainer": "Wayzerr <info@wayzerr.com>",
+      "artifactName": "Wayzerr-${version}-linux-${arch}.${ext}",
+      "synopsis": "AI bots with memory and their own computer"
+    },
+    "deb": {
+      "depends": [
+        "libgtk-3-0",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0",
+        "libuuid1",
+        "libsecret-1-0"
+      ]
+    },
+    "electronFuses": {
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "onlyLoadAppFromAsar": true
+    }
+  },
+  "devDependencies": {
+    "electron": "44.4.5",
+    "electron-builder": "26.15.3",
+    "resedit": "^1.7.0"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac dir --arm64 -p never"
+  },
   "homepage": "https://wayzerr.com",
   "license": "MIT",
   "repository": {

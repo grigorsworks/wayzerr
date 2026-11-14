@@ -48,7 +48,7 @@
     empty.classList.toggle('off', !st?.running && !s && installed); // switched off: just black
     if (usingMine) { empty.textContent = ''; empty.classList.add('off'); img.classList.add('hidden'); $('#scr-caption').textContent = `Bots are using ${S.settings.myComputerName || 'My Mac'}`; $('#scr-sub').textContent = 'They ask you before each use'; return; }
     $('#scr-caption').textContent = !installed ? `${name} has no computer yet` : st?.running ? `${name}'s computer is on` : `${name}'s computer is off`;
-    $('#scr-sub').textContent = !installed ? declined() ? 'You can download it later in Settings → Computer' : 'Download it below to give every bot one' : st?.running ? 'Click to open the desktop' : 'It turns on by itself when a bot needs it';
+    $('#scr-sub').textContent = !installed ? declined() ? 'You can download it later in Settings → Computer' : 'Download it below to give every bot one' : st?.running ? 'Click to open the desktop' : 'Click to turn it on, or it turns on by itself when a bot needs it';
     $('#scr-live').classList.toggle('hidden', !busy_());
     const prog = $('#scr-progress'); if (prog) prog.classList.toggle('on', !!s || !!working);
   };
@@ -101,7 +101,7 @@
     }
     if (st.supported && declined() && !(st.engine && st.base) && !setup() && !working) { box.innerHTML = ''; last = ''; return; } // said no: the computer card goes away (Settings → Computer brings it back)
     if (!st.supported) body = `<p>A computer for each bot needs an Apple silicon Mac, a Windows PC or a Linux computer, so it isn't available on this one. The browser below works here, and bots can use it for reading pages, clicking and forms.</p>`;
-    else if (working) body = `<p>${esc(working)}</p>`;
+    else if (working) body = `<div class="cmp-state wait"><i></i>${esc(working)}</div><p>${working === 'Turning on…' ? (st.slow ? 'This takes a few minutes on this computer. You can keep using Wayzerr; the screen opens when it is ready.' : 'This takes up to 30 seconds. The screen opens when it is ready.') : ''}</p>`;
     else if (s) body = `<p>Getting computers ready in the background: ${s.step === 'engine' ? 'engine' : 'Linux system'} ${mb(s.done)} of ${mb(s.total)}. One time only; every bot gets its own computer from this.</p>`;
     else if (st.needsQemu && st.base) body = `<p>One more thing: this computer needs the virtual machine program (QEMU), which Linux installs from its software sources. Open a terminal and run this once, then press Check again:</p><p><code>${esc(st.qemuHint || 'sudo apt install qemu-system-x86 qemu-utils')}</code></p><button class="btn sm primary" data-a="recheck">Check again</button>`;
     else if (!st.engine || !st.base) {
@@ -112,10 +112,11 @@
         ${st.needsQemu ? `<p>You will also need the virtual machine program: <code>${esc(st.qemuHint || 'sudo apt install qemu-system-x86 qemu-utils')}</code></p>` : ''}
         <button class="btn sm primary" data-a="install">Download ${esc(total)}</button> <button class="btn sm" data-a="decline">Don't download</button>`;
     }
-    else if (!st.running) body = `<p>${st.diskSize ? `${esc(b.name)}'s computer uses ${mb(st.diskSize)}.` : `${esc(b.name)} has its own computer, ready to turn on.`}</p><button class="btn sm primary" data-a="start">Turn on</button>${st.diskSize ? ' <button class="btn sm" data-a="delete">Reset</button>' : ''}`;
-    else body = `<p>${esc(b.name)}'s computer is on. ${esc(b.name)} can use it, and so can you.</p><button class="btn sm primary" data-a="open">Open desktop</button> <button class="btn sm" data-a="stop">Turn off</button>`;
+    else if (!st.running) body = `<div class="cmp-state off"><i></i>Off</div><p>${esc(b.name)}'s computer is switched off. Press <b>Turn on</b> to start it${st.slow ? ' (this takes a few minutes on this computer)' : ' (about 30 seconds)'}, or just ask ${esc(b.name)} to do something on it: it turns on by itself. It switches off by itself after 10 minutes without use.${st.diskSize ? ` It stores ${mb(st.diskSize)}.` : ''}</p><button class="btn sm primary" data-a="start">Turn on</button>${st.diskSize ? ' <button class="btn sm" data-a="delete">Reset</button>' : ''}`;
+    else body = `<div class="cmp-state on"><i></i>On</div><p>${esc(b.name)}'s computer is on. ${esc(b.name)} can use it, and so can you. Press <b>Turn off</b> when you are done; it also switches off by itself after 10 minutes without use.</p><button class="btn sm primary" data-a="open">Open desktop</button> <button class="btn sm" data-a="stop">Turn off</button>`;
     const slowNote = st.slow && st.supported && !st.needsQemu && !loadPref('slowNoteOk', false) ? (/^win32/.test(st.system || '')
       ? `<p class="cmp-bad">This PC doesn't let Wayzerr use Windows' own virtualization, so the bot's computer runs in slow mode: it works, but it takes a few minutes to start and feels slow. For full speed, turn on "Windows Hypervisor Platform" (press the Windows key, type "Turn Windows features on or off", tick Windows Hypervisor Platform, then restart) and make sure virtualization is on in the BIOS/UEFI settings.</p>`
+      : /^darwin/.test(st.system || '') ? `<p class="cmp-bad">This Mac's chip is too new for the fast mode of the computer engine, so the bot's computer runs in slow mode: it works, but it takes a few minutes to start and feels slow. A faster mode comes with a later Wayzerr update.</p>`
       : `<p class="cmp-bad">This computer can't use hardware virtualization (KVM), so the bot's computer runs in slow mode: it works, but it takes a few minutes to start and feels slow. For full speed, turn on virtualization in the BIOS/UEFI settings and add yourself to the kvm group (sudo usermod -aG kvm $USER, then log out and in).</p>`) : '';
     const html = `<div class="cmp-t">Computer</div>${sw}${body}${slowNote ? slowNote + '<button class="btn sm" data-a="okslow">OK</button>' : ''}<div class="cmp-err" id="cmp-err"></div>`;
     if (html !== last) { last = html; box.innerHTML = html; }

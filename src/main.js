@@ -298,6 +298,7 @@ app.whenReady().then(async () => {
   migrate();
   try { recoverOldData(); } catch (e) { console.error('recover failed', e && e.message); }
   account = createAccount({ store, enc, dec, base: PKG.accountUrl || new URL(PKG.updateFeedCloud).origin, openUrl: (u) => shell.openExternal(u), onChange: () => pushState() });
+  try { require('./usage').start({ store, version: PKG.version, origin: PKG.accountUrl || new URL(PKG.updateFeedCloud).origin }); } catch (_) {} // anonymous usage count (Settings → Privacy switches it off)
   accountReady = account.probe().catch(() => {});
   setTimeout(() => account.check().catch(() => {}), 4000);
   // One folder shared by every bot (and by each bot's computer), so there is nothing to choose.
@@ -462,7 +463,7 @@ function publicState() {
     scheduleAwake: store.data.settings.scheduleAwake !== false,
     ready: !!resolveModel(null),
     account: account ? account.state() : { signedIn: false, email: '', flow: null, error: '' },
-    settings: { terms: { version: TERMS_VERSION, accepted: !!(d.settings.terms && d.settings.terms.version === TERMS_VERSION) }, setupSkipped: d.settings.setupSkipped === true, tutorialDone: d.settings.tutorialDone === true, guide: d.settings.guide || null, autoCompact: d.settings.autoCompact === true, computerTarget: d.settings.computerTarget === 'mine' ? 'mine' : 'bot', computerOn: d.settings.computerOn !== false, myComputerName: myComputerName(), myMac: mymac.permissions(), smartCompact: d.settings.smartCompact !== false, leanCodex: d.settings.leanCodex !== false, freshEach: d.settings.freshEach === true, showTokens: d.settings.showTokens === true, voiceLang: d.settings.voiceLang || '', voiceWords: d.settings.voiceWords || '', phoneUnlocked: d.settings.phoneUnlocked === true, freeImages: d.settings.freeImages !== false, onlineIcons: d.settings.onlineIcons !== false, replyLanguage: d.settings.replyLanguage || 'auto', theme: themeOf(), appModes: d.settings.appModes || {}, appsVia: d.settings.appsVia === 'browser' ? 'browser' : 'connector', usageMode: ['low', 'max'].includes(d.settings.usageMode) ? d.settings.usageMode : 'balanced', linkOpen: d.settings.linkOpen || 'ask', userName: d.settings.userName, defaultModel: d.settings.defaultModel || null, defaultEffort: d.settings.defaultEffort || 'default' },
+    settings: { terms: { version: TERMS_VERSION, accepted: !!(d.settings.terms && d.settings.terms.version === TERMS_VERSION) }, setupSkipped: d.settings.setupSkipped === true, tutorialDone: d.settings.tutorialDone === true, guide: d.settings.guide || null, autoCompact: d.settings.autoCompact === true, computerTarget: d.settings.computerTarget === 'mine' ? 'mine' : 'bot', computerOn: d.settings.computerOn !== false, myComputerName: myComputerName(), myMac: mymac.permissions(), smartCompact: d.settings.smartCompact !== false, leanCodex: d.settings.leanCodex !== false, freshEach: d.settings.freshEach === true, showTokens: d.settings.showTokens !== false, voiceLang: d.settings.voiceLang || '', voiceWords: d.settings.voiceWords || '', phoneUnlocked: d.settings.phoneUnlocked === true, freeImages: d.settings.freeImages !== false, onlineIcons: d.settings.onlineIcons !== false, shareUsage: d.settings.shareUsage !== false, replyLanguage: d.settings.replyLanguage || 'auto', theme: themeOf(), appModes: d.settings.appModes || {}, appsVia: d.settings.appsVia === 'browser' ? 'browser' : 'connector', usageMode: ['low', 'max'].includes(d.settings.usageMode) ? d.settings.usageMode : 'balanced', linkOpen: d.settings.linkOpen || 'ask', userName: d.settings.userName, defaultModel: d.settings.defaultModel || null, defaultEffort: d.settings.defaultEffort || 'default' },
     providers: providers().map((p) => ({ id: p.id, type: p.type, name: p.name, baseUrl: p.baseUrl, hasKey: !!p.key, keyPreview: TYPES[p.type]?.account ? p.account || 'Signed in' : maskKey(dec(p.key)), account: !!TYPES[p.type]?.account, models: p.models || [] })),
     providerTypes: TYPES,
     personas: d.personas,
@@ -658,7 +659,7 @@ handle('set-link-open', (mode) => {
   return publicState();
 });
 handle('open-external', (url) => { if (/^https?:\/\//i.test(String(url))) shell.openExternal(String(url)); return true; });
-handle('save-profile', ({ voiceLang, voiceWords, userName, replyLanguage, freeImages, onlineIcons, autoCompact, showTokens, freshEach, smartCompact, leanCodex, setupSkipped, tutorialDone, computerTarget, computerOn, myComputerName: myName } = {}) => {
+handle('save-profile', ({ shareUsage, voiceLang, voiceWords, userName, replyLanguage, freeImages, onlineIcons, autoCompact, showTokens, freshEach, smartCompact, leanCodex, setupSkipped, tutorialDone, computerTarget, computerOn, myComputerName: myName } = {}) => {
   if (typeof computerOn === 'boolean') store.data.settings.computerOn = computerOn;
   if (computerTarget === 'bot' || computerTarget === 'mine') store.data.settings.computerTarget = computerTarget;
   if (typeof myName === 'string') store.data.settings.myComputerName = myName.trim().slice(0, 40);
@@ -673,6 +674,7 @@ handle('save-profile', ({ voiceLang, voiceWords, userName, replyLanguage, freeIm
   if (typeof autoCompact === 'boolean') store.data.settings.autoCompact = autoCompact;
   if (typeof freeImages === 'boolean') store.data.settings.freeImages = freeImages;
   if (typeof onlineIcons === 'boolean') store.data.settings.onlineIcons = onlineIcons;
+  if (typeof shareUsage === 'boolean') store.data.settings.shareUsage = shareUsage;
   if (userName !== undefined) store.data.settings.userName = String(userName || '').trim();
   if (replyLanguage !== undefined) store.data.settings.replyLanguage = String(replyLanguage || 'auto').slice(0, 40);
   store.save();
@@ -1372,7 +1374,6 @@ async function hasInternet() {
   return ok;
 }
 
-const longChatNoted = new Map();
 function runBotTurn(persona, text, { attachments, from, depth = 0, chatKey, group, skipUser, chain = [], scheduled } = {}) {
   const evId = chatKey || persona.id; // group chats: events go to the group's row
   const prev = botQueues.get(persona.id) || Promise.resolve();
@@ -1463,12 +1464,6 @@ function runBotTurn(persona, text, { attachments, from, depth = 0, chatKey, grou
         const cc = new AbortController();
         const promise = compactChat(evId, { smart: store.data.settings.smartCompact !== false, signal: cc.signal }).catch(() => {}).finally(() => { compacting.delete(evId); pushState(); });
         compacting.set(evId, { promise, ctl: cc });
-      }
-      // A long chat makes every message cost more, because the AI re-reads the whole chat each time: say so, once in a while.
-      const sizeNow = Math.max(turnUse.input, turnUse.peak - turnUse.cached);
-      if (!group && !ctl.signal.aborted && sizeNow > 60000 && Date.now() - (longChatNoted.get(evId) || 0) > 30 * 60000) {
-        longChatNoted.set(evId, Date.now());
-        note(`This chat is getting long: each message now sends about ${Math.round(sizeNow / 1000)}k tokens. Use Compact or Clear chat to make replies cheaper.`);
       }
       return replied;
     } catch (e) {
