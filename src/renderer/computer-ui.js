@@ -6,7 +6,7 @@
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const mb = (n) => (n >= 1e9 ? (n / 1e9).toFixed(2) + ' GB' : Math.round(n / 1e6) + ' MB');
-  let touchTimer = null, rfb = null, supported = false, st = null, working = '', last = '', botId = '', plan = null, planAt = 0, bUse = null, bUseAt = 0, bLast = '';
+  let bootTimer = null, touchTimer = null, rfb = null, supported = false, st = null, working = '', last = '', botId = '', plan = null, planAt = 0, bUse = null, bUseAt = 0, bLast = '';
   const thumbs = {}; // personaId -> latest picture of that bot's desktop
 
   const bot = () => { try { return active(); } catch (_) { return null; } }; // the window may still be loading
@@ -217,9 +217,15 @@
     rfb.scaleViewport = true;
     rfb.resizeSession = false;
     rfb.focus();
+    // A computer that is still starting is just black: say so, and take the note away once the desktop's light top bar shows.
+    const boot = document.createElement('div'); boot.id = 'cmp-boot'; boot.innerHTML = `<b>Starting up…</b><span>${s.slow ? 'This computer runs in slow mode: the desktop appears in 1 to 3 minutes.' : 'The desktop appears in about 30 seconds.'} If it stays black for longer, press Close and Turn off, then Turn on again.</span>`; view.appendChild(boot);
+    clearInterval(bootTimer);
+    bootTimer = setInterval(() => {
+      try { const cv = view.querySelector('canvas'); if (!cv) return; const g = cv.getContext('2d'); if (!g) return; let br = 0, n = 0; for (let x = 0; x < cv.width; x += 20) { const d = g.getImageData(x, 8, 1, 1).data; n++; if (d[0] + d[1] + d[2] > 600) br++; } if (n && br / n > 0.5) { boot.remove(); clearInterval(bootTimer); } } catch (_) { boot.remove(); clearInterval(bootTimer); }
+    }, 1500);
     clearInterval(touchTimer); touchTimer = setInterval(() => window.wayzerr.computerTouch(b.id).catch(() => {}), 60000); // watching keeps it on
   }
-  document.getElementById('cmp-close').onclick = () => { clearInterval(touchTimer); try { rfb?.disconnect(); } catch (_) {} rfb = null; fs.classList.add('hidden'); view.innerHTML = ''; };
+  document.getElementById('cmp-close').onclick = () => { clearInterval(touchTimer); clearInterval(bootTimer); try { rfb?.disconnect(); } catch (_) {} rfb = null; fs.classList.add('hidden'); view.innerHTML = ''; };
 
   setInterval(() => { if (!document.hidden) refresh(); }, 2500);
   refresh();

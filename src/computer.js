@@ -431,10 +431,11 @@ module.exports = function createComputers({ dir, feedUrl, sharedDir, log = () =>
     let err = '';
     try { fs.writeFileSync(path.join(diskDir, id + '.pid'), String(proc.pid)); } catch (_) {}
     proc.stderr.on('data', (d) => { err += d; });
-    proc.on('exit', (code) => { const r = running.get(id); running.delete(id); inputs.get(id)?.sock.destroy(); inputs.delete(id); r?.bridge.server.close(); try { r?.monConn?.destroy(); } catch (_) {} fs.rmSync(sock, { force: true }); fs.rmSync(sock + '.mon', { force: true }); fs.rmSync(path.join(diskDir, id + '.pid'), { force: true }); if (code) log('computer exited', code, err.slice(-500)); });
+    proc.on('exit', (code, sig) => { const r = running.get(id); running.delete(id); inputs.get(id)?.sock.destroy(); inputs.delete(id); r?.bridge.server.close(); try { r?.monConn?.destroy(); } catch (_) {} fs.rmSync(sock, { force: true }); fs.rmSync(sock + '.mon', { force: true }); fs.rmSync(path.join(diskDir, id + '.pid'), { force: true }); if (code || sig) log('computer exited', code || sig, err.slice(-500)); });
     await new Promise((ok) => setTimeout(ok, 2000));
-    if (proc.exitCode !== null && !LINUX && !WIN && !macSoft && /sme|sve|property .* not found|hvf/i.test(err)) { macSoft = true; log('computer: hardware mode failed, using software mode', err.trim().split('\n').pop()); return startOnce(id); }
-    if (proc.exitCode !== null) throw new Error('The computer would not start: ' + (err.trim().split('\n').pop() || 'unknown error'));
+    const died = proc.exitCode !== null || proc.signalCode !== null; // a crash (abort) ends the program by a signal: exitCode stays null
+    if (died && !LINUX && !WIN && !macSoft && /sme|sve|property .* not found|hvf/i.test(err)) { macSoft = true; log('computer: hardware mode failed, using software mode', err.trim().split('\n').pop()); return startOnce(id); }
+    if (died) throw new Error('The computer would not start: ' + (err.trim().split('\n').pop() || 'unknown error'));
     const b = await bridge(vncEp, token, vncCreds);
     const info = { running: true, port: b.port, token };
     running.set(id, { proc, info, bridge: b, vncEp, vncCreds, monEp, monConn: null, sock, slow });
