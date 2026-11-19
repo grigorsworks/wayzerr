@@ -81,10 +81,13 @@ function simpleName(args, userText) {
   return { name: name.slice(0, 40), tag };
 }
 
+// Two separate spaces of bots ('main' and 'two'). Bots never see, message, group with or @mention bots of the other space.
+const spaceOf = (p) => (p && p.space === 'two' ? 'two' : 'main');
+
 function createTeam(deps) {
-  const find = (key) => {
+  const find = (key, from) => {
     const k = String(key || '').trim().toLowerCase();
-    const list = deps.store.data.personas.filter((p) => !p.group);
+    const list = deps.store.data.personas.filter((p) => !p.group && spaceOf(p) === spaceOf(from));
     return list.find((p) => p.id === key) || list.find((p) => p.name.toLowerCase() === k) || list.find((p) => p.name.toLowerCase().includes(k));
   };
   return {
@@ -92,20 +95,20 @@ function createTeam(deps) {
     async run(tool, args, ctx) {
       const self = ctx.persona;
       if (tool === 'bots_list') {
-        const others = deps.store.data.personas.filter((p) => p.id !== self?.id && !p.group);
+        const others = deps.store.data.personas.filter((p) => p.id !== self?.id && !p.group && spaceOf(p) === spaceOf(self));
         if (!others.length) return 'There are no other bots yet. You can create one with bots_create.';
         return others.map((p) => `[${p.id}] ${p.name}${p.tag ? ' (' + p.tag + ')' : ''}${p.description ? ' — ' + p.description.slice(0, 160) : ''}`).join('\n');
       }
       if (tool === 'bots_create') {
         const { name, tag } = simpleName(args, ctx.userText);
         if (!name) throw new Error('Give the new bot a name.');
-        const exists = find(name);
+        const exists = find(name, self);
         if (exists && exists.name.toLowerCase() === name.toLowerCase()) return `A bot called "${exists.name}" already exists (id ${exists.id}).`;
-        const p = deps.createBot({ name, tag, description: String(args.description || '').trim(), createdBy: self?.name });
+        const p = deps.createBot({ name, tag, description: String(args.description || '').trim(), createdBy: self?.name, space: spaceOf(self) });
         return `Created bot "${p.name}" (tag: ${p.tag || 'none'}). It's in the user's bot list now. Tell the user in one short line.`;
       }
       if (tool === 'bots_message') {
-        const target = find(args.to);
+        const target = find(args.to, self);
         if (!target) return `No bot called "${args.to}". Use bots_list to see the bots, or bots_create to make one.`;
         if (target.id === self?.id) return "You can't message yourself.";
         const depth = (ctx.depth || 0) + 1;
@@ -123,14 +126,14 @@ function createTeam(deps) {
         return `Sent to ${target.name}. It will do the task and tell the user in its own chat — you won't get a reply. Tell the user in one short line that you passed it to ${target.name}.`;
       }
       if (tool === 'groups_list') {
-        const groups = deps.store.data.personas.filter((p) => p.group);
+        const groups = deps.store.data.personas.filter((p) => p.group && spaceOf(p) === spaceOf(self));
         if (!groups.length) return 'The user has no group chats yet. They can make one with + → New group chat.';
         const nm = (id) => deps.store.data.personas.find((p) => p.id === id)?.name || '?';
         return groups.map((g) => `[${g.id}] ${g.name} — bots: ${(g.members || []).map(nm).join(', ')}`).join('\n');
       }
       if (tool === 'groups_send') {
         const k = String(args.group || '').trim().toLowerCase();
-        const groups = deps.store.data.personas.filter((p) => p.group);
+        const groups = deps.store.data.personas.filter((p) => p.group && spaceOf(p) === spaceOf(self));
         const g = groups.find((x) => x.id === args.group) || groups.find((x) => x.name.toLowerCase() === k) || groups.find((x) => x.name.toLowerCase().includes(k)) || (groups.length === 1 && /group|gc|team/.test(k) ? groups[0] : null);
         if (!g) return `No group chat called "${args.group}". ${groups.length ? 'Groups: ' + groups.map((x) => x.name).join(', ') : 'There are no group chats yet.'}`;
         if ((ctx.depth || 0) >= MAX_DEPTH) return 'Too many bots are already passing this along — answer the user directly instead.';
@@ -147,4 +150,4 @@ function createTeam(deps) {
   };
 }
 
-module.exports = { TEAM_TOOLS, createTeam, simpleName };
+module.exports = { TEAM_TOOLS, createTeam, simpleName, spaceOf };

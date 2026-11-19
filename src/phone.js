@@ -117,7 +117,7 @@ function createPhone({ store, sendMessage, stopTurn, screen = async () => null, 
     const list = store.data.chats[p.id] || [];
     const last = [...list].reverse().find((m) => m.role === 'user' || m.role === 'assistant');
     return {
-      id: p.id, name: p.name, tag: p.tag || '', group: !!p.group, members: p.members || [],
+      id: p.id, name: p.name, tag: p.tag || '', group: !!p.group, space: p.space === 'two' ? 'two' : 'main', members: p.members || [],
       character: p.character || null, avatar: p.avatar && /^data:image\//.test(p.avatar) ? p.avatar : null,
       last: last ? { role: last.role, text: String(last.content || '').replace(/<thinking>[\s\S]*?<\/thinking>/g, '').slice(0, 140), ts: last.ts || 0 } : null,
       busy: busyOf(p.id) || null,

@@ -675,7 +675,7 @@ html.light .m.assistant{background:#f0f0f1}
     var shown=bots.filter(function(b){ return !term || (b.name+' '+(b.tag||'')+' '+((b.last&&b.last.text)||'')).toLowerCase().indexOf(term)>=0; });
     $('list').innerHTML=shown.map(function(b){
       var bt=busyText(b), prev=bt||(b.last?(b.last.role==='user'?'You: ':'')+b.last.text.replace(/[*#`]/g,''):(b.group?(b.members||[]).length+' bots':'New bot'));
-      var tag=b.group?'Group':b.tag;
+      var tag=(b.group?'Group':b.tag)+(b.space==='two'?(b.group||b.tag?' · ':'')+'Separate':'');
       return '<button class="row" data-id="'+b.id+'"><div class="av">'+avatar(b,46)+'</div><div class="rt"><div class="n"><span class="nm">'+esc(b.name)+'</span>'+(tag?'<span class="tag">'+esc(tag)+'</span>':'')+'<time>'+(b.last?ago(b.last.ts):'')+'</time>'+(b.unread&&b.id!==cur?'<i class="udot"></i>':'')+'</div><div class="p'+(bt?' busy':'')+'">'+esc(prev)+'</div></div></button>';
     }).join('')||(term?'<div class="nores">No bots or chats match “'+esc(term)+'”.</div>':'');
   }

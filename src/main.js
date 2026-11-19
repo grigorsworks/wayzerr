@@ -23,7 +23,7 @@ const { runTurn } = require('./ai');
 const { TYPES, listModels } = require('./providers');
 const { BotBrowser } = require('./browser');
 const { Vault } = require('./vault');
-const { createTeam } = require('./team');
+const { createTeam, spaceOf } = require('./team');
 const { startWayzerrMcp } = require('./wayzerr-mcp');
 const aiapps = require('./aiapps');
 const cli = require('./cliagents');
@@ -341,18 +341,19 @@ app.whenReady().then(async () => {
     answerPermission: (id, answer) => answerChecked(id, answer), // from the phone: the same Touch ID check as in the window
     pendingAsks: () => [...pendingPermissions.values()].map((p) => p.req).filter(Boolean),
     // Make bots and group chats from the phone.
-    newBot: ({ name, tag, description, character }) => {
+    newBot: ({ name, tag, description, character, space }) => {
       name = String(name || '').trim().slice(0, 40);
       if (!name) throw new Error('Give your bot a name.');
-      const p = createBot({ name, tag: String(tag || '').trim().slice(0, 30), description: String(description || '').trim().slice(0, 500) });
+      const p = createBot({ name, tag: String(tag || '').trim().slice(0, 30), description: String(description || '').trim().slice(0, 500), space });
       if (character && typeof character === 'object') { p.character = { shape: String(character.shape || 'orb'), color: /^#[0-9a-f]{6}$/i.test(character.color) ? character.color : '#A77BFF', eyes: String(character.eyes || 'dots'), extra: String(character.extra || 'none'), mouth: String(character.mouth || 'smile'), acc: String(character.acc || 'none') }; store.save(); pushState(); }
       return p.id;
     },
     newGroup: ({ name, members }) => {
       const list = store.data.personas;
-      const ids = (Array.isArray(members) ? members : []).filter((m) => list.some((p) => p.id === m && !p.group));
+      let ids = (Array.isArray(members) ? members : []).filter((m) => list.some((p) => p.id === m && !p.group));
+      const sp0 = spaceOf(list.find((p) => p.id === ids[0])); ids = ids.filter((m) => spaceOf(list.find((p) => p.id === m)) === sp0); // a group never mixes the two spaces
       if (ids.length < 2) throw new Error('Pick at least 2 bots for a group chat.');
-      const g = { id: crypto.randomBytes(4).toString('hex'), created: Date.now(), group: true, name: String(name || '').trim().slice(0, 40) || list.filter((p) => ids.includes(p.id)).map((p) => p.name.split(' ')[0]).join(', '), tag: 'Group', members: ids };
+      const g = { id: crypto.randomBytes(4).toString('hex'), created: Date.now(), group: true, ...(sp0 === 'two' ? { space: 'two' } : {}), name: String(name || '').trim().slice(0, 40) || list.filter((p) => ids.includes(p.id)).map((p) => p.name.split(' ')[0]).join(', '), tag: 'Group', members: ids };
       list.push(g); store.save(); pushState();
       return g.id;
     },
@@ -1308,7 +1309,7 @@ function computerTargetFor(text) {
 }
 handle('mac-permissions', () => mymac.permissions());
 handle('mac-request-access', (which) => mymac.requestAccess(which));
-const computers = new Proxy({}, { get: (_t, k) => (computersInst ||= require('./computer')({ dir: path.join(dataDir(), 'computers'), feedUrl: PKG.updateFeedCloud, sharedDir: sharedFilesDir(), log: console.log, onPointer: (p) => { try { if (win && !win.isDestroyed()) win.webContents.send('computer-pointer', p); } catch (_) {} } }))[k] });
+const computers = new Proxy({}, { get: (_t, k) => (computersInst ||= require('./computer')({ dir: path.join(dataDir(), 'computers'), feedUrl: PKG.updateFeedCloud, sharedDir: sharedFilesDir(), sharedDirFor: (id, two) => (two || spaceOf(store.data.personas.find((p) => p.id === id)) === 'two') ? sharedFilesDir() + ' (Space 2)' : null, log: console.log, onPointer: (p) => { try { if (win && !win.isDestroyed()) win.webContents.send('computer-pointer', p); } catch (_) {} } }))[k] });
 const desktopMode = () => { try { return computers.status().supported; } catch (_) { return false; } };
 handle('account-start', () => account.start());
 handle('account-signin-cancel', () => { account.cancel(); return true; }); // (not 'account-cancel': that name belongs to the AI-provider sign-in below)
@@ -1502,11 +1503,12 @@ function freshLook() {
   const [shape, color, eyes, mouth] = (free.length ? free : LOOKS)[Math.floor(Math.random() * (free.length || LOOKS.length))];
   return { shape, color, eyes, mouth, extra: 'none', acc: 'none' };
 }
-function createBot({ name, tag = '', description = '', createdBy }) {
+function createBot({ name, tag = '', description = '', createdBy, space }) {
   name = String(name || '').trim().slice(0, 40);
   if (!name) throw new Error('Give the new bot a name.');
   const p = { id: crypto.randomBytes(4).toString('hex'), created: Date.now(), name, tag: String(tag || '').trim().slice(0, 30), description: String(description || '').trim().slice(0, 600), character: freshLook() };
   if (createdBy) p.createdBy = createdBy;
+  if (space === 'two') p.space = 'two';
   store.data.personas.push(p);
   store.save();
   pushState();
@@ -1740,11 +1742,12 @@ handle('phone-qr', (text) => phone.qr(String(text || '')));
 // ---------- Group chats: several bots in one chat ----------
 handle('save-group', ({ id, name, members }) => {
   const list = store.data.personas;
-  const ids = (members || []).filter((m) => list.some((p) => p.id === m && !p.group));
+  let ids = (members || []).filter((m) => list.some((p) => p.id === m && !p.group));
+  const sp0 = spaceOf(list.find((p) => p.id === ids[0])); ids = ids.filter((m) => spaceOf(list.find((p) => p.id === m)) === sp0); // a group never mixes the two spaces
   if (ids.length < 2) throw new Error('Pick at least 2 bots for a group chat.');
   let g = id && list.find((p) => p.id === id);
   if (g) Object.assign(g, { name: String(name || g.name).trim() || g.name, members: ids });
-  else { g = { id: crypto.randomBytes(4).toString('hex'), created: Date.now(), group: true, name: String(name || '').trim() || list.filter((p) => ids.includes(p.id)).map((p) => p.name.split(' ')[0]).join(', '), tag: 'Group', members: ids }; list.push(g); }
+  else { g = { id: crypto.randomBytes(4).toString('hex'), created: Date.now(), group: true, ...(sp0 === 'two' ? { space: 'two' } : {}), name: String(name || '').trim() || list.filter((p) => ids.includes(p.id)).map((p) => p.name.split(' ')[0]).join(', '), tag: 'Group', members: ids }; list.push(g); }
   store.data.activePersonaId = g.id;
   store.save();
   return publicState();
@@ -1776,7 +1779,7 @@ async function runGroupTurn(g, text, attachments, { fromBot, depth = 0, chain = 
   chat.push(msg);
   store.save();
   pushState();
-  const members = () => g.members.map((id) => store.data.personas.find((p) => p.id === id)).filter(Boolean);
+  const members = () => g.members.map((id) => store.data.personas.find((p) => p.id === id)).filter((p) => p && spaceOf(p) === spaceOf(g));
   const mentioned = (t, exclude) => members().filter((p) => p.id !== exclude && new RegExp('@' + p.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s*'), 'i').test(t));
   // Who answers: the bots you @mention; otherwise only the bots the message is about
   // (or everyone if you talk to the whole group), else just the bot you were talking to.

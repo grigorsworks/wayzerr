@@ -103,12 +103,24 @@ const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const bots = () => (S ? S.personas : []); // S is empty for a moment at start-up (the first state is still on its way)
-const active = () => (S ? S.personas.find((p) => p.id === S.activePersonaId) || null : null);
+const active = () => { const a = S ? S.personas.find((p) => p.id === S.activePersonaId) || null : null; return a && inSpace(a) ? a : null; }; // a chat of the other space is never shown
 const tagOf = (p) => p.tag ?? p.tagline ?? '';
 const descOf = (p) => p.description ?? p.personality ?? '';
 const charOf = (p) => p.character || makeCharacter(p.id + p.name);
 function loadPref(k, d) { try { const v = localStorage.getItem('wayzerr.' + k) ?? localStorage.getItem('persona.' + k); return v === null || v === undefined ? d : JSON.parse(v); } catch (_) { return d; } }
 function savePref(k, v) { try { localStorage.setItem('wayzerr.' + k, JSON.stringify(v)); } catch (_) {} }
+// Two separate spaces of bots (tabs at the top of the bot list). Bots in one space never see or talk to the other's.
+const spaceOf = (p) => (p && p.space === 'two' ? 'two' : 'main');
+let curSpace = loadPref('space', 'main') === 'two' ? 'two' : 'main';
+const inSpace = (p) => spaceOf(p) === curSpace;
+function setSpace(sp) {
+  curSpace = sp === 'two' ? 'two' : 'main'; savePref('space', curSpace);
+  const a = S?.personas.find((p) => p.id === S.activePersonaId);
+  if (a && inSpace(a)) return render();
+  const first = sortedBots()[0];
+  if (first) return openChat(first.id);
+  view = 'chat'; render();
+}
 
 function groupAvatar(p, size) {
   const mem = (p.members || []).map((id) => S.personas.find((x) => x.id === id)).filter(Boolean).slice(0, 3);
@@ -248,7 +260,7 @@ const isPinned = (id) => pins.includes(id);
 function togglePin(id) { pins = isPinned(id) ? pins.filter((x) => x !== id) : [...pins, id]; savePref('pins', pins); renderSidebar(); }
 function sortedBots() {
   const recent = (p) => lastMessage(p)?.ts || p.created || 0;
-  return [...bots()].sort((a, b) => {
+  return bots().filter(inSpace).sort((a, b) => {
     const pa = pins.indexOf(a.id), pb = pins.indexOf(b.id);
     if (pa >= 0 && pb >= 0) return pa - pb;
     if (pa >= 0) return -1;
@@ -267,7 +279,12 @@ function relTime(ts) {
   if (d < 7 * 86400e3) return new Date(ts).toLocaleDateString(undefined, { weekday: 'short' });
   return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
+function renderSpaceTabs() {
+  const t = $('#space-tabs'); if (!t) return;
+  t.querySelectorAll('button').forEach((b) => { const on = b.dataset.s === curSpace; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+}
 function renderSidebar() {
+  renderSpaceTabs();
   const list = $('#bot-list');
   const sorted = sortedBots();
   if (!sorted.length) {
@@ -333,6 +350,7 @@ function markSeen(id) {
   api.markSeen?.(id).catch(() => {});
 }
 function openChat(id) {
+  const tb = S?.personas.find((p) => p.id === id); if (tb && !inSpace(tb)) { curSpace = spaceOf(tb); savePref('space', curSpace); } // opening a bot from search or a notification switches to its tab
   view = 'chat';
   chatError = null;
   run(() => api.setActive(id));
@@ -811,6 +829,7 @@ function mountChat(p) {
   const msgs = S.chats[p.id] || [];
   if (!msgs.length) {
     $('#msg-col').innerHTML = `<div class="chat-empty">${`<span class="char-shadow char-pop">${charEl(p, 96)}</span>`}<h2>${esc(p.name)}</h2><p>${esc(descOf(p) || tagOf(p) || 'Say hi! I’ll figure out the rest.')}</p>${starterHtml(p)}</div>`;
+    $('#msg-col .chat-empty .char')?.classList.remove('track'); // the big bot in a chat you haven't started does not follow the mouse
     $('#messages').style.display = 'flex';
     $('#msg-col').style.cssText = 'flex:1;display:flex;';
   } else {
@@ -1768,7 +1787,7 @@ function nameColor(b, label) {
 }
 // Bot names in a message become little chips: the bot's face + its name in its colour.
 function chips(html) {
-  const list = (S.personas || []).filter((x) => !x.group && x.name && x.name.trim().length >= 3).sort((a, b) => b.name.length - a.name.length);
+  const list = (S.personas || []).filter((x) => !x.group && inSpace(x) && x.name && x.name.trim().length >= 3).sort((a, b) => b.name.length - a.name.length);
   if (!list.length) return html;
   const rx = new RegExp('@(' + list.map((x) => x.name.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+')).join('|') + ')(?![\\wÀ-ɏ])', 'gi');
   let skip = 0;
@@ -2221,7 +2240,7 @@ function rowMenu(p, anchor) {
   ], 'down');
 }
 function openGroupEditor(g) {
-  const list = S.personas.filter((p) => !p.group);
+  const list = S.personas.filter((p) => !p.group && inSpace(p));
   const chosen = new Set(g ? g.members : []);
   modal(`<h3>${g ? 'Edit group' : 'New group chat'}</h3>
     <p class="lead">Pick the bots for this chat. Everyone answers — or @mention one bot to ask just them. Bots can talk to each other with @names too.</p>
@@ -2432,6 +2451,7 @@ function openBotEditor(p, presetName = '') {
     if (!name) return toast('Give your bot a name first.', true);
     const out = { ...d, name, tag: $('#be-tag').value.trim(), description: $('#be-desc').value.trim(), character: ch };
     delete out.tagline; delete out.personality; delete out.emoji; delete out.color;
+    if (!out.id && curSpace === 'two') out.space = 'two'; // a new bot starts in the tab you are on
     view = 'chat';
     closeModal();
     await run(() => api.savePersona(out));
@@ -3867,7 +3887,7 @@ async function sendBotPics() {
   if (Object.keys(out).length) api.botPics(out).catch(() => {});
 }
 setTimeout(() => { if (S?.personas) sendBotPics().catch(() => {}); }, 2500);
-api.onOpenChat?.((id) => { if (S.personas?.some((p) => p.id === id)) { view = 'chat'; S.activePersonaId = id; render(); } });
+api.onOpenChat?.((id) => { const tb = S.personas?.find((p) => p.id === id); if (tb) { if (!inSpace(tb)) { curSpace = spaceOf(tb); savePref('space', curSpace); } view = 'chat'; S.activePersonaId = id; render(); } });
 const VOICE_LANGS = [['', 'Detect automatically'], ['en', 'English'], ['es', 'Español'], ['ca', 'Català'], ['fr', 'Français'], ['de', 'Deutsch'], ['it', 'Italiano'], ['pt', 'Português'], ['nl', 'Nederlands'], ['ru', 'Русский'], ['uk', 'Українська'], ['pl', 'Polski'], ['tr', 'Türkçe'], ['ar', 'العربية'], ['he', 'עברית'], ['hi', 'हिन्दी'], ['ja', '日本語'], ['ko', '한국어'], ['zh', '中文'], ['sv', 'Svenska'], ['da', 'Dansk'], ['no', 'Norsk'], ['fi', 'Suomi'], ['el', 'Ελληνικά'], ['cs', 'Čeština'], ['ro', 'Română'], ['hu', 'Magyar'], ['id', 'Bahasa Indonesia'], ['vi', 'Tiếng Việt'], ['th', 'ไทย']];
 let voiceTest = null;
 function tabVoice() {
@@ -4495,6 +4515,7 @@ document.addEventListener('mouseover', (e) => {
   if (c) window.Characters.play(c, ['bounce', 'glance', 'doubleHop', 'tilt', 'jump'][Math.floor(Math.random() * 5)]);
 });
 
+document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('#space-tabs button'); if (b) setSpace(b.dataset.s); });
 (async () => {
   window.Characters.startIdle();
   initChrome();

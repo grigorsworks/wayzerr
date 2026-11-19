@@ -164,8 +164,16 @@ async function askFolder(name) {
   return r.response === 0;
 }
 // A path a files tool asked for → the real path, after the folder it is in has been allowed.
-async function resolveFile(store, sub) {
+// The second space of bots has its own files folder next to the shared one, so the two spaces never see each other's files.
+function filesFor(store, ctx) {
   const f = store.data.connectors.files;
+  if (ctx?.persona?.space !== 'two' || !f?.folder) return f;
+  const folder = f.folder.replace(/[\\/]+$/, '') + ' (Space 2)';
+  try { fs.mkdirSync(folder, { recursive: true }); } catch (_) {}
+  return { ...f, folder };
+}
+async function resolveFile(store, sub, ctx) {
+  const f = filesFor(store, ctx);
   const raw = homePath(sub);
   if (path.isAbsolute(raw)) {
     let real; try { real = realish(path.resolve(raw)); } catch (_) { real = path.resolve(raw); }
@@ -192,7 +200,7 @@ async function runBuiltin(store, toolName, args, ctx) {
   if (toolName.startsWith('schedule_')) return runScheduleTool(toolName, args, ctx);
   switch (toolName) {
     case 'files_list': {
-      const dir = await resolveFile(store, args.subpath);
+      const dir = await resolveFile(store, args.subpath, ctx);
       const items = fs.readdirSync(dir, { withFileTypes: true })
         .filter((d) => !d.name.startsWith('.'))
         .slice(0, 300)
@@ -200,18 +208,18 @@ async function runBuiltin(store, toolName, args, ctx) {
       return items.length ? items.join('\n') : '(empty folder)';
     }
     case 'files_read': {
-      const f = await resolveFile(store, args.subpath);
+      const f = await resolveFile(store, args.subpath, ctx);
       const text = fs.readFileSync(f, 'utf8');
       return text.length > MAX_READ ? text.slice(0, MAX_READ) + '\n…(truncated)' : text;
     }
     case 'files_write': {
-      const f = await resolveFile(store, args.subpath);
+      const f = await resolveFile(store, args.subpath, ctx);
       fs.mkdirSync(path.dirname(f), { recursive: true });
       fs.writeFileSync(f, args.content ?? '');
       return `Saved ${args.subpath}`;
     }
     case 'files_run': {
-      const cwd = safeJoin(c.files.folder, '');
+      const cwd = safeJoin(filesFor(store, ctx).folder, '');
       const { connectorEnv } = require('./runtime');
       const secs = Math.min(300, Math.max(5, Number(args.timeout_seconds) || 120));
       return await new Promise((res) => execFile('/bin/sh', ['-c', String(args.command || '')], { cwd, env: connectorEnv({}), timeout: secs * 1000, maxBuffer: 4 << 20 }, (err, so, se) => {
@@ -221,7 +229,7 @@ async function runBuiltin(store, toolName, args, ctx) {
       }));
     }
     case 'files_search': {
-      const root = safeJoin(c.files.folder, '');
+      const root = safeJoin(filesFor(store, ctx).folder, '');
       const q = String(args.query || '').toLowerCase();
       const out = [];
       const walk = (dir, depth) => {

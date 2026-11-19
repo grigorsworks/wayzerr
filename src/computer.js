@@ -254,7 +254,7 @@ function openUp(root) {
   walk(root, 0);
 }
 
-module.exports = function createComputers({ dir, feedUrl, sharedDir, log = () => {}, onPointer = () => {} }) {
+module.exports = function createComputers({ dir, feedUrl, sharedDir, sharedDirFor, log = () => {}, onPointer = () => {} }) {
   const engineDir = path.join(dir, 'engine');
   const baseFile = path.join(dir, 'base.qcow2');
   const diskDir = path.join(dir, 'disks');
@@ -378,7 +378,7 @@ module.exports = function createComputers({ dir, feedUrl, sharedDir, log = () =>
     const token = crypto.randomBytes(16).toString('hex');
     const sock = path.join(os.tmpdir(), `wzr-${crypto.randomBytes(4).toString('hex')}.sock`);
     const qp = (f) => f.replace(/,/g, ',,'); // a comma in a path must be doubled for QEMU
-    const share = sharedDir || path.join(dir, 'shared');
+    const share = (sharedDirFor && sharedDirFor(id)) || sharedDir || path.join(dir, 'shared');
     fs.mkdirSync(share, { recursive: true });
     openUp(share);
     const fsArgs = NET9P && process.env.WAYZERR_NO_VIRTIO9P ? [] : ['-fsdev', `local,id=share,path=${share},security_model=none`, '-device', 'virtio-9p-pci,fsdev=share,mount_tag=wayzerr']; // (the folder is shared directly, except on Windows; the override only tests the network folder on Linux)
@@ -474,7 +474,7 @@ module.exports = function createComputers({ dir, feedUrl, sharedDir, log = () =>
     const list = [...running.values()];
     if (!list.length) return done();
     for (const r of list) monLine(r, 'system_powerdown').catch(() => {});
-    const t0 = Date.now(), tick = setInterval(() => { if (!running.size || Date.now() - t0 > ms) { clearInterval(tick); stopAll(); try { p9?.srv.close(); } catch (_) {} setTimeout(done, 300); } }, 250);
+    const t0 = Date.now(), tick = setInterval(() => { if (!running.size || Date.now() - t0 > ms) { clearInterval(tick); stopAll(); for (const e of p9s.values()) { try { e.srv.close(); } catch (_) {} } p9s.clear(); setTimeout(done, 300); } }, 250);
   });
   const remove = (botId) => { stop(botId); const id = safe(botId); for (const f of [id + '.qcow2', id + '.vars.fd']) fs.rmSync(path.join(diskDir, f), { force: true }); };
 
@@ -486,14 +486,14 @@ module.exports = function createComputers({ dir, feedUrl, sharedDir, log = () =>
 
 
   // Windows: the shared folder is served from here to the bots' computers (they mount it over the network, see p9.js)
-  let p9 = null, tlsCreds = null;
+  const p9s = new Map(); let tlsCreds = null;
   async function startP9(share) {
-    if (p9 && p9.share === share) return p9;
-    try { p9?.srv.close(); } catch (_) {}
+    if (p9s.has(share)) return p9s.get(share); // one server per shared folder (the two bot spaces each have their own)
     const secret = crypto.randomBytes(12).toString('hex');
     const srv = require('./p9')({ root: share, secret, log });
     const { port } = await srv.listen(0);
-    return (p9 = { srv, port, secret, share });
+    const e = { srv, port, secret, share }; p9s.set(share, e);
+    return e;
   }
   // Windows: asks QEMU once whether this PC lets it use Windows' own virtualization (the "Windows Hypervisor Platform" feature).
   let probing = false;
@@ -657,7 +657,7 @@ module.exports = function createComputers({ dir, feedUrl, sharedDir, log = () =>
         cmd = `export WZ_WHAT=${shq(w)}\n${guest('open.sh')}`;
       } else cmd = String(args.command || '').trim();
       if (!cmd) throw new Error('Give a command.');
-      const share = sharedDir || path.join(dir, 'shared'), wz = path.join(share, '.wz');
+      const share = (sharedDirFor && sharedDirFor(id)) || sharedDir || path.join(dir, 'shared'), wz = path.join(share, '.wz');
       fs.mkdirSync(path.join(wz, 'q'), { recursive: true }); try { fs.chmodSync(wz, 0o777); fs.chmodSync(path.join(wz, 'q'), 0o777); } catch (_) {}
       for (const f of fs.readdirSync(wz)) { try { if (/^(run|out|done)-/.test(f) && Date.now() - fs.statSync(path.join(wz, f)).mtimeMs > 3600e3) fs.rmSync(path.join(wz, f), { force: true }); } catch (_) {} } // old runs
       const tag = crypto.randomBytes(3).toString('hex'), g = `/mnt/shared/.wz`;
@@ -740,7 +740,7 @@ module.exports = function createComputers({ dir, feedUrl, sharedDir, log = () =>
     fs.rmSync(engineDir, { recursive: true, force: true });
     fs.rmSync(diskDir, { recursive: true, force: true });
     fs.rmSync(path.join(dir, 'tls'), { recursive: true, force: true }); tlsCreds = null;
-    fs.rmSync(path.join(sharedDir || path.join(dir, 'shared'), '.wz'), { recursive: true, force: true }); // only the helper's scratch folder, never the files around it
+    for (const d of new Set([sharedDir || path.join(dir, 'shared'), sharedDirFor && sharedDirFor('', true)].filter(Boolean))) fs.rmSync(path.join(d, '.wz'), { recursive: true, force: true }); // only the helper's scratch folder, never the files around it
     agentSeen.clear(); inputs.clear(); shots.clear(); lastUse.clear(); lastPlan = null;
     setup.error = ''; setup.step = ''; setup.done = 0; setup.total = 0;
     return status();

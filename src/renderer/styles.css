@@ -2404,3 +2404,10 @@ label.f { font-size: 12px; margin: 14px 0 6px; }
 .slash-menu .sl-empty { padding: 8px 10px; font-size: 12px; opacity: .65; }
 #cmp-boot { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; padding: 24px; color: #cfcfcf; pointer-events: none; background: #000; }
 #cmp-boot b { font-size: 16px; } #cmp-boot span { font-size: 13px; opacity: .7; max-width: 420px; }
+
+/* Tabs at the top of the bot list: Main / Separate (two spaces of bots that never talk to each other) */
+.space-tabs { display: flex; gap: 2px; margin: 2px 14px 6px; padding: 2px; border-radius: 8px; background: var(--raised); flex-shrink: 0; }
+.space-tabs button { flex: 1; padding: 4px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 500; color: var(--muted); transition: background .15s, color .15s; }
+.space-tabs button:hover { color: var(--text-2); }
+.space-tabs button.on { background: var(--bubble); color: var(--text); }
+#sidebar.collapsed .space-tabs { display: none; }

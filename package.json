@@ -1,6 +1,6 @@
 {
   "name": "wayzerr-app",
-  "version": "1.3.52",
+  "version": "1.3.53",
   "description": "Wayzerr — AI bots with their own personalities, memory, browser and tools",
   "main": "src/main.js",
   "author": "Wayzerr",
@@ -35,9 +35,9 @@
       "category": "public.app-category.productivity",
       "target": "dir",
       "extendInfo": {
-        "PersonaNotes": "Macs with the newest chips (like the M5 Pro): your bot's computer now really starts. Before, it could stay black because the fast mode crashed and the slower mode never took over. | While the computer is still starting, a \"Starting up…\" note shows over the black screen and disappears once the desktop is ready. The first start in the slower mode can take a minute or two.",
+        "PersonaNotes": "Two spaces for your bots: a small Main | Separate switch at the top of the bot list. Bots in the Separate space can't see, message, @mention or group with your main bots (and the other way round), and they get their own files folder. Your phone shows both spaces. | The big bot in a chat you haven't started yet no longer follows your mouse.",
         "NSMicrophoneUsageDescription": "Wayzerr uses the microphone when you talk to your bots (speech to text).",
-        "WayzerrNotes": "Macs with the newest chips (like the M5 Pro): your bot's computer now really starts. Before, it could stay black because the fast mode crashed and the slower mode never took over. | While the computer is still starting, a \"Starting up…\" note shows over the black screen and disappears once the desktop is ready. The first start in the slower mode can take a minute or two.",
+        "WayzerrNotes": "Two spaces for your bots: a small Main | Separate switch at the top of the bot list. Bots in the Separate space can't see, message, @mention or group with your main bots (and the other way round), and they get their own files folder. Your phone shows both spaces. | The big bot in a chat you haven't started yet no longer follows your mouse.",
         "NSAppleEventsUsageDescription": "Wayzerr uses System Events to click and type on your Mac, only when you let a bot control it.",
         "NSDownloadsFolderUsageDescription": "Wayzerr saves pictures you choose to download here. It only looks for an update file here when you press Check for updates and the update server cannot be reached.",
         "NSLocalNetworkUsageDescription": "Wayzerr lets your phone connect to this Mac over your Wi-Fi when you switch on Phone.",
@@ -50,7 +50,7 @@
       "hardenedRuntime": false,
       "gatekeeperAssess": false
     },
-    "buildVersion": "202611162041",
+    "buildVersion": "202611190656",
     "dmg": {
       "artifactName": "Wayzerr.dmg",
       "background": "build/dmg-background.tiff",
