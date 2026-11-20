@@ -22,8 +22,12 @@ jobs:
         shell: bash
       - run: npx electron-builder --win nsis zip --x64 -p never
       - uses: actions/upload-artifact@v4
-        with: { name: win, path: 'dist/*.exe
-            dist/*.zip' }
+        with:
+          name: win
+          path: |
+            dist/*.exe
+            dist/*.zip
+          if-no-files-found: error
 
   linux-x64:
     runs-on: ubuntu-latest
@@ -35,8 +39,12 @@ jobs:
       - run: sh scripts/fetch-speech-model.sh
       - run: npx electron-builder --linux AppImage deb --x64 -p never
       - uses: actions/upload-artifact@v4
-        with: { name: linux-x64, path: 'dist/*.AppImage
-            dist/*.deb' }
+        with:
+          name: linux-x64
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+          if-no-files-found: error
 
   linux-arm64:
     runs-on: ubuntu-24.04-arm
@@ -48,7 +56,10 @@ jobs:
       - run: sh scripts/fetch-speech-model.sh
       - run: npx electron-builder --linux AppImage --arm64 -p never
       - uses: actions/upload-artifact@v4
-        with: { name: linux-arm64, path: 'dist/*.AppImage' }
+        with:
+          name: linux-arm64
+          path: dist/*.AppImage
+          if-no-files-found: error
 
   attach:
     needs: [windows, linux-x64, linux-arm64]
@@ -64,4 +75,4 @@ jobs:
           VER=$(node -p "require('./package.json').version")
           cd out && find . -type f | sort && sha256sum */* > ../SHA256SUMS.txt
           cd ..
-          gh release create "installers-$VER" out/*/* SHA256SUMS.txt --prerelease --target "${{ github.sha }}" --title "Installers $VER (Windows and Linux)" --notes "Windows and Linux installers for Wayzerr $VER, built on GitHub. Same version as the Mac app on wayzerr.com."
+          gh release create "installers-$VER-run${{ github.run_number }}" out/*/* SHA256SUMS.txt --prerelease --target "${{ github.sha }}" --title "Installers $VER (Windows and Linux)" --notes "Windows and Linux installers for Wayzerr $VER, built on GitHub. Same version as the Mac app on wayzerr.com."
