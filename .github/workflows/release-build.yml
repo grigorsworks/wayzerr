@@ -1,0 +1,67 @@
+# Builds the Windows and Linux installers for a release and attaches them to a GitHub release (so they can be downloaded without a login).
+# Runs when a branch named installers/<version> is pushed. It only builds and attaches files; wayzerr.com is updated by hand afterwards.
+# The builds are not code-signed (see legal/ACTION-CHECKLIST.md).
+name: Release installers
+
+on:
+  push:
+    branches: ['installers/**']
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: sh scripts/fetch-speech-model.sh
+        shell: bash
+      - run: npx electron-builder --win nsis zip --x64 -p never
+      - uses: actions/upload-artifact@v4
+        with: { name: win, path: 'dist/*.exe
+            dist/*.zip' }
+
+  linux-x64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: sh scripts/fetch-speech-model.sh
+      - run: npx electron-builder --linux AppImage deb --x64 -p never
+      - uses: actions/upload-artifact@v4
+        with: { name: linux-x64, path: 'dist/*.AppImage
+            dist/*.deb' }
+
+  linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: sh scripts/fetch-speech-model.sh
+      - run: npx electron-builder --linux AppImage --arm64 -p never
+      - uses: actions/upload-artifact@v4
+        with: { name: linux-arm64, path: 'dist/*.AppImage' }
+
+  attach:
+    needs: [windows, linux-x64, linux-arm64]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { path: out }
+      - name: Release with the installers attached
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          cd out && find . -type f | sort && sha256sum */* > ../SHA256SUMS.txt
+          cd ..
+          gh release create "installers-$VER" out/*/* SHA256SUMS.txt --prerelease --target "${{ github.sha }}" --title "Installers $VER (Windows and Linux)" --notes "Windows and Linux installers for Wayzerr $VER, built on GitHub. Same version as the Mac app on wayzerr.com."
