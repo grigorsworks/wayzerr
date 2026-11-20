@@ -16,6 +16,6 @@ if [ ! -f "$LIB" ]; then
   echo "downloading transformers.min.js"
   curl -fL --retry 3 -o "$LIB" "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.0/dist/transformers.min.js"
 fi
-GOT=$(shasum -a 256 "$LIB" | cut -d' ' -f1)
+if command -v sha256sum >/dev/null 2>&1; then GOT=$(sha256sum "$LIB" | cut -d' ' -f1); else GOT=$(shasum -a 256 "$LIB" | cut -d' ' -f1); fi # Windows (Git Bash) has sha256sum, not shasum
 [ "$GOT" = "1475fd440e9932ab206682ee42cb18f6097403e9ee77ea62084c592d0f83597d" ] || { echo "transformers.min.js does not match the expected checksum"; rm -f "$LIB"; exit 1; }
 echo "done: $OUT"
