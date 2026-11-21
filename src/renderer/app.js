@@ -118,7 +118,7 @@ const curSp = () => (spacesOn() && spaceCfg().tabs.some((t) => t.id === curSpace
 const inSpace = (p) => !spacesOn() || spaceOf(p) === curSp();
 const goSpace = (sp) => { curSpace = sp; savePref('space', sp); };
 function setSpace(sp) {
-  goSpace(sp);
+  goSpace(sp); fadeBotList();
   const a = S?.personas.find((p) => p.id === S.activePersonaId);
   if (a && inSpace(a)) return render();
   const first = sortedBots()[0];
@@ -288,10 +288,24 @@ function renderSpaceTabs() {
   const on = spacesOn(); t.hidden = !on;
   if (!on) { t.innerHTML = ''; t.dataset.sig = ''; return; }
   const c = spaceCfg(), cur = curSp(), items = [{ id: 'main', name: c.main || 'Main' }, ...c.tabs];
-  const sig = JSON.stringify([cur, items]); if (t.dataset.sig === sig) return; t.dataset.sig = sig;
-  t.innerHTML = items.map((x) => `<button role="tab" data-s="${esc(x.id)}" class="${x.id === cur ? 'on' : ''}" aria-selected="${x.id === cur}" title="${esc(x.name)} · double-click to rename${x.id === 'main' ? '' : ', right-click to remove'}">${esc(x.name)}</button>`).join('') + `<button class="st-add" data-add title="New tab" aria-label="New tab">＋</button>`;
+  const sig = JSON.stringify(items); // the buttons are only rebuilt when a tab is added, renamed or removed, so the pill can slide
+  if (t.dataset.sig !== sig) {
+    t.dataset.sig = sig;
+    t.innerHTML = '<i class="st-pill" aria-hidden="true"></i>' + items.map((x) => `<button role="tab" data-s="${esc(x.id)}" title="${esc(x.name)} · double-click to rename${x.id === 'main' ? '' : ', right-click to remove'}">${esc(x.name)}</button>`).join('') + `<button class="st-add" data-add title="New tab" aria-label="New tab">＋</button>`;
+    t.classList.add('noanim');
+  }
+  t.querySelectorAll('button[data-s]').forEach((b) => { const o = b.dataset.s === cur; b.classList.toggle('on', o); b.setAttribute('aria-selected', o ? 'true' : 'false'); b.tabIndex = o ? 0 : -1; });
   t.querySelector('button.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  placePill(t);
 }
+function placePill(t) {
+  const pill = t.querySelector('.st-pill'), b = t.querySelector('button.on'); if (!pill) return;
+  if (!b) { pill.style.opacity = '0'; return; }
+  pill.style.opacity = '1'; pill.style.width = b.offsetWidth + 'px'; pill.style.transform = `translateX(${b.offsetLeft}px)`;
+  if (t.classList.contains('noanim')) requestAnimationFrame(() => requestAnimationFrame(() => t.classList.remove('noanim'))); // first placement and rebuilds jump into place; only later moves slide
+}
+window.addEventListener('resize', () => { const t = $('#space-tabs'); if (t && !t.hidden) { t.classList.add('noanim'); placePill(t); } });
+function fadeBotList() { const l = $('#bot-list'); if (!l) return; l.classList.remove('swap'); void l.offsetWidth; l.classList.add('swap'); } // a short cross-fade when the tab changes
 function renameTab(id) {
   const t = $('#space-tabs'), b = t && [...t.querySelectorAll('button[data-s]')].find((x) => x.dataset.s === id); if (!b) return;
   const old = b.textContent; t.dataset.edit = '1';
@@ -4569,6 +4583,12 @@ document.addEventListener('click', (e) => {
   if (b.dataset.s !== curSp()) setSpace(b.dataset.s);
 });
 document.addEventListener('dblclick', (e) => { const b = e.target.closest && e.target.closest('#space-tabs button[data-s]'); if (b) renameTab(b.dataset.s); });
+document.addEventListener('keydown', (e) => { // arrows move between tabs (Home/End jump), like Settings' menus
+  const b = e.target.closest && e.target.closest('#space-tabs button[data-s]'); if (!b || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+  const all = [...document.querySelectorAll('#space-tabs button[data-s]')], i = all.indexOf(b);
+  const n = e.key === 'Home' ? all[0] : e.key === 'End' ? all[all.length - 1] : all[(i + (e.key === 'ArrowRight' ? 1 : -1) + all.length) % all.length];
+  e.preventDefault(); setSpace(n.dataset.s); n.focus();
+});
 document.addEventListener('contextmenu', (e) => { const b = e.target.closest && e.target.closest('#space-tabs button[data-s]'); if (b && b.dataset.s !== 'main') { e.preventDefault(); removeTab(b.dataset.s); } });
 (async () => {
   window.Characters.startIdle();
