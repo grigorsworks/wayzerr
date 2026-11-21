@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { execFile } = require('child_process');
 const os = require('os');
+const { spaceOf, folderSuffix } = require('./spaces');
 const { clipboard, Notification, shell, dialog, BrowserWindow } = require('electron');
 const { BROWSER_TOOLS } = require('./browser');
 const { VAULT_TOOLS } = require('./vault');
@@ -164,11 +165,12 @@ async function askFolder(name) {
   return r.response === 0;
 }
 // A path a files tool asked for → the real path, after the folder it is in has been allowed.
-// The second space of bots has its own files folder next to the shared one, so the two spaces never see each other's files.
+// Every extra tab of bots has its own files folder next to the shared one, so tabs never see each other's files.
 function filesFor(store, ctx) {
   const f = store.data.connectors.files;
-  if (ctx?.persona?.space !== 'two' || !f?.folder) return f;
-  const folder = f.folder.replace(/[\\/]+$/, '') + ' (Space 2)';
+  const sp = spaceOf(ctx?.persona);
+  if (sp === 'main' || !f?.folder) return f;
+  const folder = f.folder.replace(/[\\/]+$/, '') + folderSuffix(sp);
   try { fs.mkdirSync(folder, { recursive: true }); } catch (_) {}
   return { ...f, folder };
 }

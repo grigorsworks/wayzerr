@@ -1,4 +1,7 @@
 {
+  "1.3.54": [
+    "Tabs for your bots are now an option: turn them on in Settings → General → Tabs for your bots. Then press ＋ above your bots to make as many tabs as you like, double-click a tab to rename it and right-click it to remove it. Bots in different tabs can't see or talk to each other, and each tab has its own files folder. Turn it off and all your bots show together again. The tabs look like the buttons in Settings, and your phone shows the tab names."
+  ],
   "1.3.53": [
     "Two spaces for your bots: a small Main | Separate switch at the top of the bot list. Bots in the Separate space can't see, message, @mention or group with your main bots (and the other way round), and they get their own files folder. Your phone shows both spaces.",
     "The big bot in a chat you haven't started yet no longer follows your mouse."

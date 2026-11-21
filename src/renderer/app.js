@@ -109,12 +109,16 @@ const descOf = (p) => p.description ?? p.personality ?? '';
 const charOf = (p) => p.character || makeCharacter(p.id + p.name);
 function loadPref(k, d) { try { const v = localStorage.getItem('wayzerr.' + k) ?? localStorage.getItem('persona.' + k); return v === null || v === undefined ? d : JSON.parse(v); } catch (_) { return d; } }
 function savePref(k, v) { try { localStorage.setItem('wayzerr.' + k, JSON.stringify(v)); } catch (_) {} }
-// Two separate spaces of bots (tabs at the top of the bot list). Bots in one space never see or talk to the other's.
-const spaceOf = (p) => (p && p.space === 'two' ? 'two' : 'main');
-let curSpace = loadPref('space', 'main') === 'two' ? 'two' : 'main';
-const inSpace = (p) => spaceOf(p) === curSpace;
+// Tabs of bots (Settings → General → Tabs for your bots; off until you turn them on). Bots in one tab never see or talk to another tab's.
+const spaceCfg = () => (S && S.settings && S.settings.spaces) || { on: false, main: 'Main', tabs: [] };
+const spacesOn = () => spaceCfg().on === true;
+const spaceOf = (p) => (spacesOn() && p && p.space && spaceCfg().tabs.some((t) => t.id === p.space) ? p.space : 'main');
+let curSpace = String(loadPref('space', 'main'));
+const curSp = () => (spacesOn() && spaceCfg().tabs.some((t) => t.id === curSpace) ? curSpace : 'main'); // the tab you are on
+const inSpace = (p) => !spacesOn() || spaceOf(p) === curSp();
+const goSpace = (sp) => { curSpace = sp; savePref('space', sp); };
 function setSpace(sp) {
-  curSpace = sp === 'two' ? 'two' : 'main'; savePref('space', curSpace);
+  goSpace(sp);
   const a = S?.personas.find((p) => p.id === S.activePersonaId);
   if (a && inSpace(a)) return render();
   const first = sortedBots()[0];
@@ -280,8 +284,45 @@ function relTime(ts) {
   return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 function renderSpaceTabs() {
-  const t = $('#space-tabs'); if (!t) return;
-  t.querySelectorAll('button').forEach((b) => { const on = b.dataset.s === curSpace; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  const t = $('#space-tabs'); if (!t || t.dataset.edit) return;
+  const on = spacesOn(); t.hidden = !on;
+  if (!on) { t.innerHTML = ''; t.dataset.sig = ''; return; }
+  const c = spaceCfg(), cur = curSp(), items = [{ id: 'main', name: c.main || 'Main' }, ...c.tabs];
+  const sig = JSON.stringify([cur, items]); if (t.dataset.sig === sig) return; t.dataset.sig = sig;
+  t.innerHTML = items.map((x) => `<button role="tab" data-s="${esc(x.id)}" class="${x.id === cur ? 'on' : ''}" aria-selected="${x.id === cur}" title="${esc(x.name)} · double-click to rename${x.id === 'main' ? '' : ', right-click to remove'}">${esc(x.name)}</button>`).join('') + `<button class="st-add" data-add title="New tab" aria-label="New tab">＋</button>`;
+  t.querySelector('button.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+}
+function renameTab(id) {
+  const t = $('#space-tabs'), b = t && [...t.querySelectorAll('button[data-s]')].find((x) => x.dataset.s === id); if (!b) return;
+  const old = b.textContent; t.dataset.edit = '1';
+  const inp = document.createElement('input'); inp.className = 'st-edit'; inp.value = old; inp.maxLength = 24; inp.setAttribute('aria-label', 'Tab name'); inp.spellcheck = false;
+  b.replaceChildren(inp); inp.focus(); inp.select();
+  let done = false;
+  const fin = async (save) => {
+    if (done) return; done = true; delete t.dataset.edit;
+    const v = inp.value.trim();
+    if (save && v && v !== old) { try { S = await api.setSpaces({ rename: { id, name: v } }); } catch (e) { toast(e.message, true); } }
+    t.dataset.sig = ''; renderSpaceTabs();
+  };
+  inp.onkeydown = (e) => { e.stopPropagation(); if (e.key === 'Enter') fin(true); else if (e.key === 'Escape') fin(false); };
+  let ready = false; // a new tab's page may grab the focus for a moment: take it back, and only a blur after that ends the edit
+  setTimeout(() => { if (done) return; if (document.activeElement !== inp) { inp.focus(); inp.select(); } ready = true; }, 200);
+  inp.onblur = () => { if (ready) fin(true); };
+  inp.onclick = inp.ondblclick = (e) => e.stopPropagation();
+}
+async function addTab() {
+  const before = new Set(spaceCfg().tabs.map((t) => t.id));
+  try { S = await api.setSpaces({ add: '' }); } catch (e) { return toast(e.message, true); }
+  const fresh = spaceCfg().tabs.find((t) => !before.has(t.id)); if (!fresh) return;
+  goSpace(fresh.id); renderSpaceTabs(); render(); renameTab(fresh.id); // a new tab starts with its name ready to type
+}
+async function removeTab(id) {
+  const t = spaceCfg().tabs.find((x) => x.id === id); if (!t) return;
+  const n = bots().filter((p) => p.space === id).length;
+  if (!confirm(`Remove the tab “${t.name}”?${n ? ` Its ${n} bot${n > 1 ? 's' : ''} move${n > 1 ? '' : 's'} to ${spaceCfg().main || 'Main'}.` : ''} Its files folder stays on your computer.`)) return;
+  try { S = await api.setSpaces({ remove: id }); } catch (e) { return toast(e.message, true); }
+  if (curSpace === id) goSpace('main');
+  render();
 }
 function renderSidebar() {
   renderSpaceTabs();
@@ -350,7 +391,7 @@ function markSeen(id) {
   api.markSeen?.(id).catch(() => {});
 }
 function openChat(id) {
-  const tb = S?.personas.find((p) => p.id === id); if (tb && !inSpace(tb)) { curSpace = spaceOf(tb); savePref('space', curSpace); } // opening a bot from search or a notification switches to its tab
+  const tb = S?.personas.find((p) => p.id === id); if (tb && !inSpace(tb)) goSpace(spaceOf(tb)); // opening a bot from search or a notification switches to its tab
   view = 'chat';
   chatError = null;
   run(() => api.setActive(id));
@@ -2451,7 +2492,7 @@ function openBotEditor(p, presetName = '') {
     if (!name) return toast('Give your bot a name first.', true);
     const out = { ...d, name, tag: $('#be-tag').value.trim(), description: $('#be-desc').value.trim(), character: ch };
     delete out.tagline; delete out.personality; delete out.emoji; delete out.color;
-    if (!out.id && curSpace === 'two') out.space = 'two'; // a new bot starts in the tab you are on
+    if (!out.id && spacesOn() && curSp() !== 'main') out.space = curSp(); // a new bot starts in the tab you are on
     view = 'chat';
     closeModal();
     await run(() => api.savePersona(out));
@@ -2811,7 +2852,8 @@ const SETTINGS_INDEX = [
   ['Which computer bots use', 'computer mac my computer bot computer own linux control screen click type name rename use', 'computer', 'Which computer do bots use?'],
   ['Terms of Service', 'terms of service tos legal agreement rules conditions law', 'privacy', 'Terms of Service'],
   ['Privacy Policy', 'privacy policy data protection gdpr legal what is collected cookies', 'privacy', 'Privacy Policy'],
-  ['Delete account', 'delete account erase remove everything data reset start over wipe', 'general', 'Delete account'],
+  ['Tabs for your bots', 'tabs spaces separate bots split groups folders workspace rename plus add remove', 'general', 'Tabs for your bots'],
+    ['Delete account', 'delete account erase remove everything data reset start over wipe', 'general', 'Delete account'],
   ['Help, tour and questions', 'help tour tutorial guide questions faq ask how to use replay show me around', 'help', 'Common questions'],
   ['Your guide: change its look and name', 'guide tutorial bot look skin name customise customize accessory', 'help', 'Guide settings'],
   ['Your name', 'name profile what bots call me', 'general'],
@@ -2950,6 +2992,11 @@ function tabGeneral() {
       <div class="card-row"><div class="grow"><div class="nm">Your apps</div><div class="ds">How bots use Gmail, Classroom, Slides, Drive and your other apps. You can always tell a bot otherwise in a chat (“use your browser”).</div></div>
         <div class="seg" id="gen-apps-via">${[['connector', 'Connections'], ['browser', 'Browser']].map(([v, l]) => `<button data-v="${v}" class="${(S.settings.appsVia || 'connector') === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
     </div>
+    <div class="section-title">Tabs</div>
+    <div class="card simple">
+      <div class="card-row"><div class="grow"><div class="nm">Tabs for your bots</div><div class="ds">Adds tabs above your bots (＋ makes a new one, double-click renames, right-click removes). Bots in different tabs can’t see or talk to each other, and each tab has its own files folder. Turn it off and all your bots show together again.</div></div>
+        <label class="switch"><input type="checkbox" id="st-spaces" aria-label="Tabs for your bots" ${spacesOn() ? 'checked' : ''}><span></span></label></div>
+    </div>
     <div class="section-title">Account</div>
     <div class="card simple" id="account-card">
       <div class="card-row"><div class="grow"><div class="nm">Signed in</div><div class="ds">${esc((S.account && S.account.email) || '')}</div></div><button class="btn" id="acct-out">Sign out</button></div>
@@ -2959,6 +3006,7 @@ function tabGeneral() {
     <div class="card simple" id="kbd-card">
       ${[['Search bots and messages', [MOD, 'K']], ['New chat', [MOD, 'N']], ['Jump to a bot', [MOD, '1–9']], ['Settings', [MOD, ',']], ['Search settings', [MOD, 'F']], ['New line', ['⇧', '↵']], ['Bring back your last message', ['↑']]].map(([n, keys]) => `<div class="card-row"><div class="grow"><div class="nm">${n}</div></div><span class="kbd-keys">${keys.map((k) => `<kbd>${k}</kbd>`).join('')}</span></div>`).join('')}
     </div>`;
+  $('#st-spaces').onchange = async (e) => { S = await api.setSpaces({ on: e.target.checked }); render(); toast(e.target.checked ? 'Tabs are on. Press ＋ above your bots to add one' : 'Tabs are off. All your bots show together'); };
   $('#st-showtokens').onchange = async (e) => { S = await api.saveProfile({ showTokens: e.target.checked }); render(); toast(e.target.checked ? 'Token numbers are shown on new replies' : 'Token numbers are hidden in every chat'); };
   const so = $('#acct-out'); if (so) so.onclick = async () => { if (!confirm('Sign out of Wayzerr? Your bots and chats stay on this computer.')) return; try { S = await api.accountLogout(); render(); } catch (e) { toast(e.message, true); } };
   $$('#gen-usage button').forEach((b) => (b.onclick = async () => { S = await api.setUsageMode(b.dataset.v); $$('#gen-usage button').forEach((x) => x.classList.toggle('on', x === b)); $('#usage-ds').textContent = USAGE_DS[b.dataset.v]; toast({ low: 'Bots will use as little of your AI plan as they can', balanced: 'Bots will save usage without cutting quality', max: 'Bots will always send everything (uses the most)' }[b.dataset.v]); }));
@@ -3887,7 +3935,7 @@ async function sendBotPics() {
   if (Object.keys(out).length) api.botPics(out).catch(() => {});
 }
 setTimeout(() => { if (S?.personas) sendBotPics().catch(() => {}); }, 2500);
-api.onOpenChat?.((id) => { const tb = S.personas?.find((p) => p.id === id); if (tb) { if (!inSpace(tb)) { curSpace = spaceOf(tb); savePref('space', curSpace); } view = 'chat'; S.activePersonaId = id; render(); } });
+api.onOpenChat?.((id) => { const tb = S.personas?.find((p) => p.id === id); if (tb) { if (!inSpace(tb)) goSpace(spaceOf(tb)); view = 'chat'; S.activePersonaId = id; render(); } });
 const VOICE_LANGS = [['', 'Detect automatically'], ['en', 'English'], ['es', 'Español'], ['ca', 'Català'], ['fr', 'Français'], ['de', 'Deutsch'], ['it', 'Italiano'], ['pt', 'Português'], ['nl', 'Nederlands'], ['ru', 'Русский'], ['uk', 'Українська'], ['pl', 'Polski'], ['tr', 'Türkçe'], ['ar', 'العربية'], ['he', 'עברית'], ['hi', 'हिन्दी'], ['ja', '日本語'], ['ko', '한국어'], ['zh', '中文'], ['sv', 'Svenska'], ['da', 'Dansk'], ['no', 'Norsk'], ['fi', 'Suomi'], ['el', 'Ελληνικά'], ['cs', 'Čeština'], ['ro', 'Română'], ['hu', 'Magyar'], ['id', 'Bahasa Indonesia'], ['vi', 'Tiếng Việt'], ['th', 'ไทย']];
 let voiceTest = null;
 function tabVoice() {
@@ -4515,7 +4563,13 @@ document.addEventListener('mouseover', (e) => {
   if (c) window.Characters.play(c, ['bounce', 'glance', 'doubleHop', 'tilt', 'jump'][Math.floor(Math.random() * 5)]);
 });
 
-document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('#space-tabs button'); if (b) setSpace(b.dataset.s); });
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('#space-tabs button'); if (!b) return;
+  if (b.dataset.add !== undefined) return addTab();
+  if (b.dataset.s !== curSp()) setSpace(b.dataset.s);
+});
+document.addEventListener('dblclick', (e) => { const b = e.target.closest && e.target.closest('#space-tabs button[data-s]'); if (b) renameTab(b.dataset.s); });
+document.addEventListener('contextmenu', (e) => { const b = e.target.closest && e.target.closest('#space-tabs button[data-s]'); if (b && b.dataset.s !== 'main') { e.preventDefault(); removeTab(b.dataset.s); } });
 (async () => {
   window.Characters.startIdle();
   initChrome();

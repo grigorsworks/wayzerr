@@ -15,6 +15,7 @@ const PORT = Number(process.env.WAYZERR_PHONE_PORT || 47821);
 const SPORT = PORT + 1; // the secure (https) door, for phones that trust this computer
 const https = require('https');
 const tls = require('./localtls');
+const { spaceOf } = require('./spaces');
 
 function createPhone({ store, sendMessage, stopTurn, screen = async () => null, tap = async () => {}, scroll = async () => {}, onJoin = () => {}, getUpdate = () => null, doUpdate = async () => {}, checkUpdate = async () => null, profile = () => ({}), setProfile = () => {}, decline = () => {}, newBot = () => null, answerPermission = () => false, pendingAsks = () => [], newGroup = () => null, imageFile = () => null, theme = () => 'system', transcribe = null, voiceAvailable = () => false, tunnelInfo = async () => null, allowed = () => true, tasks = null, botTools = null, jsqrFile, dataDir, iconFile, mobileDir, charactersFile, onChange = () => {} }) {
   const newTok = () => crypto.randomBytes(18).toString('base64url');
@@ -113,11 +114,13 @@ function createPhone({ store, sendMessage, stopTurn, screen = async () => null, 
     req.on('error', reject);
   });
 
+  // The tab names, when tabs are on (the phone shows every bot of every tab, with its tab's name next to it).
+  const spacesInfo = () => { const c = store.data.settings.spaces; return c && c.on === true ? { main: c.main || 'Main', tabs: (c.tabs || []).map((t) => ({ id: t.id, name: t.name })) } : null; };
   const plainBots = () => (store.data.personas || []).map((p) => {
     const list = store.data.chats[p.id] || [];
     const last = [...list].reverse().find((m) => m.role === 'user' || m.role === 'assistant');
     return {
-      id: p.id, name: p.name, tag: p.tag || '', group: !!p.group, space: p.space === 'two' ? 'two' : 'main', members: p.members || [],
+      id: p.id, name: p.name, tag: p.tag || '', group: !!p.group, space: spaceOf(p), members: p.members || [],
       character: p.character || null, avatar: p.avatar && /^data:image\//.test(p.avatar) ? p.avatar : null,
       last: last ? { role: last.role, text: String(last.content || '').replace(/<thinking>[\s\S]*?<\/thinking>/g, '').slice(0, 140), ts: last.ts || 0 } : null,
       busy: busyOf(p.id) || null,
@@ -239,7 +242,7 @@ function createPhone({ store, sendMessage, stopTurn, screen = async () => null, 
     }
     if (!unlocked(req, u, dev)) return json(res, 423, { error: 'Enter your phone code.', locked: true });
 
-    if (p === '/api/state') return json(res, 200, { mac: os.hostname().replace(/\.local$/i, ''), bots: plainBots(), update: getUpdate(), voice: !!(transcribe && voiceAvailable()), theme: theme() });
+    if (p === '/api/state') return json(res, 200, { mac: os.hostname().replace(/\.local$/i, ''), bots: plainBots(), spaces: spacesInfo(), update: getUpdate(), voice: !!(transcribe && voiceAvailable()), theme: theme() });
     if (p === '/api/transcribe' && req.method === 'POST') {
       if (!transcribe) return json(res, 404, { error: 'Speech to text is not available.' });
       const b = await body(req, 25 * 1024 * 1024);

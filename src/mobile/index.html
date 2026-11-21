@@ -625,7 +625,7 @@ html.light .m.assistant{background:#f0f0f1}
   try{ if(!standalone && K && !localStorage.getItem('nx-a2hs-x')) $('a2hs').hidden=false; }catch(e){}
   $('a2hsX').onclick=function(){ $('a2hs').hidden=true; try{localStorage.setItem('nx-a2hs-x','1')}catch(e){} };
 
-  var bots=[], cur=null, busy={}, pics=[], msgsCache=[], me={}, offline=false, updatingNow=false;
+  var spaces=null, bots=[], cur=null, busy={}, pics=[], msgsCache=[], me={}, offline=false, updatingNow=false;
   var SS=''; try{ var sx=JSON.parse(localStorage.getItem('nx-sess')||'null'); if(sx&&sx.exp>Date.now()) SS=sx.token; }catch(e){}
   function api(p,opt){ opt=opt||{}; opt.headers=Object.assign({'x-nx-key':K,'x-nx-sess':SS},opt.headers||{}); return fetch(p,opt).then(function(r){ return r.json().then(function(j){ if(!r.ok){ var e=new Error(j.error||('Error '+r.status)); e.status=r.status; if(r.status===423) showLock(); throw e; } return j; }); }); }
   function showLock(){ $('lockscr').hidden=false; try{ setTimeout(function(){ $('lockin').focus(); },200); }catch(e){} }
@@ -670,12 +670,13 @@ html.light .m.assistant{background:#f0f0f1}
   $('backdrop').onclick=closeMenu;
 
   // ----- bot list + search -----
+  function spaceName(b){ if(!spaces||!b.space) return ''; if(b.space==='main') return spaces.main; for(var i=0;i<spaces.tabs.length;i++) if(spaces.tabs[i].id===b.space) return spaces.tabs[i].name; return ''; }
   function drawList(){
     var term=$('q').value.trim().toLowerCase();
     var shown=bots.filter(function(b){ return !term || (b.name+' '+(b.tag||'')+' '+((b.last&&b.last.text)||'')).toLowerCase().indexOf(term)>=0; });
     $('list').innerHTML=shown.map(function(b){
       var bt=busyText(b), prev=bt||(b.last?(b.last.role==='user'?'You: ':'')+b.last.text.replace(/[*#`]/g,''):(b.group?(b.members||[]).length+' bots':'New bot'));
-      var tag=(b.group?'Group':b.tag)+(b.space==='two'?(b.group||b.tag?' · ':'')+'Separate':'');
+      var sn=spaceName(b), tag=(b.group?'Group':b.tag)+(sn?(b.group||b.tag?' · ':'')+sn:'');
       return '<button class="row" data-id="'+b.id+'"><div class="av">'+avatar(b,46)+'</div><div class="rt"><div class="n"><span class="nm">'+esc(b.name)+'</span>'+(tag?'<span class="tag">'+esc(tag)+'</span>':'')+'<time>'+(b.last?ago(b.last.ts):'')+'</time>'+(b.unread&&b.id!==cur?'<i class="udot"></i>':'')+'</div><div class="p'+(bt?' busy':'')+'">'+esc(prev)+'</div></div></button>';
     }).join('')||(term?'<div class="nores">No bots or chats match “'+esc(term)+'”.</div>':'');
   }
@@ -740,7 +741,7 @@ html.light .m.assistant{background:#f0f0f1}
     var ctl=new AbortController(), t=setTimeout(function(){ctl.abort()},6000);
     return api('/api/state',{signal:ctl.signal}).then(function(s){ micReady(!!s.voice); setTheme(s.theme);
       clearTimeout(t); goOnline();
-      bots=s.bots; $('dot').className='dot'; $('macname').textContent='Connected to '+s.mac; showUpdate(s.update); if(!me.version) loadMe();
+      bots=s.bots; spaces=s.spaces||null; $('dot').className='dot'; $('macname').textContent='Connected to '+s.mac; showUpdate(s.update); if(!me.version) loadMe();
       s.bots.forEach(function(b){ if(b.busy) busy[b.id]=Object.assign({seen:(busy[b.id]||{}).seen||Date.now()},b.busy); else delete busy[b.id]; });
       drawList(); if(cur) drawHead();
     }).catch(function(e){

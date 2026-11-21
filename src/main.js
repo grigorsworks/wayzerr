@@ -23,7 +23,9 @@ const { runTurn } = require('./ai');
 const { TYPES, listModels } = require('./providers');
 const { BotBrowser } = require('./browser');
 const { Vault } = require('./vault');
-const { createTeam, spaceOf } = require('./team');
+const { createTeam } = require('./team');
+const spaces = require('./spaces');
+const { spaceOf } = spaces;
 const { startWayzerrMcp } = require('./wayzerr-mcp');
 const aiapps = require('./aiapps');
 const cli = require('./cliagents');
@@ -128,8 +130,19 @@ const providers = () => (store.data.settings.providers ||= []);
 const findProvider = (id) => providers().find((p) => p.id === id);
 
 // Move the single key from older versions into the providers list.
+// Tabs of bots: off unless the user turns them on. 1.3.53 had two fixed tabs ("Main" and "Separate"), kept as they were.
+function spacesCfg() {
+  const st = store.data.settings;
+  if (!st.spaces) {
+    const old = store.data.personas.some((p) => p.space === 'two');
+    st.spaces = { on: old, main: 'Main', tabs: old ? [{ id: 'two', name: 'Separate' }] : [] };
+    store.save();
+  }
+  return st.spaces;
+}
 function migrate() {
   const st = store.data.settings;
+  spaces.setEnabled(spacesCfg().on === true);
   // 1.1.48: one setting for all apps (General → Your apps) replaces the per-app switches.
   if (st.appModes && Object.keys(st.appModes).length) { st.appModes = {}; store.save(); }
   if (!providers().length && store.data.encryptedKey) {
@@ -353,7 +366,7 @@ app.whenReady().then(async () => {
       let ids = (Array.isArray(members) ? members : []).filter((m) => list.some((p) => p.id === m && !p.group));
       const sp0 = spaceOf(list.find((p) => p.id === ids[0])); ids = ids.filter((m) => spaceOf(list.find((p) => p.id === m)) === sp0); // a group never mixes the two spaces
       if (ids.length < 2) throw new Error('Pick at least 2 bots for a group chat.');
-      const g = { id: crypto.randomBytes(4).toString('hex'), created: Date.now(), group: true, ...(sp0 === 'two' ? { space: 'two' } : {}), name: String(name || '').trim().slice(0, 40) || list.filter((p) => ids.includes(p.id)).map((p) => p.name.split(' ')[0]).join(', '), tag: 'Group', members: ids };
+      const g = { id: crypto.randomBytes(4).toString('hex'), created: Date.now(), group: true, ...(sp0 !== 'main' ? { space: sp0 } : {}), name: String(name || '').trim().slice(0, 40) || list.filter((p) => ids.includes(p.id)).map((p) => p.name.split(' ')[0]).join(', '), tag: 'Group', members: ids };
       list.push(g); store.save(); pushState();
       return g.id;
     },
@@ -464,7 +477,7 @@ function publicState() {
     scheduleAwake: store.data.settings.scheduleAwake !== false,
     ready: !!resolveModel(null),
     account: account ? account.state() : { signedIn: false, email: '', flow: null, error: '' },
-    settings: { terms: { version: TERMS_VERSION, accepted: !!(d.settings.terms && d.settings.terms.version === TERMS_VERSION) }, setupSkipped: d.settings.setupSkipped === true, tutorialDone: d.settings.tutorialDone === true, guide: d.settings.guide || null, autoCompact: d.settings.autoCompact === true, computerTarget: d.settings.computerTarget === 'mine' ? 'mine' : 'bot', computerOn: d.settings.computerOn !== false, myComputerName: myComputerName(), myMac: mymac.permissions(), smartCompact: d.settings.smartCompact !== false, leanCodex: d.settings.leanCodex !== false, freshEach: d.settings.freshEach === true, showTokens: d.settings.showTokens !== false, voiceLang: d.settings.voiceLang || '', voiceWords: d.settings.voiceWords || '', phoneUnlocked: d.settings.phoneUnlocked === true, freeImages: d.settings.freeImages !== false, onlineIcons: d.settings.onlineIcons !== false, shareUsage: d.settings.shareUsage !== false, replyLanguage: d.settings.replyLanguage || 'auto', theme: themeOf(), appModes: d.settings.appModes || {}, appsVia: d.settings.appsVia === 'browser' ? 'browser' : 'connector', usageMode: ['low', 'max'].includes(d.settings.usageMode) ? d.settings.usageMode : 'balanced', linkOpen: d.settings.linkOpen || 'ask', userName: d.settings.userName, defaultModel: d.settings.defaultModel || null, defaultEffort: d.settings.defaultEffort || 'default' },
+    settings: { terms: { version: TERMS_VERSION, accepted: !!(d.settings.terms && d.settings.terms.version === TERMS_VERSION) }, setupSkipped: d.settings.setupSkipped === true, tutorialDone: d.settings.tutorialDone === true, spaces: { on: spacesCfg().on === true, main: spacesCfg().main, tabs: spacesCfg().tabs }, guide: d.settings.guide || null, autoCompact: d.settings.autoCompact === true, computerTarget: d.settings.computerTarget === 'mine' ? 'mine' : 'bot', computerOn: d.settings.computerOn !== false, myComputerName: myComputerName(), myMac: mymac.permissions(), smartCompact: d.settings.smartCompact !== false, leanCodex: d.settings.leanCodex !== false, freshEach: d.settings.freshEach === true, showTokens: d.settings.showTokens !== false, voiceLang: d.settings.voiceLang || '', voiceWords: d.settings.voiceWords || '', phoneUnlocked: d.settings.phoneUnlocked === true, freeImages: d.settings.freeImages !== false, onlineIcons: d.settings.onlineIcons !== false, shareUsage: d.settings.shareUsage !== false, replyLanguage: d.settings.replyLanguage || 'auto', theme: themeOf(), appModes: d.settings.appModes || {}, appsVia: d.settings.appsVia === 'browser' ? 'browser' : 'connector', usageMode: ['low', 'max'].includes(d.settings.usageMode) ? d.settings.usageMode : 'balanced', linkOpen: d.settings.linkOpen || 'ask', userName: d.settings.userName, defaultModel: d.settings.defaultModel || null, defaultEffort: d.settings.defaultEffort || 'default' },
     providers: providers().map((p) => ({ id: p.id, type: p.type, name: p.name, baseUrl: p.baseUrl, hasKey: !!p.key, keyPreview: TYPES[p.type]?.account ? p.account || 'Signed in' : maskKey(dec(p.key)), account: !!TYPES[p.type]?.account, models: p.models || [] })),
     providerTypes: TYPES,
     personas: d.personas,
@@ -660,6 +673,22 @@ handle('set-link-open', (mode) => {
   return publicState();
 });
 handle('open-external', (url) => { if (/^https?:\/\//i.test(String(url))) shell.openExternal(String(url)); return true; });
+// Tabs of bots: turn them on or off, add one, rename one, remove one (its bots go back to Main).
+handle('set-spaces', ({ on, add, rename, remove } = {}) => {
+  const c = spacesCfg();
+  const nm = (s, d) => String(s ?? '').trim().slice(0, 24) || d;
+  if (typeof on === 'boolean') c.on = on;
+  if (add !== undefined) {
+    if (c.tabs.length >= 20) throw new Error('20 tabs is the most.');
+    c.tabs.push({ id: crypto.randomBytes(3).toString('hex'), name: nm(add, `Tab ${c.tabs.length + 2}`) });
+  }
+  if (rename && rename.id === 'main') c.main = nm(rename.name, c.main);
+  else if (rename) { const t = c.tabs.find((x) => x.id === rename.id); if (t) t.name = nm(rename.name, t.name); }
+  if (remove) { c.tabs = c.tabs.filter((t) => t.id !== remove); for (const p of store.data.personas) if (p.space === remove) delete p.space; }
+  spaces.setEnabled(c.on === true);
+  store.save(); pushState();
+  return publicState();
+});
 handle('save-profile', ({ shareUsage, voiceLang, voiceWords, userName, replyLanguage, freeImages, onlineIcons, autoCompact, showTokens, freshEach, smartCompact, leanCodex, setupSkipped, tutorialDone, computerTarget, computerOn, myComputerName: myName } = {}) => {
   if (typeof computerOn === 'boolean') store.data.settings.computerOn = computerOn;
   if (computerTarget === 'bot' || computerTarget === 'mine') store.data.settings.computerTarget = computerTarget;
@@ -1309,7 +1338,7 @@ function computerTargetFor(text) {
 }
 handle('mac-permissions', () => mymac.permissions());
 handle('mac-request-access', (which) => mymac.requestAccess(which));
-const computers = new Proxy({}, { get: (_t, k) => (computersInst ||= require('./computer')({ dir: path.join(dataDir(), 'computers'), feedUrl: PKG.updateFeedCloud, sharedDir: sharedFilesDir(), sharedDirFor: (id, two) => (two || spaceOf(store.data.personas.find((p) => p.id === id)) === 'two') ? sharedFilesDir() + ' (Space 2)' : null, log: console.log, onPointer: (p) => { try { if (win && !win.isDestroyed()) win.webContents.send('computer-pointer', p); } catch (_) {} } }))[k] });
+const computers = new Proxy({}, { get: (_t, k) => (computersInst ||= require('./computer')({ dir: path.join(dataDir(), 'computers'), feedUrl: PKG.updateFeedCloud, sharedDir: sharedFilesDir(), sharedDirFor: (id, all) => all ? spacesCfg().tabs.map((t) => sharedFilesDir() + spaces.folderSuffix(t.id)) : (() => { const sp = spaceOf(store.data.personas.find((p) => p.id === id)); return sp === 'main' ? null : sharedFilesDir() + spaces.folderSuffix(sp); })(), log: console.log, onPointer: (p) => { try { if (win && !win.isDestroyed()) win.webContents.send('computer-pointer', p); } catch (_) {} } }))[k] });
 const desktopMode = () => { try { return computers.status().supported; } catch (_) { return false; } };
 handle('account-start', () => account.start());
 handle('account-signin-cancel', () => { account.cancel(); return true; }); // (not 'account-cancel': that name belongs to the AI-provider sign-in below)
@@ -1508,7 +1537,7 @@ function createBot({ name, tag = '', description = '', createdBy, space }) {
   if (!name) throw new Error('Give the new bot a name.');
   const p = { id: crypto.randomBytes(4).toString('hex'), created: Date.now(), name, tag: String(tag || '').trim().slice(0, 30), description: String(description || '').trim().slice(0, 600), character: freshLook() };
   if (createdBy) p.createdBy = createdBy;
-  if (space === 'two') p.space = 'two';
+  if (space && space !== 'main' && spacesCfg().tabs.some((t) => t.id === space)) p.space = space;
   store.data.personas.push(p);
   store.save();
   pushState();
@@ -1747,7 +1776,7 @@ handle('save-group', ({ id, name, members }) => {
   if (ids.length < 2) throw new Error('Pick at least 2 bots for a group chat.');
   let g = id && list.find((p) => p.id === id);
   if (g) Object.assign(g, { name: String(name || g.name).trim() || g.name, members: ids });
-  else { g = { id: crypto.randomBytes(4).toString('hex'), created: Date.now(), group: true, ...(sp0 === 'two' ? { space: 'two' } : {}), name: String(name || '').trim() || list.filter((p) => ids.includes(p.id)).map((p) => p.name.split(' ')[0]).join(', '), tag: 'Group', members: ids }; list.push(g); }
+  else { g = { id: crypto.randomBytes(4).toString('hex'), created: Date.now(), group: true, ...(sp0 !== 'main' ? { space: sp0 } : {}), name: String(name || '').trim() || list.filter((p) => ids.includes(p.id)).map((p) => p.name.split(' ')[0]).join(', '), tag: 'Group', members: ids }; list.push(g); }
   store.data.activePersonaId = g.id;
   store.save();
   return publicState();

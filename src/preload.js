@@ -45,6 +45,7 @@ contextBridge.exposeInMainWorld('wayzerr', {
   setLinkOpen: (m) => invoke('set-link-open', m),
   setTheme: (t) => invoke('set-theme', t),
   setAppsVia: (v) => invoke('set-apps-via', v),
+  setSpaces: (v) => invoke('set-spaces', v),
   setUsageMode: (v) => invoke('set-usage-mode', v),
   setAppMode: (d) => invoke('set-app-mode', d),
   publishState: () => invoke('publish-state'),

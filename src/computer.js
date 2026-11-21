@@ -740,7 +740,7 @@ module.exports = function createComputers({ dir, feedUrl, sharedDir, sharedDirFo
     fs.rmSync(engineDir, { recursive: true, force: true });
     fs.rmSync(diskDir, { recursive: true, force: true });
     fs.rmSync(path.join(dir, 'tls'), { recursive: true, force: true }); tlsCreds = null;
-    for (const d of new Set([sharedDir || path.join(dir, 'shared'), sharedDirFor && sharedDirFor('', true)].filter(Boolean))) fs.rmSync(path.join(d, '.wz'), { recursive: true, force: true }); // only the helper's scratch folder, never the files around it
+    for (const d of new Set([sharedDir || path.join(dir, 'shared'), ...[].concat((sharedDirFor && sharedDirFor('', true)) || [])].filter(Boolean))) fs.rmSync(path.join(d, '.wz'), { recursive: true, force: true }); // only the helper's scratch folder, never the files around it
     agentSeen.clear(); inputs.clear(); shots.clear(); lastUse.clear(); lastPlan = null;
     setup.error = ''; setup.step = ''; setup.done = 0; setup.total = 0;
     return status();

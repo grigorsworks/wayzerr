@@ -81,8 +81,8 @@ function simpleName(args, userText) {
   return { name: name.slice(0, 40), tag };
 }
 
-// Two separate spaces of bots ('main' and 'two'). Bots never see, message, group with or @mention bots of the other space.
-const spaceOf = (p) => (p && p.space === 'two' ? 'two' : 'main');
+// Tabs of bots (see spaces.js). Bots never see, message, group with or @mention bots of another tab.
+const { spaceOf } = require('./spaces');
 
 function createTeam(deps) {
   const find = (key, from) => {
