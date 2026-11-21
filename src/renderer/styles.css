@@ -2406,18 +2406,30 @@ label.f { font-size: 12px; margin: 14px 0 6px; }
 #cmp-boot b { font-size: 16px; } #cmp-boot span { font-size: 13px; opacity: .7; max-width: 420px; }
 
 /* Tabs at the top of the bot list: Main / Separate (two spaces of bots that never talk to each other) */
-.space-tabs { position: relative; display: flex; gap: 2px; margin: 2px 14px 8px; padding: 3px; height: 32px; box-sizing: border-box; border-radius: 3px; background: var(--raised); border: 1px solid var(--line-2); flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
+.space-tabs { position: relative; display: flex; align-items: stretch; gap: 2px; margin: 0 10px 6px; padding: 0 4px; height: 34px; box-sizing: border-box; border-bottom: 1px solid var(--line-2); flex-shrink: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
 .space-tabs[hidden] { display: none; }
 .space-tabs::-webkit-scrollbar { display: none; }
-.space-tabs .st-pill { position: absolute; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 3px; background: var(--bubble-user); box-shadow: 0 1px 2px rgba(0,0,0,.25); pointer-events: none; transition: transform .24s cubic-bezier(.3,.7,.2,1), width .24s cubic-bezier(.3,.7,.2,1), opacity .15s; }
-.space-tabs.noanim .st-pill { transition: none; }
-.space-tabs button { position: relative; z-index: 1; flex: 1 0 auto; max-width: 150px; padding: 0 11px; display: flex; align-items: center; justify-content: center; border-radius: 3px; font-size: 12.5px; font-weight: 500; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .15s; }
-.space-tabs button:hover { color: var(--text); }
-.space-tabs button.on { color: var(--text); }
-.space-tabs button:focus-visible { outline: 2px solid var(--accent, #d97757); outline-offset: -2px; }
-.space-tabs button.st-add { flex: 0 0 auto; padding: 0 9px; font-size: 14px; line-height: 1; }
-.space-tabs .st-edit { width: 9ch; min-width: 6ch; max-width: 140px; font: inherit; color: var(--text); background: transparent; border: 0; outline: 0; padding: 0; text-align: center; }
-#bot-list.swap { animation: botlist-swap .18s ease-out; }
-@keyframes botlist-swap { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .space-tabs .st-pill { transition: none; } #bot-list.swap { animation: none; } }
+.space-tabs .st-line { position: absolute; left: 0; bottom: 0; width: 0; height: 2px; border-radius: 2px 2px 0 0; background: var(--accent); pointer-events: none; will-change: transform, width; transition: transform .28s cubic-bezier(.2,.8,.2,1), width .28s cubic-bezier(.2,.8,.2,1), opacity .15s; }
+.space-tabs.noanim .st-line { transition: none; }
+.space-tabs .st-tab { position: relative; display: flex; align-items: center; flex: 0 0 auto; }
+.space-tabs button { font-size: 12.5px; font-weight: 500; color: var(--text-3, var(--muted)); background: none; border: 0; transition: color .15s, opacity .15s, background .15s; }
+.space-tabs button[data-s] { height: 100%; padding: 0 2px 0 8px; max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.space-tabs button[data-s]:hover, .space-tabs .st-tab:hover button[data-s] { color: var(--text); }
+.space-tabs .st-tab.on button[data-s] { color: var(--text); }
+.space-tabs .st-more { width: 20px; height: 20px; padding: 0; margin-right: 2px; border-radius: 4px; display: grid; place-items: center; opacity: 0; color: var(--text-2); }
+.space-tabs .st-more svg { width: 14px; height: 14px; fill: currentColor; stroke: none; }
+.space-tabs .st-tab.on .st-more, .space-tabs .st-tab:hover .st-more, .space-tabs .st-more:focus-visible { opacity: .75; }
+.space-tabs .st-more:hover { opacity: 1; background: var(--raised); color: var(--text); }
+@media (hover: none) { .space-tabs .st-more { opacity: .75; } }
+.space-tabs button.st-add { flex: 0 0 auto; align-self: center; width: 24px; height: 24px; padding: 0; border-radius: 4px; font-size: 15px; line-height: 1; opacity: .5; display: grid; place-items: center; }
+.space-tabs button.st-add:hover { opacity: 1; background: var(--raised); color: var(--text); }
+.space-tabs button:focus-visible { outline: 2px solid var(--accent, #d97757); outline-offset: -2px; border-radius: 4px; }
+.space-tabs .st-edit { width: 9ch; min-width: 6ch; max-width: 120px; font: inherit; color: var(--text); background: transparent; border: 0; outline: 0; padding: 0; text-align: left; }
+.st-menu { position: fixed; z-index: 400; min-width: 150px; padding: 4px; border-radius: 6px; background: var(--raised); border: 1px solid var(--line-2); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+.st-menu button { display: block; width: 100%; text-align: left; padding: 7px 10px; border-radius: 4px; font-size: 13px; color: var(--text); }
+.st-menu button:hover, .st-menu button:focus-visible { background: var(--bubble-user); outline: 0; }
+.st-menu button.danger { color: #e5645a; }
+#bot-list.swap { animation: botlist-swap .2s ease-out; }
+@keyframes botlist-swap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .space-tabs .st-line { transition: none; } #bot-list.swap { animation: none; } }
 #sidebar.collapsed .space-tabs { display: none; }

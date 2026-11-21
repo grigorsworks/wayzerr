@@ -291,21 +291,32 @@ function renderSpaceTabs() {
   const sig = JSON.stringify(items); // the buttons are only rebuilt when a tab is added, renamed or removed, so the pill can slide
   if (t.dataset.sig !== sig) {
     t.dataset.sig = sig;
-    t.innerHTML = '<i class="st-pill" aria-hidden="true"></i>' + items.map((x) => `<button role="tab" data-s="${esc(x.id)}" title="${esc(x.name)} · double-click to rename${x.id === 'main' ? '' : ', right-click to remove'}">${esc(x.name)}</button>`).join('') + `<button class="st-add" data-add title="New tab" aria-label="New tab">＋</button>`;
+    t.innerHTML = '<i class="st-line" aria-hidden="true"></i>' + items.map((x) => `<span class="st-tab"><button role="tab" data-s="${esc(x.id)}" title="${esc(x.name)} · double-click to rename">${esc(x.name)}</button><button class="st-more" data-more="${esc(x.id)}" aria-label="${esc(x.name)}: rename or delete" aria-haspopup="menu" title="Rename${x.id === 'main' ? '' : ' or delete'} this tab">${icon('more')}</button></span>`).join('') + `<button class="st-add" data-add title="New tab" aria-label="New tab">＋</button>`;
     t.classList.add('noanim');
   }
-  t.querySelectorAll('button[data-s]').forEach((b) => { const o = b.dataset.s === cur; b.classList.toggle('on', o); b.setAttribute('aria-selected', o ? 'true' : 'false'); b.tabIndex = o ? 0 : -1; });
+  t.querySelectorAll('button[data-s]').forEach((b) => { const o = b.dataset.s === cur; b.classList.toggle('on', o); b.parentElement.classList.toggle('on', o); b.setAttribute('aria-selected', o ? 'true' : 'false'); b.tabIndex = o ? 0 : -1; });
   t.querySelector('button.on')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   placePill(t);
 }
 function placePill(t) {
-  const pill = t.querySelector('.st-pill'), b = t.querySelector('button.on'); if (!pill) return;
+  const pill = t.querySelector('.st-line'), b = t.querySelector('.st-tab.on'); if (!pill) return;
   if (!b) { pill.style.opacity = '0'; return; }
   pill.style.opacity = '1'; pill.style.width = b.offsetWidth + 'px'; pill.style.transform = `translateX(${b.offsetLeft}px)`;
   if (t.classList.contains('noanim')) requestAnimationFrame(() => requestAnimationFrame(() => t.classList.remove('noanim'))); // first placement and rebuilds jump into place; only later moves slide
 }
 window.addEventListener('resize', () => { const t = $('#space-tabs'); if (t && !t.hidden) { t.classList.add('noanim'); placePill(t); } });
 function fadeBotList() { const l = $('#bot-list'); if (!l) return; l.classList.remove('swap'); void l.offsetWidth; l.classList.add('swap'); } // a short cross-fade when the tab changes
+function closeTabMenu() { document.querySelector('.st-menu')?.remove(); }
+function openTabMenu(id, anchor) { // the little menu behind a tab's ⋯: Rename, and Delete for every tab but Main
+  closeTabMenu();
+  const m = document.createElement('div'); m.className = 'st-menu'; m.setAttribute('role', 'menu');
+  m.innerHTML = `<button role="menuitem" data-a="rename">Rename</button>${id === 'main' ? '' : '<button role="menuitem" data-a="delete" class="danger">Delete tab…</button>'}`;
+  document.body.appendChild(m);
+  const r = anchor.getBoundingClientRect(); m.style.left = Math.max(8, Math.min(r.left, innerWidth - m.offsetWidth - 8)) + 'px'; m.style.top = (r.bottom + 4) + 'px';
+  m.onclick = (e) => { const b = e.target.closest('button'); if (!b) return; closeTabMenu(); if (b.dataset.a === 'rename') renameTab(id); else removeTab(id); };
+  setTimeout(() => document.addEventListener('mousedown', function h(e) { if (!e.target.closest('.st-menu')) { closeTabMenu(); document.removeEventListener('mousedown', h); } }), 0);
+  m.querySelector('button').focus();
+}
 function renameTab(id) {
   const t = $('#space-tabs'), b = t && [...t.querySelectorAll('button[data-s]')].find((x) => x.dataset.s === id); if (!b) return;
   const old = b.textContent; t.dataset.edit = '1';
@@ -333,7 +344,7 @@ async function addTab() {
 async function removeTab(id) {
   const t = spaceCfg().tabs.find((x) => x.id === id); if (!t) return;
   const n = bots().filter((p) => p.space === id).length;
-  if (!confirm(`Remove the tab “${t.name}”?${n ? ` Its ${n} bot${n > 1 ? 's' : ''} move${n > 1 ? '' : 's'} to ${spaceCfg().main || 'Main'}.` : ''} Its files folder stays on your computer.`)) return;
+  if (!confirm(`Delete the tab “${t.name}”?\n\n${n ? `Its ${n} bot${n > 1 ? 's' : ''} will move to ${spaceCfg().main || 'Main'}. No bots are deleted.` : 'It has no bots in it.'} Its files folder stays on your computer.`)) return;
   try { S = await api.setSpaces({ remove: id }); } catch (e) { return toast(e.message, true); }
   if (curSpace === id) goSpace('main');
   render();
@@ -3008,7 +3019,7 @@ function tabGeneral() {
     </div>
     <div class="section-title">Tabs</div>
     <div class="card simple">
-      <div class="card-row"><div class="grow"><div class="nm">Tabs for your bots</div><div class="ds">Adds tabs above your bots (＋ makes a new one, double-click renames, right-click removes). Bots in different tabs can’t see or talk to each other, and each tab has its own files folder. Turn it off and all your bots show together again.</div></div>
+      <div class="card-row"><div class="grow"><div class="nm">Tabs for your bots</div><div class="ds">Adds tabs above your bots (＋ makes a new one; the ⋯ on a tab renames or deletes it). Bots in different tabs can’t see or talk to each other, and each tab has its own files folder. Turn it off and all your bots show together again.</div></div>
         <label class="switch"><input type="checkbox" id="st-spaces" aria-label="Tabs for your bots" ${spacesOn() ? 'checked' : ''}><span></span></label></div>
     </div>
     <div class="section-title">Account</div>
@@ -4579,6 +4590,7 @@ document.addEventListener('mouseover', (e) => {
 
 document.addEventListener('click', (e) => {
   const b = e.target.closest && e.target.closest('#space-tabs button'); if (!b) return;
+  if (b.dataset.more !== undefined) return openTabMenu(b.dataset.more, b);
   if (b.dataset.add !== undefined) return addTab();
   if (b.dataset.s !== curSp()) setSpace(b.dataset.s);
 });
@@ -4589,7 +4601,8 @@ document.addEventListener('keydown', (e) => { // arrows move between tabs (Home/
   const n = e.key === 'Home' ? all[0] : e.key === 'End' ? all[all.length - 1] : all[(i + (e.key === 'ArrowRight' ? 1 : -1) + all.length) % all.length];
   e.preventDefault(); setSpace(n.dataset.s); n.focus();
 });
-document.addEventListener('contextmenu', (e) => { const b = e.target.closest && e.target.closest('#space-tabs button[data-s]'); if (b && b.dataset.s !== 'main') { e.preventDefault(); removeTab(b.dataset.s); } });
+document.addEventListener('contextmenu', (e) => { const b = e.target.closest && e.target.closest('#space-tabs button[data-s]'); if (b) { e.preventDefault(); openTabMenu(b.dataset.s, b); } });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTabMenu(); });
 (async () => {
   window.Characters.startIdle();
   initChrome();

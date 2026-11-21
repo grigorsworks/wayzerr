@@ -1,4 +1,8 @@
 {
+  "1.3.56": [
+    "The tabs for your bots look lighter and cleaner: plain tabs with a line that slides under the one you're on, and the bot list fades in when you switch.",
+    "Renaming and deleting a tab is easier to find: press the ⋯ on a tab and pick Rename or Delete tab… (the bots in a deleted tab move to Main, none are deleted)."
+  ],
   "1.3.55": [
     "24 new built-in skills your bots can use, like Word, PDF, PowerPoint and Excel files, front-end design, deep research, brainstorming, debugging, code review, writing plans, email writing and translating. Type / in the chat box to pick one. They appear by themselves the next time you open Wayzerr.",
     "The tabs for your bots are smoother: the highlight slides from tab to tab, the bot list fades in when you switch, the bar no longer jumps in size, and you can move between tabs with the arrow keys.",
