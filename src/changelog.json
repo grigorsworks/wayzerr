@@ -1,4 +1,7 @@
 {
+  "1.3.57": [
+    "You can now see how many tokens a chat uses: a small counter sits at the top right of the chat, left of the guide button. It shows how big this chat is and how many tokens your AI has used today. Hover it for the details, click it for the full usage, and turn it off in Settings → General → Show tokens used per chat."
+  ],
   "1.3.56": [
     "The tabs for your bots look lighter and cleaner: plain tabs with a line that slides under the one you're on, and the bot list fades in when you switch.",
     "Renaming and deleting a tab is easier to find: press the ⋯ on a tab and pick Rename or Delete tab… (the bots in a deleted tab move to Main, none are deleted)."

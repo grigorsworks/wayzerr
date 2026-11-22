@@ -1,6 +1,6 @@
 {
   "name": "wayzerr-app",
-  "version": "1.3.56",
+  "version": "1.3.57",
   "description": "Wayzerr — AI bots with their own personalities, memory, browser and tools",
   "main": "src/main.js",
   "author": "Wayzerr",
@@ -35,9 +35,9 @@
       "category": "public.app-category.productivity",
       "target": "dir",
       "extendInfo": {
-        "PersonaNotes": "The tabs for your bots look lighter and cleaner: plain tabs with a line that slides under the one you're on, and the bot list fades in when you switch. | Renaming and deleting a tab is easier to find: press the ⋯ on a tab and pick Rename or Delete tab… (the bots in a deleted tab move to Main, none are deleted).",
+        "PersonaNotes": "You can now see how many tokens a chat uses: a small counter sits at the top right of the chat, left of the guide button. It shows how big this chat is and how many tokens your AI has used today. Hover it for the details, click it for the full usage, and turn it off in Settings → General → Show tokens used per chat.",
         "NSMicrophoneUsageDescription": "Wayzerr uses the microphone when you talk to your bots (speech to text).",
-        "WayzerrNotes": "The tabs for your bots look lighter and cleaner: plain tabs with a line that slides under the one you're on, and the bot list fades in when you switch. | Renaming and deleting a tab is easier to find: press the ⋯ on a tab and pick Rename or Delete tab… (the bots in a deleted tab move to Main, none are deleted).",
+        "WayzerrNotes": "You can now see how many tokens a chat uses: a small counter sits at the top right of the chat, left of the guide button. It shows how big this chat is and how many tokens your AI has used today. Hover it for the details, click it for the full usage, and turn it off in Settings → General → Show tokens used per chat.",
         "NSAppleEventsUsageDescription": "Wayzerr uses System Events to click and type on your Mac, only when you let a bot control it.",
         "NSDownloadsFolderUsageDescription": "Wayzerr saves pictures you choose to download here. It only looks for an update file here when you press Check for updates and the update server cannot be reached.",
         "NSLocalNetworkUsageDescription": "Wayzerr lets your phone connect to this Mac over your Wi-Fi when you switch on Phone.",
@@ -50,7 +50,7 @@
       "hardenedRuntime": false,
       "gatekeeperAssess": false
     },
-    "buildVersion": "202611211807",
+    "buildVersion": "202611221927",
     "dmg": {
       "artifactName": "Wayzerr.dmg",
       "background": "build/dmg-background.tiff",

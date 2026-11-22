@@ -876,7 +876,7 @@ function mountChat(p) {
   $('#main').innerHTML = `
     <div class="chat-head"><div class="head-fade"></div>
       <button class="bot-pill" id="bot-pill"></button>
-      <div class="head-right">${guideBtnHtml()}${p.group ? '' : `<button class="icon-btn ${screenOpen ? 'on' : ''}" id="btn-screen" title="Show screen">${icon('monitor')}</button>`}<button class="icon-btn" id="btn-more" title="More: edit, pin, compact or delete this bot">${icon('more')}</button></div>
+      <div class="head-right"><button class="tok-pill hidden" id="tok-pill" type="button"></button>${guideBtnHtml()}${p.group ? '' : `<button class="icon-btn ${screenOpen ? 'on' : ''}" id="btn-screen" title="Show screen">${icon('monitor')}</button>`}<button class="icon-btn" id="btn-more" title="More: edit, pin, compact or delete this bot">${icon('more')}</button></div>
     </div>
     <div class="messages" id="messages" role="region" aria-label="Conversation" tabindex="0"><div class="msg-col" id="msg-col"></div></div>
     <div class="composer" id="composer"><div class="composer-inner">
@@ -955,6 +955,7 @@ function mountChat(p) {
   $('#file-input').onchange = (e) => { addFiles(p, [...e.target.files]); e.target.value = ''; };
   $('#send').onclick = () => (busy.has(p.id) ? stopBot(p) : send(p));
   $('#bot-pill').onclick = (e) => openProfile(p, e.currentTarget);
+  $('#tok-pill').onclick = () => { const t = tokensToday(p); connTab = t.prov && !t.prov.account ? 'api' : 'cloud'; go('settings', 'connectors'); };
   if ($('#btn-screen')) $('#btn-screen').onclick = () => setScreen(!screenOpen);
   $('#btn-plus').onclick = (e) => openMenu(e.currentTarget, [
     ['image', 'Add photos & files', () => $('#file-input').click()],
@@ -1548,7 +1549,22 @@ function openModelPicker(p, anchor) {
   draw();
 }
 
+// Tokens at the top right of the chat, left of the guide: how big this chat is and what today's count is.
+function updateTokPill(p) {
+  const el = $('#tok-pill');
+  if (!el) return;
+  const c = S.settings.showTokens === true ? chatContext(p) : null;
+  const t = tokensToday(p);
+  if (S.settings.showTokens !== true || (!c && !t.tokens)) { el.classList.add('hidden'); return; }
+  const left = new Date(); left.setHours(24, 0, 0, 0);
+  const h = Math.max(1, Math.round((left - Date.now()) / 3600000));
+  const html = `${icon('cloud')}<span>${c ? `<b>${c.est ? '~' : ''}${fmtN(c.n)}</b> tokens in this chat` : 'Tokens'}</span><span class="tp-day">${c ? '· ' : ''}today ${fmtN(t.tokens)}</span>`;
+  if (el.dataset.k !== html) { el.innerHTML = html; el.dataset.k = html; }
+  el.title = `${c ? `This chat: about ${c.n.toLocaleString('en-US')} tokens held for the AI (it includes the AI’s own built-in instructions and drops when you compact). ` : ''}Today ${t.name} used ${t.tokens.toLocaleString('en-US')} tokens${t.cached ? ` (plus ${fmtN(t.cached)} re-read from cache)` : ''}, counted by Wayzerr. The daily count starts again at midnight (in about ${h} h). Click for the full usage. You can hide this in Settings → General → Show tokens used per chat.`;
+  el.classList.remove('hidden');
+}
 function updateHead(p) {
+  updateTokPill(p);
   const pill = $('#bot-pill');
   if (!pill) return;
   const state = busy.get(p.id)?.activity || null;
