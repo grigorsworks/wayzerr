@@ -2443,3 +2443,11 @@ label.f { font-size: 12px; margin: 14px 0 6px; }
 .tok-pill:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
 @media (max-width: 1100px) { .tok-pill .tp-day { display: none; } }
 @media (max-width: 760px) { .tok-pill { display: none; } }
+
+/* Computer box: only the storage line + buttons (Worker1, 2026-11-24) */
+.cmp-store { margin: 0 0 10px; font-size: 13px; color: var(--muted); }
+.cmp-store b { color: var(--text); font-weight: 600; margin-left: 4px; }
+/* Calendar: a line with the tab name between groups of bots */
+.sd-tabsep { display: flex; align-items: center; gap: 10px; margin: 10px 2px 4px; color: var(--muted); font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+.sd-tabsep::before, .sd-tabsep::after { content: ''; flex: 1; height: 1px; background: var(--line, rgba(127,127,127,.25)); }
+.sd-tabsep span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; }

@@ -37,11 +37,15 @@ const AGENTS = {
     pkg: '@anthropic-ai/claude-code',
     bin: 'claude',
     extra: () => [path.join(HOME(), '.local', 'bin'), path.join(HOME(), '.claude', 'local'), path.join(HOME(), '.claude', 'bin')],
+    // sonnet / opus / fable / haiku always mean Anthropic's newest of each; the 4.5 ones are the generation before.
     models: [
-      { id: 'sonnet', name: 'Claude Sonnet' },
-      { id: 'opus', name: 'Claude Opus' },
-      { id: 'fable', name: 'Claude Fable' },
-      { id: 'haiku', name: 'Claude Haiku' },
+      { id: 'sonnet', name: 'Claude Sonnet', efforts: ['low', 'medium', 'high'] },
+      { id: 'opus', name: 'Claude Opus', efforts: ['low', 'medium', 'high', 'xhigh', 'max'] },
+      { id: 'fable', name: 'Claude Fable', efforts: ['low', 'medium', 'high', 'xhigh', 'max'] },
+      { id: 'haiku', name: 'Claude Haiku (fastest)', efforts: [] },
+      { id: 'claude-opus-4-5', name: 'Claude Opus 4.5', efforts: ['low', 'medium', 'high'] },
+      { id: 'claude-sonnet-4-5', name: 'Claude Sonnet 4.5', efforts: [] },
+      { id: 'claude-haiku-4-5', name: 'Claude Haiku 4.5', efforts: [] },
     ],
   },
   codex: {
@@ -50,8 +54,9 @@ const AGENTS = {
     pkg: '@openai/codex',
     bin: 'codex',
     extra: () => ['/Applications/Codex.app/Contents/Resources', path.join(HOME(), 'Applications', 'Codex.app', 'Contents', 'Resources'), path.join(HOME(), '.codex', 'bin')],
+    // The real list comes from Codex itself (models() below): the models your ChatGPT plan has, with their effort levels.
     models: [
-      { id: 'gpt-5.5', name: 'GPT-5.5' },
+      { id: 'gpt-5.5', name: 'GPT-5.5', efforts: ['low', 'medium', 'high', 'xhigh'] },
     ],
   },
 };
@@ -62,11 +67,18 @@ AGENTS.gemini = {
   pkg: '@google/gemini-cli',
   bin: 'gemini',
   extra: () => [],
+  // Gemini CLI has no effort setting: Gemini decides how long it thinks.
   models: [
-    { id: 'auto', name: 'Gemini Auto' },
-    { id: 'pro', name: 'Gemini Pro' },
-    { id: 'flash', name: 'Gemini Flash' },
-    { id: 'flash-lite', name: 'Gemini Flash-Lite' },
+    { id: 'auto', name: 'Gemini Auto (picks Pro or Flash)', efforts: [] },
+    { id: 'pro', name: 'Gemini Pro', efforts: [] },
+    { id: 'flash', name: 'Gemini Flash', efforts: [] },
+    { id: 'flash-lite', name: 'Gemini Flash-Lite', efforts: [] },
+    { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (preview)', efforts: [] },
+    { id: 'gemini-3-pro-preview', name: 'Gemini 3 Pro (preview)', efforts: [] },
+    { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash (preview)', efforts: [] },
+    { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro', efforts: [] },
+    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', efforts: [] },
+    { id: 'gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash-Lite', efforts: [] },
   ],
 };
 AGENTS.copilot = {
@@ -76,20 +88,20 @@ AGENTS.copilot = {
   pkg: '@github/copilot',
   bin: 'copilot',
   extra: () => [],
-  models: [{ id: 'auto', name: 'Copilot Auto (picks the best model)' }],
+  models: [{ id: 'auto', name: 'Copilot Auto (picks the best model)', efforts: [] }], // the full list is read from Copilot itself
 };
 AGENTS.augment = {
   type: 'augment-account', name: 'Augment', app: 'Auggie', pkg: '@augmentcode/auggie', bin: 'auggie', extra: () => [],
-  models: [{ id: 'default', name: 'Augment (best model)' }],
+  models: [{ id: 'default', name: 'Augment (best model)', efforts: ['low', 'medium', 'high'] }],
 };
 AGENTS.cursor = {
   type: 'cursor-account', name: 'Cursor', app: 'Cursor CLI', bin: 'cursor-agent', installScript: 'curl -fsS https://cursor.com/install | bash',
   extra: () => [path.join(HOME(), '.local', 'bin'), path.join(HOME(), '.cursor', 'bin')],
-  models: [{ id: 'auto', name: 'Cursor Auto' }],
+  models: [{ id: 'auto', name: 'Cursor Auto', efforts: [] }], // the full list is read from Cursor itself
 };
 AGENTS.amp = {
   type: 'amp-account', name: 'Amp', app: 'Amp CLI', pkg: '@ampcode/cli', bin: 'amp', extra: () => [path.join(HOME(), '.local', 'bin'), path.join(HOME(), '.amp', 'bin')],
-  models: [{ id: 'smart', name: 'Amp Smart' }, { id: 'rush', name: 'Amp Rush (faster)' }],
+  models: [{ id: 'smart', name: 'Amp Smart', efforts: [] }, { id: 'rush', name: 'Amp Rush (faster)', efforts: [] }], // Amp picks the models itself
 };
 AGENTS.claude.app = 'Claude Code';
 AGENTS.codex.app = 'Codex';
@@ -216,7 +228,42 @@ async function status(id) {
   return { installed: true, bin, loggedIn: logged, account: logged ? (out.match(/[\w.+-]+@[\w-]+\.[\w.]+/)?.[0] || (/chatgpt/i.test(out) ? 'ChatGPT account' : 'Signed in')) : '' };
 }
 
+// The effort levels a model has. A level it doesn't have becomes the nearest one below it (or none).
+const LEVELS = ['low', 'medium', 'high', 'xhigh', 'max', 'ultra'];
+const modelEntry = (id, model) => (AGENTS[id]?.liveModels || AGENTS[id]?.models || []).find((m) => m.id === model);
+function fitEffort(id, model, effort, known = null) {
+  if (!effort || effort === 'default') return effort;
+  const m = modelEntry(id, model);
+  const has = Array.isArray(known) ? known : m && Array.isArray(m.efforts) ? m.efforts : null;
+  if (!has) return effort; // a model we know nothing about: pass it on, the app says if it can't
+  if (has.includes(effort)) return effort;
+  for (let i = LEVELS.indexOf(effort) - 1; i >= 0; i--) if (has.includes(LEVELS[i])) return LEVELS[i];
+  return has.includes('low') ? 'low' : 'default';
+}
+const prettyModel = (x) => String(x).replace(/^(gpt|o)(\d)/i, (a, b, c) => b.toUpperCase() + '-' + c).replace(/^gpt-/i, 'GPT-').replace(/-/g, ' ').replace(/\b(claude|gemini|sonnet|opus|haiku|fable|flash|pro|mini|codex|max|preview|lite|grok)\b/gi, (w) => w[0].toUpperCase() + w.slice(1)).replace(/^GPT /, 'GPT-');
+
 async function models(id) {
+  const keep = (list) => { if (list && list.length) AGENTS[id].liveModels = list; return list; };
+  if (id === 'copilot' || id === 'cursor') {
+    const bin = findBin(id);
+    if (!bin) return AGENTS[id].models;
+    try {
+      if (id === 'copilot') {
+        // `copilot --help` lists every model it accepts after --model (choices: "…", "…").
+        const r = await run(bin, ['--help'], { timeout: 30000 });
+        const m = /--model[^\n]*[\s\S]{0,600}?\(choices:([^)]*)\)/.exec(r.stdout + '\n' + r.stderr);
+        const ids = m ? [...m[1].matchAll(/"([^"]+)"/g)].map((x) => x[1]) : [];
+        if (ids.length) return keep([AGENTS.copilot.models[0], ...ids.map((x) => ({ id: x, name: prettyModel(x), efforts: /^(gpt-5|o\d)/i.test(x) ? ['low', 'medium', 'high'] : [] }))]);
+      } else {
+        for (const a of [['models'], ['--list-models']]) {
+          const r = await run(bin, a, { timeout: 30000 });
+          const list = [...(r.stdout + '\n' + r.stderr).matchAll(/^\s*([a-z0-9][\w.\-]*)\s+-\s+([^\n]+?)\s*$/gim)].map((x) => ({ id: x[1], name: x[2].replace(/\s*\((current|default)\)\s*$/i, ''), efforts: [] })).filter((x) => x.id !== 'auto');
+          if (list.length) return keep([AGENTS.cursor.models[0], ...list]);
+        }
+      }
+    } catch (_) {}
+    return AGENTS[id].models;
+  }
   if (id !== 'codex') return AGENTS[id].models;
   const bin = findBin(id);
   if (!bin) return AGENTS.codex.models;
@@ -224,7 +271,7 @@ async function models(id) {
   try {
     const j = JSON.parse(r.stdout.slice(r.stdout.indexOf('{')));
     const list = (j.models || []).filter((m) => m.visibility !== 'hide').sort((a, b) => (a.priority ?? 99) - (b.priority ?? 99)).map((m) => ({ id: m.slug, name: m.display_name || m.slug, efforts: (m.supported_reasoning_levels || []).map((x) => x.effort) }));
-    if (list.length) return list;
+    if (list.length) return keep(list);
   } catch (_) {}
   return AGENTS.codex.models;
 }
@@ -336,10 +383,11 @@ function leanFile() {
   fs.writeFileSync(f, LEAN_TEXT);
   return f;
 }
-function ask({ id, model, effort, system, prompt, firstPrompt, mcp, signal, session, botName, sendSystem = true, webSearch = true, quick = false, images = [], partial = true, ephemeral = false, lean = false, onEvent = () => {} }) {
+function ask({ id, model, effort, system, prompt, firstPrompt, mcp, signal, session, botName, sendSystem = true, webSearch = true, quick = false, images = [], partial = true, ephemeral = false, lean = false, compactAt = 0, efforts = null, onEvent = () => {} }) {
   if (effort === 'fast') effort = 'low'; // ⚡ Fast: least thinking
   // Small talk: no tools, no web, least thinking and the quickest model — it answers in a moment.
   if (quick) { effort = 'low'; webSearch = false; if (id === 'claude') model = 'haiku'; }
+  effort = fitEffort(id, model, effort, quick ? null : efforts); // only a level this model has (e.g. Haiku has none, GPT-5.6 Terra goes up to Ultra)
   const bin = findBin(id);
   if (!bin) return Promise.reject(new Error(`${AGENTS[id].name} isn't set up yet. Open the model menu and click Connect.`));
   const node = nodeLaunch();
@@ -431,6 +479,8 @@ function ask({ id, model, effort, system, prompt, firstPrompt, mcp, signal, sess
     if (lean) { args.push('-c', `model_instructions_file=${t(leanFile())}`); for (const x of CODEX_LEAN) args.push('-c', x); }
     if (webSearch) args.push('-c', 'web_search="live"', '-c', 'tools.web_search=true'); // ChatGPT's own web search, like chatgpt.com
     if (effort && effort !== 'default') args.push('-c', `model_reasoning_effort=${t(effort)}`);
+    // Token saver: in one long task (many screenshots or tool steps) Codex folds its own chat once it gets this big.
+    if (compactAt > 0 && !quick) args.push('-c', `model_auto_compact_token_limit=${Math.round(compactAt)}`);
     if (session) args.push(session);
     args.push('-');
     // Resumed chats already have the instructions — only resend them when they changed (faster, fewer tokens).
@@ -439,7 +489,7 @@ function ask({ id, model, effort, system, prompt, firstPrompt, mcp, signal, sess
   return new Promise((resolve, reject) => {
     // Tools can wait for you (sign-in cards, permission questions), so give them time.
     const p = spawnBin(bin, args, { env: connectorEnv({ MCP_TOOL_TIMEOUT: '900000', ...extraEnv }), cwd, stdio: ['pipe', 'pipe', 'pipe'] });
-    let out = '', err = '', result = null, lastText = '', raw = '', thinking = '', usage = null, emitted = '', live = '';
+    let out = '', err = '', result = null, lastText = '', raw = '', thinking = '', usage = null, emitted = '', live = '', steps = 0;
     const emit = (t) => { t = String(t || '').trim(); if (t && t !== emitted) { emitted = t; try { onEvent({ type: 'text', text: t }); } catch (_) {} } };
     const kill = () => { try { p.kill(); } catch (_) {} };
     signal?.addEventListener('abort', kill, { once: true });
@@ -461,6 +511,7 @@ function ask({ id, model, effort, system, prompt, firstPrompt, mcp, signal, sess
             else if (e.type === 'content_block_delta' && e.delta?.type === 'text_delta' && e.delta.text) { live += e.delta.text; try { onEvent({ type: 'stream', text: live }); } catch (_) {} }
           }
           if (ev.type === 'result') result = ev;
+          if (ev.type === 'assistant' && (ev.message?.content || []).some((b) => b.type === 'tool_use')) steps++;
           if (ev.type === 'assistant') for (const b of ev.message?.content || []) { if (b.type === 'text' && b.text) { lastText = b.text; emit(b.text); } if (b.type === 'tool_use' && /^Web(Search|Fetch)$/.test(b.name || '')) { try { onEvent({ type: 'status', activity: 'reading', text: b.name === 'WebSearch' ? `Searching the web${b.input?.query ? ' for “' + String(b.input.query).slice(0, 50) + '”' : ''}` : 'Reading a web page' }); } catch (_) {} } if (b.type === 'thinking' && b.thinking) thinking += (thinking ? '\n\n' : '') + b.thinking; }
         } else {
           const it = ev.item || ev.msg || {};
@@ -468,6 +519,7 @@ function ask({ id, model, effort, system, prompt, firstPrompt, mcp, signal, sess
           if (ev.type === 'error' || ev.type === 'turn.failed') err += (ev.message || ev.error?.message || '') + '\n';
           if (ev.type === 'thread.started' && ev.thread_id) session = ev.thread_id;
           if (ev.type === 'turn.completed' && ev.usage) usage = ev.usage;
+          if (ev.type === 'item.completed' && /tool_call|web_search|command/.test(it.type || '')) steps++; // each tool step is one more model call
           if (/web_search/.test(it.type || '') && /started|completed/.test(ev.type || '')) { try { onEvent({ type: 'status', activity: 'reading', text: `Searching the web${it.query ? ' for “' + String(it.query).slice(0, 50) + '”' : ''}` }); } catch (_) {} }
           if (it.type === 'reasoning' && it.text) thinking += (thinking ? '\n\n' : '') + it.text;
         }
@@ -503,13 +555,13 @@ function ask({ id, model, effort, system, prompt, firstPrompt, mcp, signal, sess
         return reject(new Error(friendly(id, err || text, code)));
       }
       if (id === 'claude') {
-        if (result && !result.is_error) return resolve({ text: result.result || lastText || '…', session: result.session_id || session, thinking, usage: { ...(result.usage || {}), cost: result.total_cost_usd || 0 } });
+        if (result && !result.is_error) return resolve({ text: result.result || lastText || '…', session: result.session_id || session, thinking, steps: result.num_turns || steps, usage: { ...(result.usage || {}), cost: result.total_cost_usd || 0 } });
         const msg = (result?.result || err || '').toString();
         return reject(new Error(friendly(id, msg, code)));
       }
       let text = '';
       try { text = fs.readFileSync(outFile, 'utf8').trim(); fs.rmSync(outFile, { force: true }); } catch (_) {}
-      if (text || lastText) return resolve({ text: text || lastText, session, thinking, usage });
+      if (text || lastText) return resolve({ text: text || lastText, session, thinking, usage, steps });
       reject(new Error(friendly(id, err, code)));
     });
   });
@@ -552,4 +604,4 @@ async function codexImage(prompt, size = 'square') {
   return { buf: fs.readFileSync(f), mime: ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 'image/' + ext };
 }
 
-module.exports = { codexImage, openChatInTerminal, personaDir, loginCommand, AGENTS, byType, findBin, install, status, models, login, sendCode, cancelLogin, loginInTerminal, logout, ask };
+module.exports = { fitEffort, codexImage, openChatInTerminal, personaDir, loginCommand, AGENTS, byType, findBin, install, status, models, login, sendCode, cancelLogin, loginInTerminal, logout, ask };

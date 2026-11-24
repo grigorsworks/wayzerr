@@ -1353,7 +1353,33 @@ function updateModelChip(p) {
   const sel = currentSel(p), prov = sel && S.providers.find((x) => x.id === sel.providerId);
   if (chip) chip.innerHTML = `${prov ? logoFor(prov.type, 'xs') : ''}<span>${esc(modelLabel(sel))}</span>${prov ? (prov.account ? '<span class="tag-acct sm">CLOUD</span>' : '<span class="tag-api sm">API</span>') : ''}${icon('chev')}`;
 }
+// The effort levels a model has: the AI app's own list (Codex, Claude, Gemini…), otherwise a good guess from the model's name.
+const EFFORT_NAMES = [['low', 'Low'], ['medium', 'Medium'], ['high', 'High'], ['xhigh', 'X-High'], ['max', 'Max'], ['ultra', 'Ultra']];
+function effortsOf(prov, modelId) {
+  const m = (prov?.models || []).find((x) => (x.id || x) === modelId);
+  if (m && Array.isArray(m.efforts)) return m.efforts;
+  const id = String(modelId || '');
+  if (/(^|\/)(gpt-5|o[134](-|$))/i.test(id)) return ['low', 'medium', 'high', 'xhigh'];
+  if (/(^|\/)(gpt-4|gpt-3\.5|chatgpt-4o|llama|mistral|mixtral|ministral|gemma|phi|command)/i.test(id)) return [];
+  return ['low', 'medium', 'high'];
+}
+// The level that is really used: a level this model doesn't have becomes the nearest one below it.
+function fitEffortUi(has, e) {
+  if (e === 'fast' || e === 'default' || has.includes(e)) return e;
+  const order = EFFORT_NAMES.map(([k]) => k);
+  for (let i = order.indexOf(e) - 1; i >= 0; i--) if (has.includes(order[i])) return order[i];
+  return 'default';
+}
+function effortRow(prov, modelId, effort) {
+  const has = effortsOf(prov, modelId);
+  const on = fitEffortUi(has, effort);
+  const opts = [['fast', '⚡ Fast'], ['default', 'Default'], ...EFFORT_NAMES.filter(([k]) => has.includes(k))];
+  return `<div class="mp-effort">${opts.map(([e, l]) => `<button class="${on === e ? 'on' : ''}" data-effort="${e}">${l}</button>`).join('')}</div>
+      <div class="mp-hint" style="margin-top:6px">${has.length ? `⚡ Fast = quickest replies. ${esc(modelName(prov, modelId))} can think up to ${EFFORT_NAMES.find(([k]) => k === has[has.length - 1])[1]}.` : `⚡ Fast = quickest replies. ${esc(modelName(prov, modelId))} decides by itself how long it thinks.`}</div>`;
+}
+const modelName = (prov, id) => ((prov?.models || []).find((x) => (x.id || x) === id)?.name || id || 'This model');
 function suggestedModels(prov) {
+  if (prov.account) return prov.models; // the AI apps' lists are short and every model in them is real
   const bad = /(\d{4}-?\d{2}-?\d{2}|preview|exp\b|-exp|audio|tts|search|embed|instruct|vision-|latest$)/i;
   const good = prov.models.filter((m) => !bad.test(m.id));
   return (good.length ? good : prov.models).slice(0, 6);
@@ -1530,8 +1556,7 @@ function openModelPicker(p, anchor) {
       <div class="mp-list">${list.map(row).join('') || '<div class="picker-more">No models found.</div>'}
         ${!q && !showAll && prov.models.length > sug.length ? `<button class="mp-more" id="mp-all">Show all ${prov.models.length} models</button>` : ''}</div>
       <div class="mp-lbl2">Effort</div>
-      <div class="mp-effort">${[['fast', '⚡ Fast'], ['default', 'Default'], ['low', 'Low'], ['medium', 'Medium'], ['high', 'High'], ['xhigh', 'X-High'], ['max', 'Max']].map(([e, l]) => `<button class="${effort === e ? 'on' : ''}" data-effort="${e}">${l}</button>`).join('')}</div>
-      <div class="mp-hint" style="margin-top:6px">⚡ Fast = quickest replies (thinks less). Higher effort thinks longer (only some models support it).</div>`;
+      ${effortRow(prov, sel && sel.providerId === prov.id ? sel.model : prov.models[0]?.id, effort)}`;
     $$('[data-scope]', main).forEach((b) => (b.onclick = () => { scope = b.dataset.scope; draw(); }));
     $$('.mp-m', main).forEach((b) => (b.onclick = async () => {
       const s2 = { providerId: prov.id, model: b.dataset.m };
@@ -2696,7 +2721,7 @@ function renderBrowserState() {
   $(`#${px}-thumb`).classList.toggle('hidden', !st.hasPage || !lastThumb);
   $(`#${px}-progress`).classList.toggle('on', !!st.loading);
   $('#fs-progress').classList.toggle('on', !!st.loading);
-  $('#scr-title').textContent = p ? `${p.name}'s computer` : 'Screen';
+  $('#scr-title').textContent = p ? 'Computer' : 'Screen';
   $(`#${px}-caption`).textContent = st.hasPage ? st.title || 'Loading…' : p ? `${p.name}'s browser` : 'Browser';
   $(`#${px}-sub`).textContent = host || 'Click to open the browser';
   window.renderBrowserBox?.();
@@ -2819,12 +2844,9 @@ function initScreen() {
 // ---------- settings hub (General · Connectors & API keys · Browser & data) ----------
 let settingsTab = 'general';
 function go(v, tab) { view = v; if (tab) settingsTab = tab; if (v !== 'settings') renderSettings.q = ''; closePopover(); render(); }
-// "Schedule" in the sidebar: the Schedule tab of the side panel, next to the current chat.
+// "Schedule" in the sidebar: opens the calendar pop-up straight away (for the bot you are chatting with, or all bots).
 function openSchedule() {
-  if (view !== 'chat') go('chat');
-  setScrTab('schedule');
-  setScreen(true);
-  syncNav();
+  window.openCalendar?.(S.activePersonaId && !(active()?.group) ? S.activePersonaId : undefined);
 }
 // Marks which sidebar shortcut is open (Settings, Apps or Schedule).
 function syncNav() {
@@ -3797,6 +3819,25 @@ document.addEventListener('keydown', (e) => {
   $('#pu-in').onkeydown = (ev) => { if (ev.key === 'Enter') go(); };
 });
 
+// My Mac permissions: macOS sends no event when you switch Wayzerr on, so ask again after Allow (every 1.5 s for a minute)
+// and whenever Wayzerr's window comes back to the front. Redraws Settings -> Computer and the Computer box when it changed.
+let macPermTimer = null;
+async function recheckMacPerms() {
+  if (!S || !S.settings || !(S.settings.myMac && S.settings.myMac.supported)) return false;
+  let p; try { p = await api.macPermissions(); } catch (_) { return false; }
+  if (!p) return false;
+  const done = !!(p.accessibility && p.screen === 'granted');
+  if (JSON.stringify(p) === JSON.stringify(S.settings.myMac)) return done;
+  S.settings.myMac = p;
+  if (view === 'settings' && settingsTab === 'computer') tabComputer();
+  window.computerRedraw?.();
+  return done;
+}
+function watchMacPerms() {
+  clearInterval(macPermTimer); let n = 0;
+  macPermTimer = setInterval(async () => { if (++n > 40 || await recheckMacPerms()) { clearInterval(macPermTimer); macPermTimer = null; } }, 1500);
+}
+addEventListener('focus', () => { recheckMacPerms(); });
 // Which computer the bots' computer tools control: their own (inside Wayzerr) or yours.
 function tabComputer() {
   const draw = () => {
@@ -3827,7 +3868,7 @@ function tabComputer() {
     $('#cm-on').onchange = async (e) => { S = await api.saveProfile({ computerOn: e.target.checked }); draw(); toast(e.target.checked ? 'Bots can use a computer' : 'Bots will not use a computer'); };
     $$('#cm-target button').forEach((b) => (b.onclick = async () => { S = await api.saveProfile({ computerTarget: b.dataset.v }); draw(); toast(b.dataset.v === 'mine' ? `Bots will use ${S.settings.myComputerName || 'My Mac'}, and ask you each time` : 'Bots will use their own computer'); }));
     $('#cm-name').onchange = async (e) => { S = await api.saveProfile({ myComputerName: e.target.value }); draw(); toast('Saved'); };
-    $$('[data-p]').forEach((b) => (b.onclick = async () => { await api.macRequestAccess(b.dataset.p); toast('Switch Wayzerr on in the window that opened, then press Check again'); }));
+    $$('[data-p]').forEach((b) => (b.onclick = async () => { await api.macRequestAccess(b.dataset.p); toast('Switch Wayzerr on in the window that opened. This page updates by itself.'); watchMacPerms(); }));
     const ck = $('#cm-check'); if (ck) ck.onclick = async () => { S = await api.getState(); draw(); };
     $('#cm-open').onclick = () => { go('chat'); setScreen(true); setScrTab('computer'); };
     const dl = $('#cm-dl'); if (dl) dl.onclick = () => { savePref('computerDeclined', false); go('chat'); setScreen(true); setScrTab('computer'); window.computerRedraw?.(); };

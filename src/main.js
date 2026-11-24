@@ -25,6 +25,7 @@ const { BotBrowser } = require('./browser');
 const { Vault } = require('./vault');
 const { createTeam } = require('./team');
 const spaces = require('./spaces');
+const saver = require('./tokensaver');
 const { spaceOf } = spaces;
 const { startWayzerrMcp } = require('./wayzerr-mcp');
 const aiapps = require('./aiapps');
@@ -314,6 +315,16 @@ app.whenReady().then(async () => {
   try { require('./usage').start({ store, version: PKG.version, origin: PKG.accountUrl || new URL(PKG.updateFeedCloud).origin }); } catch (_) {} // anonymous usage count (Settings → Privacy switches it off)
   accountReady = account.probe().catch(() => {});
   setTimeout(() => account.check().catch(() => {}), 4000);
+  // The AI apps' model lists (with each model's effort levels) are read again at every start, so a new model or an
+  // updated list shows up without pressing Refresh. Quiet: if an app can't be asked, its saved list stays.
+  setTimeout(async () => {
+    for (const p of providers()) {
+      const agent = TYPES[p.type]?.account ? TYPES[p.type].agent : null;
+      if (!agent) continue;
+      try { const list = await cli.models(agent); if (Array.isArray(list) && list.length) { p.models = list; store.save(); } } catch (_) {}
+    }
+    pushState();
+  }, 6000);
   // One folder shared by every bot (and by each bot's computer), so there is nothing to choose.
   try {
     fs.mkdirSync(sharedFilesDir(), { recursive: true });
@@ -870,7 +881,7 @@ function packForNote(msgs, cap = 90000) {
 async function askPlain({ llm, system, text, maxOut = 2200, signal }) {
   let out = '', used = 0;
   if (llm.cli) {
-    if (!['claude', 'codex'].includes(llm.cli)) throw new Error('not supported');
+    if (!['claude', 'codex', 'gemini'].includes(llm.cli)) throw new Error('not supported'); // the others fall back to the free shortened note
     const r = await require('./cliagents').ask({ id: llm.cli, model: llm.model, effort: 'low', system, prompt: text, firstPrompt: text, mcp: { url: 'http://127.0.0.1:9', token: 'x' }, quick: true, ephemeral: true, partial: false, lean: store.data.settings.leanCodex !== false, botName: 'Wayzerr', signal });
     out = r.text;
     addUsage(llm.providerId, r.usage || { input: Math.ceil(text.length / 4), output: Math.ceil(String(out).length / 4), estimated: true });
@@ -891,21 +902,29 @@ async function aiNote({ bp, prev, msgs, signal }) {
   return { note: r.text.slice(0, COMPACT_CHARS), used: r.used };
 }
 const compacting = new Map(); // chat id -> { promise, ctl }: a compact that is running after a reply
-async function compactChat(id, { smart = false, signal } = {}) {
+// auto: the token saver did it after a reply that re-read more than the budget of the AI usage mode (peak = what it re-read).
+async function compactChat(id, { smart = false, signal, auto = false, mode = 'balanced', peak = 0 } = {}) {
   const bp = store.data.personas.find((x) => x.id === id);
   const chat = store.data.chats[id] || [];
-  const out = { folded: 0, before: 0, after: 0, used: 0, smart: false };
+  const out = { folded: 0, before: 0, after: 0, used: 0, smart: false, reset: false };
   if (!bp) return out;
   const tok = (s) => Math.ceil(String(s || '').length / 4);
   const convo = chat.filter((x) => x.role === 'user' || x.role === 'assistant');
-  const older = convo.slice(0, Math.max(0, convo.length - COMPACT_KEEP));
+  // The latest messages stay word for word: 12, or (token saver) as many of the last 12 as fit in about a third of the budget.
+  let keep = Math.min(COMPACT_KEEP, convo.length);
+  if (auto) {
+    const cap = saver.budget(mode) * 0.35;
+    let t = 0; keep = 0;
+    while (keep < COMPACT_KEEP && keep < convo.length) { const n = tok(convo[convo.length - 1 - keep].content); if (keep >= 2 && t + n > cap) break; t += n; keep++; }
+  }
+  const older = convo.slice(0, Math.max(0, convo.length - keep));
   const all = (store.data.chatCtx ||= {});
   const keys = bp.group ? (bp.members || []).map((mid) => `${id}:${mid}`) : [id];
   out.before = tok(convo.map((x) => x.content).join(' '));
   for (const key of keys) {
     const st = all[key];
     const fresh = older.filter((x) => (x.ts || 0) > (st?.upTo || 0));
-    if (!fresh.length) continue;
+    if (!fresh.length || (auto && fresh.length < 4)) continue; // the token saver folds a few messages at a time, not one by one
     let summary = null;
     if (smart && !bp.group) { try { const r = await aiNote({ bp, prev: st?.summary, msgs: fresh, signal }); summary = r.note; out.used += r.used; out.smart = true; } catch (_) {} }
     if (!summary) {
@@ -916,10 +935,19 @@ async function compactChat(id, { smart = false, signal } = {}) {
     out.folded = Math.max(out.folded, fresh.length);
     out.after = Math.max(out.after, tok(summary));
   }
-  if (!out.folded) return out;
-  out.after += tok(convo.slice(-COMPACT_KEEP).map((x) => x.content).join(' '));
+  // Token saver: the AI app's own chat (Codex, Claude…) also keeps every screenshot and tool result it saw. When one message
+  // re-read too much, that chat starts again small even if no messages are folded: it gets the note + the latest messages.
+  const turns = Math.max(0, ...Object.entries(bp.cliSessions || {}).filter(([k]) => k.endsWith('#n') && !k.includes('@')).map(([, v]) => +v || 0));
+  if (!out.folded && !(auto && !bp.group && turns >= 2)) return out;
+  out.after += tok(convo.slice(-keep).map((x) => x.content).join(' '));
   resetCloudChats(bp);
-  (store.data.chats[id] ||= []).push({ role: 'activity', content: `Chat compacted: ${out.folded} earlier ${out.folded === 1 ? 'message' : 'messages'} folded into ${out.smart ? 'an AI-written note' : 'a short note'} (about ${out.before.toLocaleString('en-US')} → ${out.after.toLocaleString('en-US')} tokens to re-read). You can still scroll up to read them.`, ts: Date.now(), kind: 'compact', ctx: out.after });
+  if (!out.folded) {
+    out.reset = true;
+    (store.data.chats[id] ||= []).push({ role: 'activity', content: `Saved tokens: the AI app's own copy of this chat had grown to about ${Math.round(peak).toLocaleString('en-US')} tokens per step (everything it looked at, like pages and screenshots), so it starts again small with your latest messages. Nothing here is deleted.`, ts: Date.now(), kind: 'compact', ctx: out.after });
+  } else {
+    const from = auto && peak > out.before ? peak : out.before;
+    (store.data.chats[id] ||= []).push({ role: 'activity', content: `${auto ? 'Saved tokens: ' : 'Chat compacted: '}${out.folded} earlier ${out.folded === 1 ? 'message' : 'messages'} folded into ${out.smart ? 'an AI-written note' : 'a short note'} (about ${Math.round(from).toLocaleString('en-US')} → ${out.after.toLocaleString('en-US')} tokens to re-read). You can still scroll up to read them.`, ts: Date.now(), kind: 'compact', ctx: out.after });
+  }
   store.save();
   return out;
 }
@@ -1490,9 +1518,17 @@ function runBotTurn(persona, text, { attachments, from, depth = 0, chatKey, grou
       // Chats are never shortened behind your back. Only when one message needed more than 400,000 tokens of context
       // is the old part folded away automatically (down to a small note + the latest messages, so it is not repeated
       // every message); otherwise you press Compact.
-      if (store.data.settings.autoCompact === true && turnUse.peak > AUTO_COMPACT_TOKENS && !ctl.signal.aborted && !compacting.has(evId)) {
+      // Token saver (bots on an AI app: Codex, Claude, Gemini…): once one message re-read more than the budget of the
+      // AI usage mode (Low 32k, Balanced 64k, Max 400k tokens per step), the old part is folded into a short AI-written note and the
+      // app's own chat starts again small. On unless "Compact automatically" was turned off. API bots do the same inside
+      // each reply (ai.js: only the newest part of the chat goes word for word, the rest as a summary).
+      const umode = ['low', 'max'].includes(store.data.settings.usageMode) ? store.data.settings.usageMode : 'balanced';
+      // The AI app reports one total for all the steps of a reply, so the size of its chat is that total per step.
+      const perStep = turnUse.peak / Math.max(1, turnUse.steps || 1);
+      const saverOn = !!llm.cli && store.data.settings.autoCompact !== false && perStep > saver.budget(umode);
+      if ((saverOn || (store.data.settings.autoCompact === true && turnUse.peak > AUTO_COMPACT_TOKENS)) && !ctl.signal.aborted && !compacting.has(evId)) {
         const cc = new AbortController();
-        const promise = compactChat(evId, { smart: store.data.settings.smartCompact !== false, signal: cc.signal }).catch(() => {}).finally(() => { compacting.delete(evId); pushState(); });
+        const promise = compactChat(evId, { smart: store.data.settings.smartCompact !== false, signal: cc.signal, auto: saverOn, mode: umode, peak: saverOn ? perStep : turnUse.peak }).catch(() => {}).finally(() => { compacting.delete(evId); pushState(); });
         compacting.set(evId, { promise, ctl: cc });
       }
       return replied;

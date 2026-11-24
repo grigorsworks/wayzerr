@@ -1,6 +1,6 @@
 {
   "name": "wayzerr-app",
-  "version": "1.3.57",
+  "version": "1.3.58",
   "description": "Wayzerr — AI bots with their own personalities, memory, browser and tools",
   "main": "src/main.js",
   "author": "Wayzerr",
@@ -35,9 +35,9 @@
       "category": "public.app-category.productivity",
       "target": "dir",
       "extendInfo": {
-        "PersonaNotes": "You can now see how many tokens a chat uses: a small counter sits at the top right of the chat, left of the guide button. It shows how big this chat is and how many tokens your AI has used today. Hover it for the details, click it for the full usage, and turn it off in Settings → General → Show tokens used per chat.",
+        "PersonaNotes": "A new Wayzerr logo: the bot with round eyes, a smile and soft cheeks. | Bots use far fewer tokens with ChatGPT (Codex), Claude, Gemini and the other AI apps: when a chat gets big, the older part is folded into a short note and the AI starts a fresh, small chat with your latest messages. The same screen or the same long result is never sent twice, and very long results are cut. API bots on Low and Balanced send a short summary of older messages instead of the whole chat. | Bots know every tool they have, including your connected apps, and use them by themselves when they help. | More models to pick from: 7 for Claude and 10 for Gemini, and ChatGPT shows every model your plan has. The effort buttons only show the levels the chosen model really has (GPT-5.6 Terra goes up to Ultra). | Schedule opens the calendar right away, and with tabs on the calendar groups your bots by tab (Main first). | The Computer box is simpler (it shows only the storage it uses), and Mac permissions show as allowed right after you allow them.",
         "NSMicrophoneUsageDescription": "Wayzerr uses the microphone when you talk to your bots (speech to text).",
-        "WayzerrNotes": "You can now see how many tokens a chat uses: a small counter sits at the top right of the chat, left of the guide button. It shows how big this chat is and how many tokens your AI has used today. Hover it for the details, click it for the full usage, and turn it off in Settings → General → Show tokens used per chat.",
+        "WayzerrNotes": "A new Wayzerr logo: the bot with round eyes, a smile and soft cheeks. | Bots use far fewer tokens with ChatGPT (Codex), Claude, Gemini and the other AI apps: when a chat gets big, the older part is folded into a short note and the AI starts a fresh, small chat with your latest messages. The same screen or the same long result is never sent twice, and very long results are cut. API bots on Low and Balanced send a short summary of older messages instead of the whole chat. | Bots know every tool they have, including your connected apps, and use them by themselves when they help. | More models to pick from: 7 for Claude and 10 for Gemini, and ChatGPT shows every model your plan has. The effort buttons only show the levels the chosen model really has (GPT-5.6 Terra goes up to Ultra). | Schedule opens the calendar right away, and with tabs on the calendar groups your bots by tab (Main first). | The Computer box is simpler (it shows only the storage it uses), and Mac permissions show as allowed right after you allow them.",
         "NSAppleEventsUsageDescription": "Wayzerr uses System Events to click and type on your Mac, only when you let a bot control it.",
         "NSDownloadsFolderUsageDescription": "Wayzerr saves pictures you choose to download here. It only looks for an update file here when you press Check for updates and the update server cannot be reached.",
         "NSLocalNetworkUsageDescription": "Wayzerr lets your phone connect to this Mac over your Wi-Fi when you switch on Phone.",
@@ -50,7 +50,7 @@
       "hardenedRuntime": false,
       "gatekeeperAssess": false
     },
-    "buildVersion": "202611221927",
+    "buildVersion": "202611241912",
     "dmg": {
       "artifactName": "Wayzerr.dmg",
       "background": "build/dmg-background.tiff",

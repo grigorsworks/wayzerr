@@ -5,6 +5,7 @@ const { collectTools, getPermission, setPermission } = require('./connectors');
 const { friendlyError } = require('./providers');
 const { buildContext, fitTurn, isContextError, estimateTools } = require('./context');
 const { profile, estimateText } = require('./models');
+const saver = require('./tokensaver');
 const { spaceOf } = require('./spaces');
 const skills = require('./skills');
 const web = require('./web');
@@ -67,6 +68,29 @@ function timeNote(store, persona, text) {
 }
 const isLeader = (p) => /\b(lead|leader|manager|boss|coordinator|captain|chief|head|director|pm)\b/i.test(`${p.name} ${p.tag || ''} ${p.description || ''}`.slice(0, 400));
 // need: null = everything; 'lite' = a quick chat message (no tools); a Set of tool groups = only what this task needs.
+// Every tool the bot has, in plain words, so it knows what it can do even when only some tools are loaded
+// (AI apps like Codex and Claude only see the loaded ones). It stays the same from message to message (cached).
+function toolCatalog(store, persona, group, ctx) {
+  const c = store.data.connectors || {};
+  const linked = [...new Set((store.data.composioLinked || []).map(String))].map((x) => APP_NAMES[x] || x.replace(/^google/, 'Google ').replace(/^\w/, (m) => m.toUpperCase()));
+  const own = (store.data.customServers || []).filter((x) => x.enabled !== false && !x.composio && x.preset !== 'composio').map((x) => x.name).filter(Boolean); // "Your apps" is the door to the linked apps above, not an app
+  const apps = [...linked, ...own];
+  const others = (store.data.personas || []).filter((x) => x.id !== persona.id && !x.group).length;
+  const lines = [
+    'Your tools (all of them are yours; use them on your own whenever they make the answer better, without asking first — only sending, posting, paying or deleting needs the user\'s OK):',
+    '- web: search the web and read pages (built-in web search or web_search / web_read)',
+    !group && browserOn(store) && '- browser: your own web browser: open sites, click, type, fill in forms, sign in (group "browser")',
+    !group && ctx?.desktop && (ctx.computerTarget === 'mine' ? `- computer: ${ctx.myComputerName || 'the user\'s Mac'}: screenshots, clicks, typing, opening apps (group "computer")` : '- computer: your own Linux computer: terminal, downloads, install and test apps, screenshots (group "computer")'),
+    !group && c.logins?.enabled && '- logins: the user\'s saved passwords and payment cards for websites (group "logins")',
+    apps.length ? `- apps: the user's connected apps: ${apps.join(', ')} (group "apps"). For anything about the user's own email, calendar, school, classes, homework, files or accounts, look in the matching app first instead of guessing or asking.` : '- apps: the user can connect Gmail, Calendar, Classroom, Drive, Docs, Slack, Notion and more; offer it with apps_connect when a task needs their data (group "apps")',
+    others ? `- team: the other ${others === 1 ? 'bot' : others + ' bots'}: message them, hand work over, group chats (group "team")` : null,
+    '- images: make pictures, logos and posters (group "images")',
+    '- files and reminders: the shared Wayzerr Files folder, clipboard, notifications, schedules (group "desktop")',
+    '- memory: remember things about the user',
+    'If the tool you need is not in your list right now, call tools_load with its group, then use it. Never say you can\'t do something one of these tools can do.',
+  ];
+  return lines.filter(Boolean).join('\n');
+}
 function buildSystemPrompt(store, persona, group, userText = '', boosted = false, need = null, ctx = null) {
   const s = store.data.settings;
   const lite = need === 'lite';
@@ -102,6 +126,7 @@ function buildSystemPrompt(store, persona, group, userText = '', boosted = false
     !lite && 'Memory: call memory_save for things worth remembering about the user. Never mention memory tools unless asked.',
     // Newest memories here (this part stays the same between messages, so it can be cached); ones that relate to this message are added next to it.
     mems.length ? 'What you remember about the user' + (mems.length > memStable(store, mems).length ? ` (the newest ${memStable(store, mems).length} of ${mems.length}; more that relate to the message may be listed next to it)` : '') + ':\n' + memStable(store, mems).map((m) => `- [${m.id}] ${m.text}`).join('\n') : 'You have no memories about the user yet.',
+    !lite && toolCatalog(store, persona, group, ctx),
     '',
     want('computer') && want('browser') && 'You have both a browser and your own computer. Use the browser for quick web work (reading pages, clicking, forms, signing in). Use the computer when you must download, install, run or test something, or when the browser can\'t do it.',
     want('computer') && (ctx && ctx.computerTarget === 'mine'
@@ -619,7 +644,9 @@ async function runTurn({ store, mcp, ctx, llm, persona, userText, attachments, f
     const built = await buildContext({ store, chatKey: chatKey || persona.id, persona, group, llm, convo, force, toApi, ask: askPlain,
       fixed: estimateText(systemPrompt) + estimateText(note) + toolsTokens + 50,
       // How much of the chat is sent word for word; older parts are folded into a short summary.
-      cap: 0, // the whole chat is sent word for word; it is only shortened when it would not fit the model at all
+      // Token saver: Low and Balanced send only the newest part word for word and fold older messages into a
+      // short summary (written once by the small model, then reused); Max sends the whole chat while it fits.
+      cap: saver.apiCap(mode),
       onStatus: (t) => hooks.onEvent({ type: 'status', activity: 'thinking', text: t }) });
     const summary = built.messages.filter((m) => m.role === 'system').map((m) => m.content).join('\n\n');
     return [{ role: 'system', content: summary ? systemPrompt + '\n\n' + summary : systemPrompt }, ...built.messages.filter((m) => m.role !== 'system'), { role: 'system', content: note }];
@@ -640,6 +667,7 @@ async function runTurn({ store, mcp, ctx, llm, persona, userText, attachments, f
   if (llm.cli) return runAccountTurn({ store, ctx, llm, persona, chat, toolEntries, byName, summaries, finish, hooks, group, say, srcNote, systemPrompt, tools, picked, mode, quickTalk: smallTalk, isJob });
 
   const narrations = new Set();
+  const apiGuard = saver.makeGuard();
   let ctxRetries = 0, continued = 0, carry = '';
   try {
     for (let round = 0; round < MAX_ROUNDS; round++) {
@@ -716,6 +744,7 @@ async function runTurn({ store, mcp, ctx, llm, persona, userText, attachments, f
         } else result = early.has(call) ? early.get(call) : await executeTool({ store, persona, name, args, byName, hooks, ctx });
         { const g = groupOfTool(name, byName.get(name)); if (g !== 'core') used.add(g); }
         if (ctx?.vault && typeof result === 'string') result = ctx.vault.redact(result);
+        result = saver.guardResult(apiGuard, name, result, { mode }); // the same screen twice → one line; huge results cut
         if (result && typeof result === 'object') {
           messages.push({ role: 'tool', tool_call_id: call.id, content: result.text });
           if (result.image) images.push(result.image);
@@ -1019,11 +1048,14 @@ async function runAccountTurn({ store, ctx, llm, persona, chat, toolEntries, byN
   const sent = tools ? (picked && !picked.all ? [...tools, RUN_TOOL] : tools) : allDefs;
   const defs = sent.map((d) => ({ name: d.function.name, description: d.function.description || '', inputSchema: d.function.parameters || { type: 'object', properties: {} } }));
   const loadedNow = new Set();
+  let guard = null; // set below, once it's known which AI-app chat this reply goes to
+  let steps = 0; // tool steps in this reply: the AI app reports one total for all its steps, so this tells how big each one was
   const turn = await ctx.registerTurn({
     tools: defs,
     call: async (name, args) => {
       if (hooks.signal?.aborted) throw new StopError();
       flush();
+      steps++;
       if (name === 'tools_load') {
         const add = (Array.isArray(args?.groups) ? args.groups : [args?.groups]).filter((g) => TOOL_GROUPS.includes(g));
         add.forEach((g) => loadedNow.add(g));
@@ -1042,6 +1074,8 @@ async function runAccountTurn({ store, ctx, llm, persona, chat, toolEntries, byN
       if (ctx?.vault && typeof result === 'string') result = ctx.vault.redact(result);
       const txt = typeof result === 'object' ? result.text : String(result);
       if (!/^(Error|The user did not allow)/.test(txt || '')) summaries.add(d.summary);
+      // Token saver: the AI app keeps every result of its chat, so a repeated screen or result is not sent twice.
+      if (guard) result = saver.guardResult(guard, name, result, { mode, dedupeText: true });
       hooks.onEvent({ type: 'status', activity: 'thinking', text: 'Thinking' });
       return result;
     },
@@ -1054,7 +1088,9 @@ async function runAccountTurn({ store, ctx, llm, persona, chat, toolEntries, byN
   const cst = (store.data.chatCtx || {})[group ? `${ctx?.chatKey}:${persona.id}` : (ctx?.chatKey || persona.id)];
   const since = cst ? convoAll.filter((m) => (m.ts || 0) > cst.upTo) : convoAll;
   const freshEach = store.data.settings.freshEach === true;
-  let hist = [], room = freshEach ? 8000 : 4_000_000; // characters: the whole chat (a new cloud chat starts with all of it)
+  // Characters of the latest messages a new AI-app chat starts with (older ones come as the note + one line each).
+  // Apps that keep no chat of their own (Gemini, Cursor, Amp, Augment) get this with every message, so it stays small.
+  let hist = [], room = freshEach ? 8000 : saver.freshChars(mode);
   for (let i = since.length - 2; i >= 0; i--) { const n = String(since[i].content || '').length + 80; if (n > room) break; room -= n; hist.unshift(since[i]); }
   const older = since.slice(0, Math.max(0, since.length - 1 - hist.length));
   const earlier = [cst?.summary, older.length ? 'Older messages (shortened):\n' + older.map((m) => `- ${m.role === 'user' ? 'User' : 'You'}: ${String(m.content || '').replace(/\s+/g, ' ').slice(0, 160)}`).join('\n').slice(-6000) : ''].filter(Boolean).join('\n\n');
@@ -1099,6 +1135,11 @@ async function runAccountTurn({ store, ctx, llm, persona, chat, toolEntries, byN
     const known = freshEach ? null : (bp?.cliSessions || sessions)[sKey];
     opts.ephemeral = freshEach;
     opts.lean = store.data.settings.leanCodex !== false;
+    // Token saver: Codex also folds its own chat during one long task (many screenshots) once it gets big.
+    opts.compactAt = saver.codexCompact(mode);
+    if (Array.isArray(llm.modelInfo?.efforts)) opts.efforts = llm.modelInfo.efforts; // the levels this model has
+    const guardKey = `${persona.id}|${sKey}`;
+    guard = saver.guardFor(guardKey, known);
     const sysHash = require('crypto').createHash('sha1').update(system.replace(/^Current date and time:.*$/m, '')).digest('hex').slice(0, 12);
     opts.sendSystem = quick && known ? false : !known || (bp?.cliSessions || {})[sKey + '#sys'] !== sysHash;
     if (llm.turnUse) llm.turnUse.sys = opts.sendSystem ? estimateText(system) : 0;
@@ -1111,9 +1152,11 @@ async function runAccountTurn({ store, ctx, llm, persona, chat, toolEntries, byN
       r = await askCli({ ...opts, session: null }); // that chat was deleted — start a new one
     }
     hooks.onEvent({ type: 'stream', text: '' }); // the live text hands over to the saved message
+    if (guard && r.session && !freshEach) guard.sid = r.session; // the next message goes on in the same AI-app chat
     if (!freshEach) saveSession(r.session);
     if (bp && r.session && !freshEach) { const k = sKey + '#n'; bp.cliSessions = { ...(bp.cliSessions || {}), [k]: ((bp.cliSessions || {})[k] || 0) + 1 }; store.save(); }
     if (bp && r.session && opts.sendSystem && !freshEach) { bp.cliSessions = { ...(bp.cliSessions || {}), [sKey + '#sys']: sysHash }; store.save(); }
+    if (llm.turnUse) llm.turnUse.steps = (llm.turnUse.steps || 0) + Math.max(steps, (r.steps || 0)) + 1; // model calls in this reply
     // Copilot, Cursor, Amp and Augment report no numbers: count the message and estimate the tokens from the text.
     llm.onUsage?.(r.usage && (r.usage.input || r.usage.input_tokens || r.usage.output || r.usage.output_tokens) ? r.usage : { input: estimateText(system) + estimateText(opts.firstPrompt || opts.prompt), output: estimateText(r.text), estimated: true });
     let reply = (pending || r.text || '').trim();

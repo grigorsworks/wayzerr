@@ -10,6 +10,15 @@
   const MIN = 60000, DAY = 86400000, HOUR_H = 60;
   const bots = () => (S.personas || []).filter((p) => !p.group);
   const botById = (id) => (S.personas || []).find((p) => p.id === id);
+  // With tabs on, the bots come grouped by tab: Main first, then each tab, each under a line with its name.
+  const groups = () => {
+    const sp = S.settings && S.settings.spaces, all = bots();
+    if (!sp || sp.on !== true || !(sp.tabs || []).length) return [{ label: '', main: '', list: all }];
+    const ids = new Set(sp.tabs.map((t) => t.id)), main = sp.main || 'Main';
+    const out = [{ label: main, main, list: all.filter((b) => !b.space || !ids.has(b.space)) }];
+    for (const t of sp.tabs) { const list = all.filter((b) => b.space === t.id); if (list.length) out.push({ label: t.name || 'Tab', main, list }); }
+    return out;
+  };
   const colorOf = (p) => { try { return charOf(p).color || '#C97BEA'; } catch (_) { return '#C97BEA'; } };
   const list = () => S.schedules || [];
   const sod = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
@@ -153,7 +162,7 @@
         <b>Schedule</b>
         <div class="sd-seg"><button data-a="tab" data-v="calendar" class="${cal ? 'on' : ''}">Calendar</button><button data-a="tab" data-v="logs" class="${cal ? '' : 'on'}">History</button></div>
         <span class="grow"></span>
-        ${bots().length > 1 ? `<select class="sd-sel" data-f="bot" aria-label="Show bot"><option value="all">All bots</option>${bots().map((b) => `<option value="${e_(b.id)}"${ui.bot === b.id ? ' selected' : ''}>${e_(b.name)}</option>`).join('')}</select>` : ''}
+        ${bots().length > 1 ? `<select class="sd-sel" data-f="bot" aria-label="Show bot"><option value="all">All bots</option>${groups().map((g, i, gs) => { const o = g.list.map((b) => `<option value="${e_(b.id)}"${ui.bot === b.id ? ' selected' : ''}>${e_(b.name)}</option>`).join(''); return gs.length > 1 ? `<optgroup label="${e_(g.label || g.main)}">${o}</optgroup>` : o; }).join('')}</select>` : ''}
         <button class="sd-btn pri" data-a="new">New task</button>
         <button class="sd-x" data-a="close" title="Close" aria-label="Close">${ic(ICON.x)}</button>
       </div>
@@ -174,7 +183,7 @@
         <button class="sd-btn pri sd-wide" data-a="quick">Add task</button>
         ${mine.length ? `<div class="sd-next">${mine.map((s) => `<button data-a="edit" data-id="${e_(s.id)}"><b>${e_(s.title)}</b><span>${e_(until(s.next))}</span></button>`).join('')}</div>` : ''}</div>` : ''}
       <div class="sd-sec"><div class="sd-st">Drag a bot onto the calendar</div>
-        <div class="sd-bots">${bots().map((b) => `<div class="sd-bot${b.id === cur ? ' cur' : ''}" draggable="true" data-bot="${e_(b.id)}" title="Drag onto a day or time to give ${e_(b.name)} a task there">${typeof charEl === 'function' ? charEl(b, 32, 'none') : ''}<span>${e_(b.name)}</span></div>`).join('')}</div></div>
+        <div class="sd-bots">${groups().map((g) => (g.label ? `<div class="sd-tabsep" role="separator"><span>${e_(g.label)}</span></div>` : '') + g.list.map((b) => `<div class="sd-bot${b.id === cur ? ' cur' : ''}" draggable="true" data-bot="${e_(b.id)}" title="Drag onto a day or time to give ${e_(b.name)} a task there">${typeof charEl === 'function' ? charEl(b, 32, 'none') : ''}<span>${e_(b.name)}</span></div>`).join('')).join('')}</div></div>
     </aside>`;
   }
   function bar() {

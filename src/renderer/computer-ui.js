@@ -29,7 +29,7 @@
     const b = bot();
     if (!b || b.group) return;
     const name = b.name;
-    $('#scr-title').textContent = `${name}'s computer`;
+    $('#scr-title').textContent = 'Computer';
     const img = $('#scr-thumb'), empty = $('#scr-empty');
     if (st && !st.supported) { // a system without bot computers (an Intel Mac): the browser works as everywhere
       img.classList.add('hidden'); empty.classList.remove('hidden', 'off'); empty.textContent = 'Not available here';
@@ -47,8 +47,8 @@
     empty.textContent = s ? `Getting ${name}'s computer ready… ${pct(s)}%` : st && !installed ? 'No computer yet' : st?.running ? 'Looking at the screen…' : '';
     empty.classList.toggle('off', !st?.running && !s && installed); // switched off: just black
     if (usingMine) { empty.textContent = ''; empty.classList.add('off'); img.classList.add('hidden'); $('#scr-caption').textContent = `Bots are using ${S.settings.myComputerName || 'My Mac'}`; $('#scr-sub').textContent = 'They ask you before each use'; return; }
-    $('#scr-caption').textContent = !installed ? `${name} has no computer yet` : st?.running ? `${name}'s computer is on` : `${name}'s computer is off`;
-    $('#scr-sub').textContent = !installed ? declined() ? 'You can download it later in Settings → Computer' : 'Download it below to give every bot one' : st?.running ? 'Click to open the desktop' : 'Click to turn it on, or it turns on by itself when a bot needs it';
+    $('#scr-caption').textContent = !installed ? `${name} has no computer yet` : '';
+    $('#scr-sub').textContent = !installed ? declined() ? 'You can download it later in Settings → Computer' : 'Download it below to give every bot one' : '';
     $('#scr-live').classList.toggle('hidden', !busy_());
     const prog = $('#scr-progress'); if (prog) prog.classList.toggle('on', !!s || !!working);
   };
@@ -112,12 +112,13 @@
         ${st.needsQemu ? `<p>You will also need the virtual machine program: <code>${esc(st.qemuHint || 'sudo apt install qemu-system-x86 qemu-utils')}</code></p>` : ''}
         <button class="btn sm primary" data-a="install">Download ${esc(total)}</button> <button class="btn sm" data-a="decline">Don't download</button>`;
     }
-    else if (!st.running) body = `<div class="cmp-state off"><i></i>Off</div><p>${esc(b.name)}'s computer is switched off. Press <b>Turn on</b> to start it${st.slow ? ' (this takes a few minutes on this computer)' : ' (about 30 seconds)'}, or just ask ${esc(b.name)} to do something on it: it turns on by itself. It switches off by itself after 10 minutes without use.${st.diskSize ? ` It stores ${mb(st.diskSize)}.` : ''}</p><button class="btn sm primary" data-a="start">Turn on</button>${st.diskSize ? ' <button class="btn sm" data-a="delete">Reset</button>' : ''}`;
-    else body = `<div class="cmp-state on"><i></i>On</div><p>${esc(b.name)}'s computer is on. ${esc(b.name)} can use it, and so can you. Press <b>Turn off</b> when you are done; it also switches off by itself after 10 minutes without use.</p><button class="btn sm primary" data-a="open">Open desktop</button> <button class="btn sm" data-a="stop">Turn off</button>`;
+    else if (!st.running) body = `${st.diskSize ? `<p class="cmp-store">Current storage <b>${mb(st.diskSize)}</b></p>` : ''}<button class="btn sm primary" data-a="start">Turn on</button>${st.diskSize ? ' <button class="btn sm" data-a="delete">Reset</button>' : ''}`;
+    else body = `${st.diskSize ? `<p class="cmp-store">Current storage <b>${mb(st.diskSize)}</b></p>` : ''}<button class="btn sm primary" data-a="open">Open desktop</button> <button class="btn sm" data-a="stop">Turn off</button>`;
     const slowNote = st.slow && st.supported && !st.needsQemu && !/^darwin/.test(st.system || '') && !loadPref('slowNoteOk', false) ? (/^win32/.test(st.system || '')
       ? `<p class="cmp-bad">This PC doesn't let Wayzerr use Windows' own virtualization, so the bot's computer runs in slow mode: it works, but it takes a few minutes to start and feels slow. For full speed, turn on "Windows Hypervisor Platform" (press the Windows key, type "Turn Windows features on or off", tick Windows Hypervisor Platform, then restart) and make sure virtualization is on in the BIOS/UEFI settings.</p>`
       : `<p class="cmp-bad">This computer can't use hardware virtualization (KVM), so the bot's computer runs in slow mode: it works, but it takes a few minutes to start and feels slow. For full speed, turn on virtualization in the BIOS/UEFI settings and add yourself to the kvm group (sudo usermod -aG kvm $USER, then log out and in).</p>`) : '';
-    const html = `<div class="cmp-t">Computer</div>${sw}${body}${slowNote ? slowNote + '<button class="btn sm" data-a="okslow">OK</button>' : ''}<div class="cmp-err" id="cmp-err"></div>`;
+    const plain = st.supported && !working && !s && st.engine && st.base && !st.needsQemu; // on or off: only the storage line and the buttons
+    const html = `${plain ? '' : '<div class="cmp-t">Computer</div>'}${sw}${body}${slowNote ? slowNote + '<button class="btn sm" data-a="okslow">OK</button>' : ''}<div class="cmp-err" id="cmp-err"></div>`;
     if (html !== last) { last = html; box.innerHTML = html; }
   }
 
