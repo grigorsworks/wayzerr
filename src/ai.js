@@ -82,10 +82,11 @@ function toolCatalog(store, persona, group, ctx) {
     !group && browserOn(store) && '- browser: your own web browser: open sites, click, type, fill in forms, sign in (group "browser")',
     !group && ctx?.desktop && (ctx.computerTarget === 'mine' ? `- computer: ${ctx.myComputerName || 'the user\'s Mac'}: screenshots, clicks, typing, opening apps (group "computer")` : '- computer: your own Linux computer: terminal, downloads, install and test apps, screenshots (group "computer")'),
     !group && c.logins?.enabled && '- logins: the user\'s saved passwords and payment cards for websites (group "logins")',
-    apps.length ? `- apps: the user's connected apps: ${apps.join(', ')} (group "apps"). For anything about the user's own email, calendar, school, classes, homework, files or accounts, look in the matching app first instead of guessing or asking.` : '- apps: the user can connect Gmail, Calendar, Classroom, Drive, Docs, Slack, Notion and more; offer it with apps_connect when a task needs their data (group "apps")',
+    apps.length ? `- apps: the user's connected apps: ${apps.join(', ')} (group "apps"). For anything about the user's own email, calendar, school, classes, exams, tests, homework, files or accounts, look in the matching app first (for school: their Google Classroom) instead of guessing or asking them what is there.` : '- apps: the user can connect Gmail, Calendar, Classroom, Drive, Docs, Slack, Notion and more; offer it with apps_connect when a task needs their data (group "apps")',
     others ? `- team: the other ${others === 1 ? 'bot' : others + ' bots'}: message them, hand work over, group chats (group "team")` : null,
     '- images: make pictures, logos and posters (group "images")',
     '- files and reminders: the shared Wayzerr Files folder, clipboard, notifications, schedules (group "desktop")',
+    !group && browserOn(store) && '- files: browser_read_file reads any PDF, Google Doc, Slides, Sheet or Drive/Classroom file as text (with your browser\'s sign-ins)',
     '- memory: remember things about the user',
     'If the tool you need is not in your list right now, call tools_load with its group, then use it. Never say you can\'t do something one of these tools can do.',
   ];
@@ -148,6 +149,8 @@ function buildSystemPrompt(store, persona, group, userText = '', boosted = false
       ? 'Paying: cards_list → browser_read the checkout → cards_fill with the field ids (you never see the number; the user approves each use). Never type card numbers or ask for them. Ask the user before the final Pay/Buy button.\nLogging in: logins_list; if one fits, browser_read and logins_fill (you never see passwords); if none fits, say "Can you log me in? I don\'t have a saved login for <site>." and call logins_request with the field ids. Never ask for passwords in chat.'
       : null,
     !lite && !group && 'If a search or page fetch fails or finds nothing, or the task is to open a website, download, install, run or test something, do NOT give up and do NOT guess: load your computer or browser with tools_load and do it there. If one way fails, try the other. Never say you are using your computer or browser unless you really called its tools in this reply; if you did not, say plainly what you did instead.',
+    !lite && 'Before you answer, think: how can I actually do this with my tools (the user\'s apps, my browser, files, my computer)? Then do it. Ask the user something only when no tool can find it out (for example how they feel or what they prefer) — never ask what is in their Classroom, email or files when you can look.',
+    !lite && 'Found a PDF, document, study guide or attachment? Read it yourself with browser_read_file (give its link) and use what it says. Never ask the user to open, download, paste or send you a file you can reach; the only thing you may ask for is a sign-in, and then you try again.',
     !lite && 'Never give up early. A tool that fails, is blocked, times out or returns nothing means try another way, not report back. Work through these before you say you cannot: (1) retry once; (2) switch tool (web_read, browser_open, browser_search, a search); (3) when you cannot read a page as text, take a browser_screenshot and read the picture; (4) change the address (with or without www, https, the page\'s saved copy on web.archive.org, other pages that quote it, a search for its exact words); (5) for files, apps or anything to run, use your computer or files_run. Only after at least three different approaches have failed may you tell the user, in one or two lines: what you tried and the one thing you need from them. Never answer "send me a screenshot" or "paste the text" as your first or second move.',
     !lite && 'Finish the whole task in one go: do every step yourself, then reply with what you did. Don\'t stop halfway to report, ask "shall I continue?" or ask for things you can do. Stop early only if you truly need the user (a login, a payment, a real choice).',
     !lite && 'Research fast: your built-in web search if you have one, otherwise web_search with several queries in ONE call, then web_read the best links (up to 20 at once). Never use the browser just to read.',
@@ -418,6 +421,7 @@ function toApiHistory(msgs, selfId, prof) {
 // The bot can always load more with tools_load (the full list never changes, so nothing is lost).
 const TOOL_GROUPS = ['browser', 'computer', 'logins', 'apps', 'team', 'images', 'desktop'];
 function groupOfTool(name, entry) {
+  if (name === 'browser_read_file') return 'core'; // reading a PDF or document a bot found is always at hand
   if (entry) {
     const k = String(entry.connectorKey || '');
     if (k === 'schedule') return 'core'; // always at hand: a bot can schedule things whenever the user says when
@@ -806,7 +810,7 @@ const WEB_ASK = /\b(buy|order|purchase|pay for|checkout|check out|add to (the )?
 const CURRENT_ASK = /\b(latest|newest|news|headlines?|today|tonight|yesterday|this (week|month|year|morning|weekend)|right now|currently|at the moment|live|score|scores|results?|weather|forecast|price|prices|cost|stock|exchange rate|trending|who won|election|released?|recent(ly)?|update|new (album|song|movie|film|episode|season|iphone|model|version))\b|\b20[2-3]\d\b|\b(noticias|hoy|tiempo|precio|новости|сегодня|погода|цена)\b/i;
 // What each app is about, and where it lives — so "check my homework" opens Classroom when it can't be connected.
 const APP_TOPICS = {
-  googleclassroom: /homework|assignment|coursework|class(es|work|room)?\b|school|teacher|lesson|due\b|grades?\b|tarea|deberes|домашн/i,
+  googleclassroom: /homework|assignment|coursework|class(es|work|room)?\b|school|teacher|lesson|due\b|grades?\b|exams?\b|quiz\w*|study ?guide|revision|revise|midterms?|(class|school|unit|spanish|math\w*|science|history|english|french|german|physics|chemistry|biology) test|syllabus|examen|prueba|tarea|deberes|домашн|экзамен/i,
   gmail: /e-?mails?\b|inbox|\bmail\b/i, outlook: /e-?mails?\b|inbox|\bmail\b|outlook/i,
   googlecalendar: /calendar|schedule|event|meeting|appointment/i,
   googledrive: /\bdrive\b|my files/i, googledocs: /\bdocs?\b|document/i, googlesheets: /sheets?\b|spreadsheet/i,
@@ -1110,7 +1114,7 @@ async function runAccountTurn({ store, ctx, llm, persona, chat, toolEntries, byN
   const fresh = (earlier ? `<earlier_in_this_conversation>\n${earlier}\n</earlier_in_this_conversation>\n\n` : '') + (hist.length ? `<conversation_so_far>\n${hist.map(line).join('\n\n')}\n</conversation_so_far>\n\n` : '') + `${last ? line(last) : ''}\n\nReply as ${persona.name}. Use your tools (they start with mcp__wayzerr or persona) when they help.`;
   let next = last ? line(last) : '';
   const tnote = timeNote(store, persona, ctx?.userText || '');
-  const fresh2 = (srcNote ? fresh + '\n\n' + srcNote : fresh) + '\n\n(' + tnote + ')';
+  const fresh2 = (srcNote ? fresh + '\n\n' + srcNote : fresh) + '\n\n(' + tnote + ' Answer in the language the user wrote their last message in, even if a file, page or the subject is in another language.)';
   if (group) { // everything said in the group since this bot last spoke
     const all = chat.filter((m) => m.role === 'user' || m.role === 'assistant');
     let i = all.length - 1; while (i >= 0 && !(all[i].role === 'assistant' && all[i].bot === persona.id)) i--;
@@ -1118,7 +1122,8 @@ async function runAccountTurn({ store, ctx, llm, persona, chat, toolEntries, byN
     if (since.length) next = since.map(line).join("\n\n") + `\n\nWrite ${persona.name}'s next message in the group "${group.name}" — just the message text, short, no name in front.`;
   }
   if (srcNote) next += '\n\n' + srcNote;
-  next += '\n\n(' + tnote + ')'; // the clock goes with the message, so the instructions stay the same (cached)
+  const langNote = 'Answer in the language the user wrote this message in, even if a file, page or the subject is in another language.';
+  next += '\n\n(' + tnote + ' ' + langNote + ')'; // the clock goes with the message, so the instructions stay the same (cached)
   const system = (systemPrompt || buildSystemPrompt(store, persona, group)) + `\n\nYou are running inside the Wayzerr app. Your only tools are the Wayzerr tools provided over MCP (browser, memory, team, saved logins, connectors). Do not try to read or edit files or run shell commands.`;
   hooks.onEvent({ type: 'status', activity: 'thinking', text: 'Thinking' });
   // Each bot is one chat in the "Wayzerr" folder of Claude Code / Codex; keep using the same one.

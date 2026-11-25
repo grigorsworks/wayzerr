@@ -1,4 +1,9 @@
 {
+  "1.3.60": [
+    "Bots read PDFs, Google Docs, Slides, Sheets and Drive files by themselves, including the ones in your Google Classroom, instead of asking you to open or paste them.",
+    "Bots work out how to do a job with their tools before asking you anything. For an exam, quiz or study guide they look in your Classroom first.",
+    "Bots answer in the language you wrote in, even when a file or the subject is in another language."
+  ],
   "1.3.59": [
     "The new Wayzerr logo, now with the bot's pill eyes, a bigger smile and soft cheeks.",
     "Bots use far fewer tokens with ChatGPT (Codex), Claude, Gemini and the other AI apps: when a chat gets big, the older part is folded into a short note and the AI starts a fresh, small chat with your latest messages. The same screen or the same long result is never sent twice, and very long results are cut. API bots on Low and Balanced send a short summary of older messages instead of the whole chat.",

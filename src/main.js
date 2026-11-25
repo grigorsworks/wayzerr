@@ -300,6 +300,7 @@ function recoverOldData() {
   if (added) setTimeout(() => { try { dialog.showMessageBox({ type: 'info', message: 'Wayzerr found chats that were left in the old folder', detail: `${added} missing ${added === 1 ? 'item' : 'items'} (messages, bots or memories) were put back.` }).catch(() => {}); } catch (_) {} }, 2500);
 }
 app.whenReady().then(async () => {
+  require('./pdftext').setWindow(() => win); // bots read PDFs they find with the app's own PDF reader
   store = new Store(process.env.WAYZERR_DATA_DIR || app.getPath('userData'));
   try { dropRemovedProviders(); } catch (_) {}
   if (store.offer) setTimeout(async () => { try {

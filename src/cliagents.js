@@ -372,7 +372,7 @@ function personaDir() {
   return d;
 }
 
-const CODEX_QUICK_OFF = ['apps', 'browser_use', 'browser_use_external', 'browser_use_full_cdp_access', 'computer_use', 'goals', 'image_generation', 'in_app_browser', 'multi_agent', 'plugins', 'skill_search', 'sleep_tool', 'tool_suggest', 'hooks', 'view_image', 'personality'];
+const CODEX_QUICK_OFF = ['apps', 'browser_use', 'browser_use_external', 'browser_use_full_cdp_access', 'computer_use', 'goals', 'image_generation', 'in_app_browser', 'multi_agent', 'plugins', 'skill_search', 'sleep_tool', 'tool_suggest', 'hooks', 'view_image', 'personality']; // (code_mode_host must stay on: newer Codex models call every tool through it)
 // Codex ships ~10k tokens of its own coding instructions and tool lists that Wayzerr never uses (its tools come over MCP).
 // "Lean" replaces them with a few lines: a hello goes from about 13k tokens to about 4k.
 const LEAN_TEXT = "You are the assistant inside the Wayzerr app. The user's message begins with an <instructions> block (who you are and how to answer): follow it. Use only the tools you are given (they come from Wayzerr over MCP, plus web search if offered). Never run shell commands or read or edit files. Answer in the user's language and in the style asked for.\n";

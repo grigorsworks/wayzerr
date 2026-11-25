@@ -82,7 +82,7 @@ async function readOne(url, find, each) {
   try {
     const r = await get(u, { timeout: 12000 });
     if (!r.ok) return { url: u, error: `the site answered ${r.status}` };
-    if (/pdf/i.test(r.type)) return { url: u, error: 'this is a PDF — open it with browser_open to read it' };
+    if (/pdf/i.test(r.type)) return { url: u, error: 'this is a PDF: read it with browser_read_file (give this link)' };
     if (!/html|text|xml|json/i.test(r.type)) return { url: u, error: `not a web page (${r.type || 'unknown type'})` };
     const { title, text } = /html|xml/i.test(r.type) ? pageText(r.body) : { title: '', text: r.body };
     if (text.length < 200) return { url: r.url, title, error: 'almost no text (the page probably needs a real browser: use browser_open)' };

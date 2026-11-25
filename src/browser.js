@@ -311,6 +311,57 @@ class BotBrowser {
     return wc.executeJavaScript(SNAPSHOT_JS, true);
   }
 
+  // A file as text: a PDF, a Google Doc / Slides / Sheet or a Drive file, fetched with this browser's sign-ins (so files in
+  // the user's Classroom or Drive work once the user is signed in to Google here). No address = the file open right now.
+  async readFile(url, part = 1, find) {
+    let u = String(url || (this.view && !this.view.webContents.isDestroyed() ? this.view.webContents.getURL() : '') || '').trim();
+    if (!/^https?:\/\//i.test(u)) u = u ? normalizeUrl(u) : '';
+    if (!/^https?:\/\//i.test(u)) throw new Error('give the address of the file (a PDF link, or a Google Drive, Docs, Slides or Sheets link), or open it in the browser first');
+    const key = u + '|' + (find || '');
+    if (!this.fileCache || this.fileCache.url !== u) {
+      const ses = session.fromPartition('persist:persona-browser');
+      let src = u, kind = '';
+      const id = (re) => (u.match(re) || [])[1];
+      const doc = id(/docs\.google\.com\/document\/(?:u\/\d+\/)?d\/([\w-]{10,})/), sl = id(/docs\.google\.com\/presentation\/(?:u\/\d+\/)?d\/([\w-]{10,})/), sh = id(/docs\.google\.com\/spreadsheets\/(?:u\/\d+\/)?d\/([\w-]{10,})/);
+      const drv = id(/drive\.google\.com\/(?:file\/(?:u\/\d+\/)?d\/|open\?id=|uc\?(?:[^#]*&)?id=)([\w-]{10,})/);
+      if (doc) { src = `https://docs.google.com/document/d/${doc}/export?format=txt`; kind = 'Google Doc'; }
+      else if (sl) { src = `https://docs.google.com/presentation/d/${sl}/export/txt`; kind = 'Google Slides'; }
+      else if (sh) { src = `https://docs.google.com/spreadsheets/d/${sh}/export?format=csv`; kind = 'Google Sheet (first tab, as CSV)'; }
+      else if (drv) { src = `https://drive.google.com/uc?export=download&id=${drv}`; kind = 'Drive file'; }
+      let res;
+      try { res = await ses.fetch(src, { redirect: 'follow' }); } catch (e) { throw new Error('could not download it (' + e.message + ')'); }
+      const type = String(res.headers.get('content-type') || '').toLowerCase();
+      const buf = Buffer.from(await res.arrayBuffer());
+      const isPdf = /pdf/.test(type) || buf.slice(0, 5).toString() === '%PDF-';
+      let text = '', image = null;
+      if (res.status === 401 || res.status === 403 || (/html/.test(type) && /accounts\.google\.com|ServiceLogin|signin/i.test(res.url + buf.slice(0, 4000).toString()))) {
+        throw new Error(`the file needs a sign-in. Open ${u} with browser_open; if a sign-in page shows, ask the user to sign in on the Screen, then call browser_read_file again`);
+      } else if (isPdf) {
+        const r = await require('./pdftext').pdfText(buf, u.split('/').pop() || 'file.pdf');
+        text = r.text; if (r.scanned && r.image) image = r.image;
+        if (r.scanned) text += '\n\n(This PDF is mostly pictures, so there is little text; the first page is attached as a picture. Use browser_open + browser_screenshot to see more pages.)';
+      } else if (/^text\/|json|csv|xml/.test(type) || kind) {
+        text = buf.toString('utf8');
+        if (/html/.test(type)) text = text.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n\n');
+      } else {
+        throw new Error(`this is a ${type || 'file'} that can't be read as text here. Open it in Google Docs or Drive (browser_open) and read it there, or open it with your computer`);
+      }
+      this.fileCache = { url: u, text: `(${kind || (isPdf ? 'PDF' : 'File')}: ${u})\n${text.trim()}`, image };
+    }
+    const all = this.fileCache.text;
+    if (find) {
+      const words = String(find).toLowerCase().split(/\s+/).filter((w) => w.length > 2);
+      const paras = all.split(/\n+/).map((x) => x.trim()).filter(Boolean);
+      const hits = paras.map((x, i) => ({ i, n: words.filter((w) => x.toLowerCase().includes(w)).length })).filter((h) => h.n).sort((a, b) => b.n - a.n).slice(0, 15).sort((a, b) => a.i - b.i);
+      return `--- Parts of the file about "${find}" ---\n` + (hits.map((h) => paras[h.i].slice(0, 800)).join('\n…\n') || '(no text matches; read it without find)');
+    }
+    const parts = Math.max(1, Math.ceil(all.length / MAX_TEXT));
+    part = Math.min(Math.max(1, Number(part) || 1), parts);
+    let text = all.slice((part - 1) * MAX_TEXT, part * MAX_TEXT);
+    if (parts > 1) text = `(File text part ${part} of ${parts}${part < parts ? ` — call browser_read_file with part ${part + 1} for the rest` : ' — the end'})\n` + text;
+    return part === 1 && this.fileCache.image ? { text, image: this.fileCache.image } : text;
+  }
+
   async readPage(part = 1, find) {
     const s = await this.snapshot();
     // Only the parts about these words (much shorter than the whole page).
@@ -711,9 +762,15 @@ class BotBrowser {
       case 'browser_open':
         await this.load(normalizeUrl(args.url));
         return this.readPage();
-      case 'browser_read':
+      case 'browser_read_file':
+        return this.readFile(args.url, args.part, args.find);
+      case 'browser_read': {
         this.need();
+        // A PDF open in the browser shows in a viewer that has no page text: read the file itself instead.
+        const cur = this.view.webContents.getURL();
+        if (/\.pdf($|[?#])/i.test(cur) || /^https:\/\/drive\.google\.com\/file\//.test(cur)) { try { return await this.readFile(cur, args.part, args.find); } catch (_) {} }
         return this.readPage(args.part, args.find);
+      }
       case 'browser_click':
         this.need();
         if (args.id == null && args.text) {
@@ -792,6 +849,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const BROWSER_TOOLS = [
   ['browser_search', 'Search the web in your browser. Returns the results page (titles, snippets, links with ids).', { query: { type: 'string' } }, ['query']],
   ['browser_open', 'Open a web page (URL) in your browser and return its text and interactive elements.', { url: { type: 'string' } }, ['url']],
+  ['browser_read_file', 'Read a file as text: a PDF, a Google Doc, Slides or Sheet, or a Google Drive file (also the ones in Google Classroom). It uses your browser\'s sign-ins. url = the file\'s link (from a page, Classroom or an app); no url = the file open in your browser now. find = only the parts about these words; long files come in parts (part: 2, 3…). Use this whenever you find a PDF or document; never ask the user to open, download or paste it.', { url: { type: 'string' }, find: { type: 'string' }, part: { type: 'integer' } }, []],
   ['browser_read', 'Read the page: text + numbered buttons/links/fields. find = only the parts about these words (cheaper). Long pages come in parts (part: 2, 3…).', { find: { type: 'string' }, part: { type: 'integer' } }, []],
   ['browser_click', 'Click by [id] or by the words on it (text: "Insert", "Share"). clicks: 2 = double-click, 3 = triple-click.', { id: { type: 'integer' }, text: { type: 'string' }, clicks: { type: 'integer' }, nth: { type: 'integer', description: 'if the words appear more than once, which one (1 = first)' } }, []],
   ['browser_select_text', 'Highlight exact words (in pages, docs, slides, fields). Then browser_type (no id) replaces them or browser_key Delete removes them.', { text: { type: 'string' }, nth: { type: 'integer' } }, ['text']],
